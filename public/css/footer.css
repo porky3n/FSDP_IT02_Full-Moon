@@ -1,0 +1,82 @@
+/* Footer Styling */
+.footer {
+    font-family: 'Inter', sans-serif;
+}
+
+.footer .bg-primary {
+    background-color: #2f3e50 !important; /* Dark blue background for the top section */
+}
+
+.footer h5 {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.footer p {
+    font-size: 1rem;
+}
+
+/* Custom Button Styling for Speak With Our Friendly Team */
+.custom-btn {
+    color: #2f3e50; /* Same blue as the footer background */
+    border-color: #2f3e50;
+}
+
+.custom-btn:hover {
+    color: white; /* White text on hover */
+    background-color: #2f3e50;
+}
+
+/* Bottom Section */
+.footer .bg-white {
+    background-color: #ffffff !important;
+}
+
+.footer a {
+    text-decoration: none;
+    color: #333;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+    color: #3d5b7a;
+}
+
+/* Social Icons with Custom Images */
+.footer .social-icon {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    margin: 0 10px;
+    background-color: #2f3e50; /* Dark blue for icon background */
+    border-radius: 50%; /* Circular shape */
+    text-align: center;
+    overflow: hidden;
+    transition: background-color 0.3s;
+}
+
+.footer .social-icon img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover; /* Ensures the image fills the circle */
+}
+
+.footer .social-icon:hover {
+    background-color: #007bff; /* Change background color on hover */
+}
+
+/* Logo size in the footer */
+.footer img {
+    max-height: 70px; /* Increased logo size */
+}
+
+/* Spacing for better alignment */
+.mb-4 {
+    margin-bottom: 1.5rem !important;
+}
+
+.mb-3 {
+    margin-bottom: 1rem !important;
+}
