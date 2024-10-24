@@ -319,3 +319,51 @@
   color: #242565;
 }
 
+/* search bar and filter dropdown */
+.search-bar .form-control,
+.sort-dropdown .form-select { /* Changed .form-control to .form-select for dropdown */
+    border-radius: 100px; /* Adjust the radius as needed */
+}
+
+.search-icon-img {
+  width: 16px; /* Adjust the width as needed */
+  height: 16px; /* Adjust the height as needed */
+  display: block;
+}
+
+.input-group {
+  overflow: hidden; /* Ensures the icon doesn't cut off the border */
+  border-radius: 15px; /* Match the border radius */
+}
+
+.input-group-text { /* No need for .input-group-prepend in Bootstrap 5 */
+  background-color: #fff; /* Match the background color of the input */
+  border: 1px solid #ced4da; /* Ensure border color matches the input */
+  border-right: none; /* Blend seamlessly with the input */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px; /* Add padding for spacing */
+  border-top-left-radius: 15px; /* Match the border radius */
+  border-bottom-left-radius: 15px; /* Match the border radius */
+}
+
+.input-group .form-control { /* The form control still exists in input groups */
+  border: 1px solid #ced4da; /* Add border color to match */
+  border-left: none; /* Remove left border of the input to blend with the icon */
+  border-top-right-radius: 15px; /* Match the border radius */
+  border-bottom-right-radius: 15px; /* Match the border radius */
+  padding-left: 0; /* Remove extra padding to align with icon */
+}
+
+.button-containers button {
+  border-radius: 100px; /* Adjust the radius as needed */
+}
+
+.search-filter {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem; /* Adjust the gap size as needed */
+}
+
