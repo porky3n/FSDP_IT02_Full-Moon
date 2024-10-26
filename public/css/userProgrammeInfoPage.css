@@ -62,17 +62,6 @@
     border-radius: 15px;
 }
 
-
-.programme-fees .card {
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
-    border-radius: 8px;
-}
-
-.programme-fees .card:hover {
-    transform: scale(1.05);
-}
-
 /* Base styles */
 .about-section {
     padding: 2rem;
@@ -359,7 +348,104 @@
 }
 
 
+/* programe info */
+/* Programme Fees Card Styles */
+.programme-fees .card {
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    border-radius: 8px;
+    padding: 20px;
+    border: none;
+}
 
+.programme-fees .card:hover {
+    transform: scale(1.05);
+}
+
+/* Align card content to the start */
+.programme-fees .card-body {
+    text-align: left;
+}
+
+/* List item styles with icon */
+.programme-fees ul {
+    padding: 0;
+    list-style: none;
+}
+
+.programme-fees li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Checklist icon style */
+.check-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 0.5rem;
+}
+
+/* Card Background Colors */
+.card-1 {
+    background-color: #d7e9f7;
+}
+
+.card-2 {
+    background-color: #fef6c7;
+}
+
+
+
+/* Price and Button Styling */
+.programme-fees h3 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.programme-fees .old-price {
+    color: #999;
+    font-size: 1rem;
+}
+
+.programme-fees p {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.programme-fees li {
+    color: #333;
+}
+
+.programme-fees .btn {
+    width: 100%;
+    margin: 20px 0px;
+    padding: 0.5rem 2rem;
+    border-radius: 25px;
+    font-weight: bold;
+}
+
+/* Button Colors */
+.card-1 .btn {
+    background-color: #fff;
+    color: #333;
+}
+
+.card-2 .btn {
+    background-color: #333;
+    color: #fff;
+}
+
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .programme-fees .card {
+        margin-bottom: 1.5rem;
+    }
+}
 
 
 
