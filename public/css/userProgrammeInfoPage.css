@@ -1,0 +1,178 @@
+/* Custom styles */
+/* Header Section */
+.header-section {
+    background-color: #EDF2F7;
+    padding: 60px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+}
+
+.header-text {
+    max-width: 50%;
+}
+
+.header-text h1 {
+    font-weight: bold;
+    color: #34495E;
+    margin-bottom: 20px;
+}
+
+.header-text p {
+    color: #666;
+    font-size: 18px;
+}
+
+.header-text .badge {
+    font-size: 14px;
+    margin-right: 10px;
+}
+
+.header-image img {
+    width: 300px; /* Adjust for desired size */
+}
+
+.about-section, .programme-fees, .upcoming-schedule, .related-webinars, .testimonials {
+    padding: 50px 0;
+}
+
+.programme-fees .card {
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    border-radius: 8px;
+}
+
+.programme-fees .card:hover {
+    transform: scale(1.05);
+}
+
+/* Upcoming Schedule */
+/* General Layout */
+.upcoming-schedule {
+    max-width: 60%;
+    margin: 0 auto; /* Center the content on larger screens */
+}
+
+/* Schedule Item Styles */
+.schedule-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.schedule-item:hover {
+    background-color: #f8f9fa;
+    transform: scale(1.02);
+}
+
+/* Icon and Text Alignment */
+.schedule-icon-text {
+    display: flex;
+    align-items: center;
+}
+
+.schedule-icon-text i {
+    font-size: 24px;
+    color: #0d6efd;
+    margin-right: 15px;
+}
+
+/* Schedule Details */
+.schedule-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.schedule-details p {
+    margin-bottom: 5px;
+    color: #333;
+}
+
+/* Date and Badge Styles */
+.schedule-dates {
+    width: 100%;
+}
+
+.date-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.date-item {
+    font-size: 0.9rem;
+    text-align: center;
+    min-width: 60px;
+    margin: 0 5px;
+    background: #f8f9fa;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+/* Button Styles */
+.btn-outline-primary {
+    color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-outline-primary:hover {
+    background-color: #0d6efd;
+    color: #fff;
+}
+
+/* Responsive Styles */
+    /* @media (max-width: 768px) {
+        .upcoming-schedule {
+            max-width: 90%;
+            margin-left: 0; 
+        }
+
+        .schedule-item {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .schedule-icon-text, .schedule-dates {
+            text-align: center;
+        }
+
+        .date-list {
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
+        .btn-outline-primary {
+            width: 100%;
+            text-align: center;
+        }
+    } */
+
+
+
+
+
+
+
+.testimonials .testimonial {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.related-webinars .card {
+    margin-bottom: 20px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.related-webinars .card:hover {
+    transform: scale(1.05);
+}
