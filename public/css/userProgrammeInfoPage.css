@@ -450,13 +450,74 @@
 
 
 
+.testimonials {
+    background-color: #d9e6f2; /* Light blue background */
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.testimonials h2 {
+    font-weight: bold;
+    font-size: 1.8rem;
+}
+
 .testimonials .testimonial {
-    background-color: #f9f9f9;
+    background-color: #fff;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: center;
+    display: flex;
+    transition: transform 0.2s ease;
 }
+
+.testimonials .testimonial:hover {
+    transform: scale(1.02);
+}
+
+.testimonial-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+}
+
+.testimonial-name {
+    font-weight: bold;
+    font-size: 1rem;
+    margin-bottom: 0;
+}
+
+.testimonial-title {
+    font-size: 0.9rem;
+    color: #6c757d; /* Muted gray */
+}
+
+.testimonial-text {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #333;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .testimonial {
+        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .testimonial-image {
+        margin: 0 !important; /* Replacing margin in me-4 class */
+    }
+
+    .testimonial-title {
+        font-size: 0.85rem;
+    }
+
+    .testimonial-text {
+        font-size: 0.85rem;
+    }
+}
+
 
 .related-webinars .card {
     margin-bottom: 20px;
