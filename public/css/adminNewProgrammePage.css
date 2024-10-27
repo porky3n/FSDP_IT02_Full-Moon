@@ -1,0 +1,144 @@
+/* General Styles */
+.header {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+.form-label {
+    font-weight: bold;
+}
+
+/* Form Controls */
+.form-control, .form-select {
+    border-radius: 10px;
+}
+
+/* Custom Input Styles */
+.custom-input, .class-input, .fee-input {
+    width: 100%;
+    max-width: 60%; /* Adjust as needed */
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+    margin-bottom: 15px;
+}
+
+.custom-input textarea {
+    width: 100%;
+    max-width: 300px;
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+}
+
+/* Input Groups */
+.class-inputs-group, .fee-inputs-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-direction: column;
+}
+
+/* Align form sections */
+.programme-form-section label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+/* Classes and Fees Container */
+.classes-container, .fees-container {
+    width: 60%;
+    padding: 10px;
+    margin-bottom: 20px; /* Add spacing between containers */
+    border: 1px solid #ced4da; /* Optional: Add a border for better visual separation */
+    border-radius: 5px; /* Optional: Rounded corners for a consistent look */
+}
+
+/* Upload Section Styling */
+.upload-section {
+    padding: 20px;
+    background: #e9ecef;
+    text-align: center;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 2px dashed #ced4da;
+}
+
+/* Buttons Styling */
+.btn-add, .btn-add-class, .btn-add-fee, .btn-add-day, .btn-add-info {
+    background-color: #ffc107;
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    font-weight: bold;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.btn-delete {
+    background: none;
+    border: none;
+    color: #dc3545;
+    font-size: 1.2em;
+    cursor: pointer;
+}
+
+.btn-programme {
+    background-color: #ffc107;
+    color: #fff;
+    border: none;
+    font-weight: bold;
+    padding: 10px 30px;
+    border-radius: 50px;
+    display: block;
+    margin: 30px auto 0;
+}
+
+/* Additional Info Group */
+.additional-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.additional-info input {
+    flex: 1;
+    max-width: 80%;
+}
+
+.additional-info .btn-delete {
+    padding: 5px;
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+}
+
+/* Small Input Styling */
+.small-input {
+    max-width: 150px;
+    width: 100%;
+}
+
+/* Input Specific to Fee Items */
+.fee-item .form-control {
+    width: auto;
+}
+
+/* Margin Bottom Adjustments */
+.mb-4 {
+    margin-bottom: 1.5rem !important;
+}
+
+/* Button Styling Enhancements */
+.btn-add-info {
+    background-color: #ffc107;
+    border: none;
+    border-radius: 30px;
+    font-weight: bold;
+    padding: 5px 10px;
+    cursor: pointer;
+}
