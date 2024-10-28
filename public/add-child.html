@@ -9,34 +9,39 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="css/add-child.css" />
-    <!-- Custom CSS for Navbar and Footer -->
     <link rel="stylesheet" href="./css/navbar.css" />
     <link rel="stylesheet" href="./css/footer.css" />
   </head>
   <body>
-    <!-- Navbar Section -->
     <header>
       <div id="navbar-container"></div>
     </header>
 
     <div class="container mt-4">
-      <h2 class="edit-profile-header">Edit Profile</h2>
+      <h2 class="edit-profile-header">Add Child Profile</h2>
       <div class="profile-content">
         <div class="row">
           <div class="col-md-3">
             <div class="profile-picture-container">
               <img
-                src="path-to-default-profile.png"
+                src="profile-placeholder.png"
                 alt="Profile Picture"
                 class="profile-picture"
+                id="profilePreview"
               />
-              <button class="btn btn-warning upload-profile-btn">
+              <input
+                type="file"
+                id="profilePictureInput"
+                accept="image/*"
+                style="display: none"
+              />
+              <button class="btn btn-warning btn-upload" id="uploadButton">
                 Upload Profile Picture
               </button>
             </div>
           </div>
           <div class="col-md-9">
-            <form class="profile-form">
+            <form class="profile-form" id="childProfileForm">
               <div class="basic-info">
                 <h3>BASIC INFO</h3>
                 <div class="row">
@@ -45,20 +50,29 @@
                       type="text"
                       class="form-control"
                       placeholder="FIRST NAME"
+                      id="firstName"
+                      required
                     />
+                    <div class="invalid-feedback">First name is required</div>
                   </div>
                   <div class="col-md-6">
                     <input
                       type="text"
                       class="form-control"
                       placeholder="LAST NAME"
+                      id="lastName"
+                      required
                     />
+                    <div class="invalid-feedback">Last name is required</div>
                   </div>
                 </div>
                 <div class="row mt-3">
                   <div class="col-md-6">
                     <label>Date of Birth:</label>
-                    <input type="date" class="form-control" />
+                    <input type="date" class="form-control" id="dob" required />
+                    <div class="invalid-feedback">
+                      Date of birth is required
+                    </div>
                   </div>
                   <div class="col-md-6">
                     <label>School:</label>
@@ -66,7 +80,10 @@
                       type="text"
                       class="form-control"
                       placeholder="School"
+                      id="school"
+                      required
                     />
+                    <div class="invalid-feedback">School is required</div>
                   </div>
                 </div>
                 <div class="row mt-3">
@@ -76,7 +93,10 @@
                       type="text"
                       class="form-control"
                       placeholder="Level"
+                      id="level"
+                      required
                     />
+                    <div class="invalid-feedback">Level is required</div>
                   </div>
                 </div>
                 <div class="row mt-3">
@@ -85,7 +105,10 @@
                       type="email"
                       class="form-control"
                       placeholder="EMAIL"
+                      id="email"
+                      required
                     />
+                    <div class="invalid-feedback">Valid email is required</div>
                   </div>
                 </div>
                 <div class="row mt-3">
@@ -94,11 +117,21 @@
                       class="form-control"
                       placeholder="Biography"
                       rows="4"
+                      id="biography"
+                      required
                     ></textarea>
+                    <div class="invalid-feedback">Biography is required</div>
                   </div>
                 </div>
                 <div class="text-end mt-4">
-                  <button type="submit" class="btn btn-warning">
+                  <button
+                    type="button"
+                    class="btn btn-secondary me-2"
+                    id="cancelBtn"
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" class="btn btn-warning" id="submitBtn">
                     Add Child
                   </button>
                 </div>
@@ -109,19 +142,15 @@
       </div>
     </div>
 
-    <!-- Footer Section -->
     <footer class="bg-dark text-white mt-5">
       <div id="footer-container"></div>
     </footer>
 
-    <!-- Bootstrap JS and other dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./js/add-child.js"></script>
     <script>
       $(document).ready(function () {
-        // Load external navbar and footer into the template
         $("#navbar-container").load("navbar.html");
         $("#footer-container").load("footer.html");
       });

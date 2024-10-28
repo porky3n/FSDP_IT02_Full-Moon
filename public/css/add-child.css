@@ -41,6 +41,7 @@ body {
   border-radius: 50%;
   margin-bottom: 1rem;
   object-fit: cover;
+  border: 3px solid #ffc107;
 }
 
 .upload-profile-btn {
