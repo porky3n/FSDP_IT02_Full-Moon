@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    
+    <!-- Custom CSS for Navbar, Footer, and User List -->
+    <link rel="stylesheet" href="./css/adminNavbar.css" />
+    <link rel="stylesheet" href="./css/footer.css" />
+    <link rel="stylesheet" href="./css/adminManageUsers.css" />
+
+    <title>Mindsphere - All Users</title>
+</head>
+<body>
+    <!-- Navbar Section -->
+    <header>
+        <div id="navbar-container"></div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container mt-5 table-container">
+            <h1 class="mb-4">All Users</h1>
+
+            <!-- Search and Filters -->
+            <div class="d-flex justify-content-between mb-3">
+                <div class="input-group" style="max-width: 300px;">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Search anything (e.g., name, school, level)...">
+                    <button class="btn" type="button" id="searchButton">
+                        <img src="./images/search_icon.jpg" alt="Search Icon" style="width: 24px; height: 24px;">
+                    </button>
+                </div>
+
+                <div class="d-flex">
+                    <!-- Sort By Dropdown -->
+                    <div class="dropdown me-2">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="sortByDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            Sort By
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="sortByDropdown">
+                            <li><a class="dropdown-item sort-option" href="#" data-sort="name">Name (A-Z)</a></li>
+                            <li><a class="dropdown-item sort-option" href="#" data-sort="dateJoined">Date Joined</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Member/Non-Member Dropdown -->
+                    <div class="dropdown me-2">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="membershipDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            Membership
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="membershipDropdown">
+                            <li><a class="dropdown-item filter-option" href="#" data-filter="member">Member</a></li>
+                            <li><a class="dropdown-item filter-option" href="#" data-filter="non-member">Non-Member</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Has Children/No Children Dropdown -->
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="childrenDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            Children
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="childrenDropdown">
+                            <li><a class="dropdown-item filter-option" href="#" data-filter="has-children">Has Children</a></li>
+                            <li><a class="dropdown-item filter-option" href="#" data-filter="no-children">No Children</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Table -->
+            <table class="table table-hover" id="userTable">
+                <thead>
+                    <tr class="table-header">
+                        <th scope="col">Name</th>
+                        <th scope="col">DOB</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Phone Number</th>
+                        <th scope="col">Date Joined</th>
+                        <th scope="col">Membership</th>
+                        <th scope="col">Dietary</th>
+                        <th scope="col" class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="user-list">
+                    <tr data-member="member" data-has-children="true">
+                        <td>John Son</td>
+                        <td>12/05/1985</td>
+                        <td>john@gmail.com</td>
+                        <td>+65 91234567</td>
+                        <td>20/05/2024</td>
+                        <td>Member</td>
+                        <td>Vegetarian</td>
+                        <td class="text-end">
+                            <button class="btn expand-btn btn-footer-color">Expand</button> <!-- Expand button -->
+                            <div class="dropdown-content">
+                                <div class="child-info-container">
+                                    <div class="child-info-box">
+                                        <p><strong>Child 1:</strong></p>
+                                        <p><strong>Name:</strong> Alex Son</p>
+                                        <p><strong>DOB:</strong> 15/08/2010</p>
+                                        <p><strong>School:</strong> Sunshine School</p>
+                                        <p><strong>Level:</strong> Primary 4</p>
+                                        <p><strong>Dietary:</strong> Vegetarian</p>
+                                    </div>
+                                    <div class="child-info-box">
+                                        <p><strong>Child 2:</strong></p>
+                                        <p><strong>Name:</strong> Jenny Son</p>
+                                        <p><strong>DOB:</strong> 25/03/2015</p>
+                                        <p><strong>School:</strong> Sunny Meadows School</p>
+                                        <p><strong>Level:</strong> Primary 1</p>
+                                        <p><strong>Dietary:</strong> Non-Vegetarian</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr data-member="non-member" data-has-children="false">
+                        <td>Jane Doe</td>
+                        <td>25/09/1990</td>
+                        <td>jane@gmail.com</td>
+                        <td>+65 98765432</td>
+                        <td>15/07/2023</td>
+                        <td>Non-Member</td>
+                        <td>Non-Vegetarian</td>
+                        <td class="text-end"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Pagination -->
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">Previous</a></li>
+                    <li class="page-item"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                </ul>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="bg-dark text-white mt-5">
+        <div id="footer-container"></div>
+    </footer>
+
+    <!-- Bootstrap JS and other dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- External JS for User Management -->
+    <script src="./js/adminManageUsers.js"></script>
+
+    <!-- Load external navbar and footer -->
+    <script>
+        $(document).ready(function() {
+            $("#navbar-container").load("navbar.html");
+            $("#footer-container").load("footer.html");
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+/* Custom CSS for styling the sign-in page */
+body, html {
+    height: 100%;
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+}
+
+.container-fluid {
+    height: 100vh;
+    position: relative;
+}
+
+.left-section {
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.right-section {
+    background-color: #d9b552;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.right-section img {
+    max-width: 70%;
+    border-radius: 20px;
+}
+
+.right-section h2 {
+    position: absolute;
+    color: white;
+    font-size: 2rem;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    font-weight: bold;
+}
+
+.form-group {
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 20px;
+}
+
+.form-control {
+    border-radius: 10px;
+    height: 45px;
+    font-size: 1.1rem;
+}
+
+.input-icon {
+    position: relative;
+}
+
+.input-icon-img {
+    width: 20px; /* Adjust the size of the icons as needed */
+    height: 20px;
+    object-fit: cover; /* Make sure icons fit nicely */
+}
+
+.btn-signin {
+    width: 100%;
+    background-color: #2f3e50;
+    color: #ffffff;
+    border-radius: 10px;
+    height: 50px;
+    font-size: 1.1rem;
+}
+
+.btn-signin:hover {
+    background-color: #9d9d9d;
+}
+
+.forgot-password {
+    color: #7a5fd1;
+    font-size: 0.9rem;
+}
+
+.signup-link {
+    font-size: 0.9rem;
+}
+
+.signup-link a {
+    color: #7a5fd1;
+    text-decoration: none;
+}
+
+.signup-link a:hover {
+    text-decoration: underline;
+}
