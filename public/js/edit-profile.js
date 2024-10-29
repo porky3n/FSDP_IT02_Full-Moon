@@ -3,15 +3,43 @@ document.addEventListener("DOMContentLoaded", function () {
   fetch("navbar.html")
     .then((response) => response.text())
     .then((data) => {
-      document.getElementById("navbar-placeholder").innerHTML = data;
+      document.getElementById("navbar-container").innerHTML = data;
     });
 
   fetch("footer.html")
     .then((response) => response.text())
     .then((data) => {
-      document.getElementById("footer-placeholder").innerHTML = data;
+      document.getElementById("footer-container").innerHTML = data;
     });
 
+  // Handle profile picture upload
+  const uploadButton = document.getElementById("uploadButton");
+  const profilePictureInput = document.getElementById("profilePictureInput");
+  const profilePreview = document.getElementById("profilePreview");
+
+  if (uploadButton && profilePictureInput) {
+    uploadButton.addEventListener("click", () => {
+      profilePictureInput.click();
+    });
+
+    profilePictureInput.addEventListener("change", function (e) {
+      if (e.target.files && e.target.files[0]) {
+        const file = e.target.files[0];
+
+        // Validate file type
+        if (!file.type.startsWith("image/")) {
+          alert("Please upload a valid image file");
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          profilePreview.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
   // Store initial form values
   const form = document.getElementById("profileForm");
   let initialFormData = {};
@@ -31,36 +59,6 @@ document.addEventListener("DOMContentLoaded", function () {
   if (form) {
     initialFormData = getCurrentFormData();
   }
-
-  // Handle profile picture upload
-  const uploadButton = document.getElementById("uploadButton");
-  const profilePictureInput = document.getElementById("profilePictureInput");
-  const profilePreview = document.getElementById("profilePreview");
-
-  if (uploadButton && profilePictureInput) {
-    uploadButton.addEventListener("click", () => {
-      profilePictureInput.click();
-    });
-
-    profilePictureInput.addEventListener("change", function (e) {
-      if (e.target.files && e.target.files[0]) {
-        const file = e.target.files[0];
-
-        // Validate file type
-        if (!file.type.startsWith("image/")) {
-          alert("Please upload an image file");
-          return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = function (event) {
-          profilePreview.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-  }
-
   // Function to check if form has changes
   function hasFormChanges() {
     const currentData = getCurrentFormData();
@@ -140,4 +138,6 @@ document.addEventListener("DOMContentLoaded", function () {
       this.classList.remove("is-invalid");
     });
   });
+
+  // Form submission logic and validation would follow here
 });

@@ -28,7 +28,7 @@
             <div class="col-md-3">
               <div class="profile-picture-container">
                 <img
-                  src="profile-placeholder.png"
+                  src="images/profilePicture.png"
                   alt="Profile"
                   class="profile-picture"
                   id="profilePreview"
@@ -71,6 +71,16 @@
                 </div>
                 <div class="mb-3">
                   <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Phone Number"
+                    id="phoneNumber"
+                    required
+                  />
+                  <div class="invalid-feedback">Phone number is required</div>
+                </div>
+                <div class="mb-3">
+                  <input
                     type="email"
                     class="form-control"
                     placeholder="EMAIL"
@@ -80,14 +90,16 @@
                   <div class="invalid-feedback">Email is required</div>
                 </div>
                 <div class="mb-3">
-                  <textarea
+                  <input
+                    type="text"
                     class="form-control"
-                    rows="4"
-                    placeholder="BIOGRAPHY"
-                    id="biography"
+                    placeholder="Dietary Preferences"
+                    id="dietary"
                     required
-                  ></textarea>
-                  <div class="invalid-feedback">Biography is required</div>
+                  />
+                  <div class="invalid-feedback">
+                    Dietary preference is required
+                  </div>
                 </div>
                 <div class="text-end">
                   <button class="btn btn-warning" id="addChildBtn">
