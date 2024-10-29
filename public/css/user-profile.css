@@ -1,0 +1,81 @@
+/* General Styles */
+body {
+  font-family: Arial, sans-serif;
+}
+
+/* Navigation */
+.navbar {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.profile-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+
+/* Profile Section */
+.profile-picture-container {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.profile-picture {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid #ffc107;
+  object-fit: cover;
+}
+
+.btn-edit {
+  padding: 6px 24px;
+  border-radius: 20px;
+}
+
+/* Programme Cards */
+.programme-card {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: white;
+}
+
+.programme-info {
+  padding: 1rem;
+}
+
+.date {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Footer */
+.footer {
+  background-color: white;
+  border-top: 1px solid #eee;
+}
+
+.footer-links a {
+  color: #333;
+  text-decoration: none;
+  margin: 0 1rem;
+}
+
+.social-links a {
+  margin: 0 0.5rem;
+}
+
+.social-links img {
+  width: 24px;
+  height: 24px;
+}
+
+.address,
+.copyright {
+  color: #666;
+  font-size: 0.9rem;
+}
