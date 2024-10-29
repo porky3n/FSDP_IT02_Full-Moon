@@ -112,7 +112,8 @@ document.addEventListener("DOMContentLoaded", function () {
   if (addChildBtn) {
     addChildBtn.addEventListener("click", function (e) {
       e.preventDefault();
-      window.location.href = "./add-child.html";
+      console.log("clicked");
+      window.location.href = "../add-child.html";
     });
   }
 

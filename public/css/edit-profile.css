@@ -3,11 +3,6 @@ body {
   font-family: Arial, sans-serif;
 }
 
-/* Navigation */
-.navbar {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
 .profile-icon {
   width: 30px;
   height: 30px;
@@ -38,7 +33,7 @@ body {
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  border: 3px solid #ffc107;
+  border: 3px solid #efb914;
   margin-bottom: 1rem;
   object-fit: cover;
 }
@@ -64,31 +59,4 @@ body {
 .btn {
   padding: 0.5rem 2rem;
   border-radius: 20px;
-}
-
-/* Footer */
-.footer {
-  background-color: white;
-  border-top: 1px solid #eee;
-}
-
-.footer-links a {
-  color: #333;
-  text-decoration: none;
-  margin: 0 1rem;
-}
-
-.social-links a {
-  margin: 0 0.5rem;
-}
-
-.social-links img {
-  width: 24px;
-  height: 24px;
-}
-
-.address,
-.copyright {
-  color: #666;
-  font-size: 0.9rem;
 }
