@@ -40,6 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
+
   // Store initial form values
   const form = document.getElementById("profileForm");
   let initialFormData = {};
@@ -50,7 +51,9 @@ document.addEventListener("DOMContentLoaded", function () {
       firstName: document.getElementById("firstName").value,
       lastName: document.getElementById("lastName").value,
       email: document.getElementById("email").value,
-      biography: document.getElementById("biography").value,
+      dietary: document.getElementById("dietary").value,
+      countryCode: document.getElementById("countryCode").value,
+      phoneNumber: document.getElementById("phoneNumber").value,
       profilePicture: document.getElementById("profilePreview").src,
     };
   }
@@ -59,6 +62,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (form) {
     initialFormData = getCurrentFormData();
   }
+
   // Function to check if form has changes
   function hasFormChanges() {
     const currentData = getCurrentFormData();
@@ -67,9 +71,22 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   }
 
+  // Validate phone number format (simple validation as an example)
+  function validatePhoneNumber() {
+    const phoneNumber = document.getElementById("phoneNumber");
+    const phoneNumberValue = phoneNumber.value.trim();
+    if (!/^\d+$/.test(phoneNumberValue)) {
+      phoneNumber.classList.add("is-invalid");
+      return false;
+    } else {
+      phoneNumber.classList.remove("is-invalid");
+      return true;
+    }
+  }
+
   // Function to validate form
   function validateForm() {
-    const inputs = form.querySelectorAll("input[required], textarea[required]");
+    const inputs = form.querySelectorAll("input[required], select[required]");
     let isValid = true;
 
     inputs.forEach((input) => {
@@ -81,7 +98,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-    return isValid;
+    return isValid && validatePhoneNumber();
   }
 
   // Handle form submission
@@ -101,6 +118,13 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
+      // Get full phone number with country code
+      const countryCode = document.getElementById("countryCode").value;
+      const phoneNumber = document.getElementById("phoneNumber").value;
+      const fullPhoneNumber = `${countryCode} ${phoneNumber}`;
+
+      console.log("Full Phone Number:", fullPhoneNumber);
+
       // If everything is valid and changes were made, proceed with submission
       alert("Profile updated successfully!");
       window.location.href = "./user-profile.html";
@@ -112,7 +136,6 @@ document.addEventListener("DOMContentLoaded", function () {
   if (addChildBtn) {
     addChildBtn.addEventListener("click", function (e) {
       e.preventDefault();
-      console.log("clicked");
       window.location.href = "../add-child.html";
     });
   }
@@ -139,6 +162,4 @@ document.addEventListener("DOMContentLoaded", function () {
       this.classList.remove("is-invalid");
     });
   });
-
-  // Form submission logic and validation would follow here
 });

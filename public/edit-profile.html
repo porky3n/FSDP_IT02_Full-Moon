@@ -69,7 +69,17 @@
                     <div class="invalid-feedback">Last name is required</div>
                   </div>
                 </div>
-                <div class="mb-3">
+                <div class="mb-3 d-flex">
+                  <select class="form-select me-2" id="countryCode" required>
+                    <!-- Country Codes (Common countries) -->
+                    <option value="+65">+65 (Singapore)</option>
+                    <option value="+1">+1 (USA)</option>
+                    <option value="+44">+44 (UK)</option>
+                    <option value="+61">+61 (Australia)</option>
+                    <option value="+91">+91 (India)</option>
+                    <option value="+86">+86 (China)</option>
+                    <!-- Add more country codes as needed -->
+                  </select>
                   <input
                     type="text"
                     class="form-control"
@@ -79,6 +89,7 @@
                   />
                   <div class="invalid-feedback">Phone number is required</div>
                 </div>
+
                 <div class="mb-3">
                   <input
                     type="email"
