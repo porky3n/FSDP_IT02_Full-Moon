@@ -1,0 +1,77 @@
+:root {
+  --primary-purple: #8e44ad;
+  --accent-yellow: #f1c40f;
+}
+
+body {
+  background-color: #f8f9fa;
+}
+
+.payment-card {
+  border: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+.payment-title {
+  color: var(--primary-purple);
+  font-weight: bold;
+  font-size: 2rem;
+}
+
+.payment-title-accent {
+  color: var(--primary-purple);
+  font-weight: normal;
+}
+
+.qr-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 8px;
+}
+
+#qrcode {
+  padding: 1rem;
+}
+
+.summary-box {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.summary-title {
+  color: #333;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+  color: #666;
+}
+
+.total-section {
+  border-top: 1px solid #dee2e6;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+}
+
+.btn-warning {
+  background-color: var(--accent-yellow);
+  border: none;
+  font-weight: 500;
+}
+
+.btn-warning:hover {
+  background-color: #e1b70f;
+}

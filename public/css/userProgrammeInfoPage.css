@@ -1,0 +1,530 @@
+/* Custom styles */
+/* Header Section */
+.header-section {
+    background-color: #EDF2F7;
+    padding: 60px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+    border-radius: 15px;
+}
+
+.header-text {
+    max-width: 50%;
+}
+
+.header-text h1 {
+    font-weight: bold;
+    color: #34495E;
+    margin-bottom: 20px;
+    font-size: 2rem;
+}
+
+.header-text p {
+    color: #666;
+    font-size: 1.325rem;
+    line-height: 1.5;
+}
+
+.header-text .badge {
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 20px;
+}
+
+.header-image img {
+    width: auto;
+    height: 400px; /* Adjust height for a longer image */
+    border-radius: 20px;
+    object-fit: cover;
+}
+
+
+/* About-section */
+.about-section, .about-section-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Vertically center items */
+    justify-content: center;
+}
+
+.about-section h2 {
+    font-weight: bold; /* Make the heading bold */
+    text-align: center; /* Center the heading */
+    margin-bottom: 20px; /* Add space below the heading */
+}
+
+.about-section img, .about-section-container img {
+    width: 80%;
+    border-radius: 15px;
+}
+
+/* Base styles */
+.about-section {
+    padding: 2rem;
+}
+
+.about-section h2 {
+    font-size: 2rem;
+}
+
+.about-section p {
+    font-size: 1rem;
+}
+
+/* Image styling */
+.about-section-container img {
+    width: 100%;
+    max-width: 300px; /* Optional max-width */
+    border-radius: 15px;
+}
+
+/* Desktops and small laptops (max-width: 992px) */
+@media (max-width: 992px) {
+    .about-section {
+        flex-direction: column; /* Stack items vertically */
+        padding: 1rem;
+    }
+
+    .about-section h2 {
+        font-size: 1.5rem;
+    }
+
+    .about-section p {
+        font-size: 0.9rem;
+    }
+
+    .about-section-container img {
+        max-width: 80%; /* Make the image smaller */
+    }
+}
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+    .about-section {
+        flex-direction: column; /* Stack items vertically */
+        padding: 1rem;
+    }
+
+    .about-section h2 {
+        font-size: 1.5rem;
+    }
+
+    .about-section p {
+        font-size: 0.9rem;
+    }
+
+    .about-section-container img {
+        max-width: 80%; /* Make the image smaller */
+    }
+}
+
+/* Media query for very small screens */
+@media (max-width: 576px) {
+    .about-section h2 {
+        font-size: 1.3rem;
+    }
+
+    .about-section p {
+        font-size: 0.8rem;
+    }
+
+    .about-section-container img {
+        max-width: 70%;
+    }
+}
+
+/* Upcoming Schedule */
+/* General Layout */
+.upcoming-schedule {
+    max-width: 100%; /* Expanded width for larger screens */
+}
+
+.upcoming-schedule img {
+    width: 25px;
+    margin-right: 5px;
+}
+
+/* Schedule Item Styles */
+.schedule-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%; /* Full height in each column */
+}
+
+.schedule-item:hover {
+    background-color: #f8f9fa;
+    transform: scale(1.02);
+}
+
+/* Icon and Text Alignment */
+.schedule-icon-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.schedule-icon-text i {
+    font-size: 24px;
+    color: #0d6efd;
+    margin-right: 15px;
+}
+
+/* Schedule Details */
+.schedule-details{
+    display: flex;
+    flex-direction: column;
+}
+
+.schedule-details p {
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.schedule-info {
+    display: flex;  
+    align-items: center;
+}
+/* Date and Badge Styles */
+.schedule-dates {
+    width: 50%;
+}
+
+.schedule-list {
+    width: 50%;
+    padding: 0 15px;
+}
+
+.schedule-item {
+    flex-direction: row;
+    align-items: center;
+}
+
+.date-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.date-item {
+    font-size: 0.9rem;
+    text-align: center;
+    min-width: 60px;
+    margin: 0 5px;
+    background: #f8f9fa;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+/* Button Styles */
+.btn-outline-primary {
+    color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-outline-primary:hover {
+    background-color: #0d6efd;
+    color: #fff;
+}
+
+/* Responsive Styles */
+
+/* Large Desktops (max-width: 1200px) */
+/* Should it be column or row */
+@media (max-width: 1200px) {
+    .upcoming-schedule {
+        max-width: 100%;
+    }
+
+    /* Two items per row */
+    .schedule-list {
+        width: 50%;
+        padding: 0 15px;
+    }
+
+    .schedule-item {
+        flex-direction: row;
+        align-items: center;
+    }
+    
+    .schedule-icon-text, .schedule-dates {
+        text-align: left;
+    }
+}
+
+/* Desktops and small laptops (max-width: 992px) */
+@media (max-width: 992px) {
+    .upcoming-schedule {
+        max-width: 100%;
+    }
+
+    /* Two items per row */
+    .schedule-list {
+        width: 50%;
+    }
+
+    .schedule-dates {
+        width: 100%;
+    }
+
+    .schedule-dates .date-list {
+        display: flex;
+        justify-content: flex-start;
+    }
+
+    .schedule-dates .date-item {
+        min-width: 60px;
+        min-height: 60px;
+    }
+
+    .schedule-item {
+        flex-direction: column; /* Stacks content vertically */
+        align-items: flex-start; /* Aligns content to the start vertically */
+        text-align: left; /* Ensures text aligns to the left */
+    }
+
+    /* Optional: Center align elements for a more uniform look on smaller screens */
+    .schedule-details {
+        text-align: center;
+    }
+
+    .btn-outline-primary {
+        width: 100%;
+    }
+}
+
+
+/* Tablets and smaller devices (max-width: 768px) */
+@media (max-width: 768px) {
+    .upcoming-schedule {
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    /* Stacks items vertically */
+    .schedule-list {
+        width: 100%;
+        padding: 0;
+    }
+
+    .schedule-item {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .schedule-details {
+        text-align: center;
+    }
+
+    .schedule-icon-text, .schedule-dates {
+        text-align: center;
+    }
+
+    .btn-outline-primary {
+        width: 100%;
+    }
+}
+
+/* Small Mobile Devices (max-width: 576px) */
+@media (max-width: 576px) {
+    .schedule-item {
+        padding: 2em 1em;
+    }
+
+    .date-item {
+        min-width: 45px;
+        font-size: 0.8rem;
+    }
+}
+
+
+/* programe info */
+/* Programme Fees Card Styles */
+.programme-fees .card {
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    border-radius: 8px;
+    padding: 20px;
+    border: none;
+}
+
+.programme-fees .card:hover {
+    transform: scale(1.05);
+}
+
+/* Align card content to the start */
+.programme-fees .card-body {
+    text-align: left;
+}
+
+/* List item styles with icon */
+.programme-fees ul {
+    padding: 0;
+    list-style: none;
+}
+
+.programme-fees li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Checklist icon style */
+.check-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 0.5rem;
+}
+
+/* Card Background Colors */
+.card-1 {
+    background-color: #d7e9f7;
+}
+
+.card-2 {
+    background-color: #fef6c7;
+}
+
+
+
+/* Price and Button Styling */
+.programme-fees h3 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.programme-fees .old-price {
+    color: #999;
+    font-size: 1rem;
+}
+
+.programme-fees p {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.programme-fees li {
+    color: #333;
+}
+
+.programme-fees .btn {
+    width: 100%;
+    margin: 20px 0px;
+    padding: 0.5rem 2rem;
+    border-radius: 25px;
+    font-weight: bold;
+}
+
+/* Button Colors */
+.card-1 .btn {
+    background-color: #fff;
+    color: #333;
+}
+
+.card-2 .btn {
+    background-color: #333;
+    color: #fff;
+}
+
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .programme-fees .card {
+        margin-bottom: 1.5rem;
+    }
+}
+
+
+
+
+.testimonials {
+    background-color: #d9e6f2; /* Light blue background */
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.testimonials h2 {
+    font-weight: bold;
+    font-size: 1.8rem;
+}
+
+.testimonials .testimonial {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    transition: transform 0.2s ease;
+}
+
+.testimonials .testimonial:hover {
+    transform: scale(1.02);
+}
+
+.testimonial-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+}
+
+.testimonial-name {
+    font-weight: bold;
+    font-size: 1rem;
+    margin-bottom: 0;
+}
+
+.testimonial-title {
+    font-size: 0.9rem;
+    color: #6c757d; /* Muted gray */
+}
+
+.testimonial-text {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #333;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .testimonial {
+        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .testimonial-image {
+        margin: 0 !important; /* Replacing margin in me-4 class */
+    }
+
+    .testimonial-title {
+        font-size: 0.85rem;
+    }
+
+    .testimonial-text {
+        font-size: 0.85rem;
+    }
+}
+
+
+.related-webinars .card {
+    margin-bottom: 20px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.related-webinars .card:hover {
+    transform: scale(1.05);
+}
