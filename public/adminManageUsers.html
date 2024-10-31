@@ -85,48 +85,7 @@
                     </tr>
                 </thead>
                 <tbody id="user-list">
-                    <tr data-member="member" data-has-children="true">
-                        <td>John Son</td>
-                        <td>12/05/1985</td>
-                        <td>john@gmail.com</td>
-                        <td>+65 91234567</td>
-                        <td>20/05/2024</td>
-                        <td>Member</td>
-                        <td>Vegetarian</td>
-                        <td class="text-end">
-                            <button class="btn expand-btn btn-footer-color">Expand</button> <!-- Expand button -->
-                            <div class="dropdown-content">
-                                <div class="child-info-container">
-                                    <div class="child-info-box">
-                                        <p><strong>Child 1:</strong></p>
-                                        <p><strong>Name:</strong> Alex Son</p>
-                                        <p><strong>DOB:</strong> 15/08/2010</p>
-                                        <p><strong>School:</strong> Sunshine School</p>
-                                        <p><strong>Level:</strong> Primary 4</p>
-                                        <p><strong>Dietary:</strong> Vegetarian</p>
-                                    </div>
-                                    <div class="child-info-box">
-                                        <p><strong>Child 2:</strong></p>
-                                        <p><strong>Name:</strong> Jenny Son</p>
-                                        <p><strong>DOB:</strong> 25/03/2015</p>
-                                        <p><strong>School:</strong> Sunny Meadows School</p>
-                                        <p><strong>Level:</strong> Primary 1</p>
-                                        <p><strong>Dietary:</strong> Non-Vegetarian</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr data-member="non-member" data-has-children="false">
-                        <td>Jane Doe</td>
-                        <td>25/09/1990</td>
-                        <td>jane@gmail.com</td>
-                        <td>+65 98765432</td>
-                        <td>15/07/2023</td>
-                        <td>Non-Member</td>
-                        <td>Non-Vegetarian</td>
-                        <td class="text-end"></td>
-                    </tr>
+                    <!-- Dynamic data will be injected here -->
                 </tbody>
             </table>
 
@@ -134,7 +93,8 @@
             <nav aria-label="Page navigation" class="mt-4">
                 <ul class="pagination justify-content-center">
                     <li class="page-item disabled">
-                        <a class="page-link" href="#" tabindex="-1">Previous</a></li>
+                        <a class="page-link" href="#" tabindex="-1">Previous</a>
+                    </li>
                     <li class="page-item"><a class="page-link" href="#">1</a></li>
                     <li class="page-item"><a class="page-link" href="#">2</a></li>
                     <li class="page-item"><a class="page-link" href="#">3</a></li>
@@ -159,7 +119,7 @@
     <!-- Load external navbar and footer -->
     <script>
         $(document).ready(function() {
-            $("#navbar-container").load("navbar.html");
+            $("#navbar-container").load("adminNavbar.html");
             $("#footer-container").load("footer.html");
         });
     </script>

@@ -1,0 +1,52 @@
+.hero-section {
+    position: relative;
+}
+
+.hero-text {
+    position: relative; /* Change from absolute */
+    margin-top: 20px; /* Add spacing to move the button below the image */
+    text-align: center;
+}
+
+
+.hero-section img {
+    z-index: 0;
+}
+
+.hero-section h1 {
+    font-size: 3rem;
+    font-weight: bold;
+}
+
+.hero-section p {
+    font-size: 1.5rem;
+}
+
+.trusted-logos img {
+    width: 120px;
+    margin: 10px;
+}
+
+.tab-content img {
+    width: 100%;
+    height: auto;
+}
+
+.announcement-card, .event-card {
+    margin: 20px 0;
+}
+
+.cta-section {
+    background-color: #2F3E50;
+    color: white;
+    text-align: center;
+    padding: 40px;
+    margin-top: 40px;
+}
+
+.cta-section button {
+    background-color: #FFC107;
+    color: black;
+    border-radius: 30px;
+    padding: 10px 20px;
+}

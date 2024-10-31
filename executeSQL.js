@@ -5,8 +5,7 @@ require('dotenv').config(); // Load environment variables from .env
 
 async function executeSQL() {
   try {
-    // Create MySQL connection pool
-    // Use the public TCP proxy details to connect
+    // Create MySQL connection
     const connection = await mysql.createConnection({
       host: process.env.MYSQL_HOST,
       user: process.env.MYSQL_USER,
@@ -17,25 +16,32 @@ async function executeSQL() {
     });
 
     console.log('Connected to MySQL server!');
-    // Read the SQL file
-    const sqlPath = path.join(__dirname, 'SQL Scripts/tableCreation.sql');
-    let sql = fs.readFileSync(sqlPath, 'utf8');
 
-    // Sanitize SQL content: Remove unnecessary line breaks and extra spaces
-    sql = sql.replace(/\r/g, '').trim(); // Remove all \r and trim the string
-
-    // Split the SQL file into individual queries
-    const queries = sql.split(';').map(q => q.trim()).filter(q => q.length);
-
-    // Execute each query individually
-    for (const query of queries) {
+    // Execute tableCreation.sql
+    const tableSqlPath = path.join(__dirname, 'SQL Scripts/tableCreation.sql');
+    let tableSql = fs.readFileSync(tableSqlPath, 'utf8');
+    tableSql = tableSql.replace(/\r/g, '').trim(); // Sanitize
+    const tableQueries = tableSql.split(';').map(q => q.trim()).filter(q => q.length);
+    
+    console.log('Executing table creation script...');
+    for (const query of tableQueries) {
       console.log(`Executing: ${query}`);
       await connection.query(query);
     }
+    console.log('Table creation script executed successfully!');
 
-    // Execute the SQL queries
-    // await connection.query(sql);
-    console.log('SQL script executed successfully!');
+    // Execute dummyData.sql
+    const dummySqlPath = path.join(__dirname, 'SQL Scripts/dummyData.sql');
+    let dummySql = fs.readFileSync(dummySqlPath, 'utf8');
+    dummySql = dummySql.replace(/\r/g, '').trim(); // Sanitize
+    const dummyQueries = dummySql.split(';').map(q => q.trim()).filter(q => q.length);
+    
+    console.log('Executing dummy data script...');
+    for (const query of dummyQueries) {
+      console.log(`Executing: ${query}`);
+      await connection.query(query);
+    }
+    console.log('Dummy data script executed successfully!');
 
     // Close the connection
     await connection.end();
@@ -45,4 +51,3 @@ async function executeSQL() {
 }
 
 executeSQL();
-
