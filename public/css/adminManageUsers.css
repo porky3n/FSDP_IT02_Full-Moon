@@ -1,0 +1,67 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f3f4f6;
+}
+
+.table-container {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.table-header {
+    font-weight: bold;
+    color: #333;
+}
+
+.table {
+    margin-bottom: 0;
+    border-color: #dee2e6;
+}
+
+.expand-btn {
+    background-color: #2f3e50; /* Matches the dark blue from footer */
+    color: white;
+}
+
+.dropdown-content {
+    display: none;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    width: 100%; /* Ensures full width for content */
+}
+
+.expand-btn.active + .dropdown-content {
+    display: flex; /* Use flexbox for horizontal alignment */
+    justify-content: space-between; /* Make sure boxes spread across the container */
+    gap: 20px; /* Space between boxes */
+    flex-wrap: nowrap; /* Prevent wrapping of child boxes */
+}
+
+.child-info-box {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 8px;
+    min-width: 300px; /* Set minimum width to keep boxes side by side */
+    max-width: 48%; /* Prevents the boxes from becoming too wide, ensuring two fit per row */
+    box-sizing: border-box;
+}
+
+.pagination {
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f1f3f5;
+}
+
+.btn img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}

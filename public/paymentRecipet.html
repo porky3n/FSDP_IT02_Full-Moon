@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment Receipt</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link href="./css/paymentReciept.css" rel="stylesheet" />
+    <link rel="stylesheet" href="./css/navbar.css" />
+    <link rel="stylesheet" href="./css/footer.css" />
+  </head>
+  <body>
+    <!-- Navbar Section -->
+    <header>
+      <div id="navbar-container"></div>
+    </header>
+
+    <div class="container mt-4">
+      <div class="receipt-card">
+        <!-- Receipt Header -->
+        <div class="receipt-header row align-items-center">
+          <div class="col-6">
+            <img
+              src="logo-placeholder.png"
+              alt="mindsphere Logo"
+              class="receipt-logo"
+            />
+          </div>
+          <div class="col-6 text-end">
+            <p class="receipt-date">
+              Receipt date: <span id="receipt-date">20 Oct, 2024</span>
+            </p>
+            <p class="receipt-number">
+              Receipt number: <span id="receipt-number">#1881218281</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Company Details -->
+        <div class="company-details mt-3">
+          <p class="company-name">mindsphere</p>
+          <p>60 Paya Lebar Road, #07-54 Praya Lebar Square</p>
+          <p>Singapore 409001</p>
+          <p>+65 8180 4413</p>
+        </div>
+
+        <!-- Receipt Table -->
+        <div class="receipt-table mt-4">
+          <div class="table-header row">
+            <div class="col-6">Item description</div>
+            <div class="col-3 text-center">Qty</div>
+            <div class="col-3 text-end">Amount</div>
+          </div>
+
+          <div class="table-row row">
+            <div class="col-6">Public Speaking Workshop</div>
+            <div class="col-3 text-center">1</div>
+            <div class="col-3 text-end">$120.00</div>
+          </div>
+
+          <div class="table-row row">
+            <div class="col-6">PSLE Power Up Camp</div>
+            <div class="col-3 text-center">1</div>
+            <div class="col-3 text-end">$250.00</div>
+          </div>
+        </div>
+
+        <!-- Total Section -->
+        <div class="total-section mt-4 p-3">
+          <div class="row">
+            <div class="col-9 text-end">Subtotal:</div>
+            <div class="col-3 text-end" id="subtotal">$370.00</div>
+          </div>
+          <div class="row">
+            <div class="col-9 text-end">Tax (9%):</div>
+            <div class="col-3 text-end" id="tax">$33.30</div>
+          </div>
+          <div class="row total-row">
+            <div class="col-9 text-end">Total:</div>
+            <div class="col-3 text-end" id="total">SGD$ 403.30</div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="receipt-footer text-center mt-4">
+          <p>Thank you for the business!</p>
+          <p class="contact-info">
+            +65 8180 4413 |
+            <a href="mailto:hello@mindsphere.sg">hello@mindsphere.sg</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <footer class="bg-dark text-white mt-5">
+      <div id="footer-container"></div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="paymentReciept.js"></script>
+  </body>
+</html>
