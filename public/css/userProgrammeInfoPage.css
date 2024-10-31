@@ -171,7 +171,8 @@
 .schedule-icon-text {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    width: 40%;
 }
 
 .schedule-icon-text i {
@@ -197,7 +198,7 @@
 }
 /* Date and Badge Styles */
 .schedule-dates {
-    width: 50%;
+    width: 100%;
 }
 
 .schedule-list {
@@ -213,17 +214,21 @@
 .date-list {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: flex-start; /* Distributes items evenly */
+    padding-left: 5%;
+    padding-right: 5%;
+    gap: 5px; /* Optional: Adds a small gap between items */
 }
 
 .date-item {
+    flex-grow: 1; /* Allows items to grow and fill available space */
     font-size: 0.9rem;
     text-align: center;
-    min-width: 60px;
-    margin: 0 5px;
+    min-width: 65px; /* Ensures a minimum size for smaller screens */
     background: #f8f9fa;
     border-radius: 5px;
     padding: 5px;
+    margin: 0; /* Removes extra margin */
 }
 
 /* Button Styles */
@@ -237,6 +242,16 @@
     color: #fff;
 }
 
+
+/* extraaa */
+.schedule-item {
+    flex-direction: row;
+}
+
+.schedule-details-dates-container {
+    display: flex;
+    flex-direction: row;
+}
 /* Responsive Styles */
 
 /* Large Desktops (max-width: 1200px) */
@@ -253,12 +268,38 @@
     }
 
     .schedule-item {
-        flex-direction: row;
-        align-items: center;
+        flex-direction: column;
     }
     
     .schedule-icon-text, .schedule-dates {
         text-align: left;
+    }
+
+    .schedule-details-dates-container {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .date-list {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+
+    .date-item {
+        font-size: 12px;
+        width: 15%;
+        min-width: 70px;
+        margin: 0 0px;
+        background: #f8f9fa;
+        border-radius: 5px;
+        padding: 5px;
+    }
+
+    .btn-outline-primary {
+        width: 100%;
     }
 }
 
@@ -293,9 +334,16 @@
         text-align: left; /* Ensures text aligns to the left */
     }
 
-    /* Optional: Center align elements for a more uniform look on smaller screens */
     .schedule-details {
-        text-align: center;
+        font-size: 12px;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Optional: Center align elements for a more uniform look on smaller screens */
+    .schedule-details-dates-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
     .btn-outline-primary {
@@ -308,26 +356,42 @@
 @media (max-width: 768px) {
     .upcoming-schedule {
         max-width: 100%;
-        margin: 0 auto;
     }
 
     /* Stacks items vertically */
     .schedule-list {
         width: 100%;
-        padding: 0;
     }
 
     .schedule-item {
         flex-direction: column;
-        align-items: center;
     }
 
     .schedule-details {
+        font-size: 14px;
+        width: 100%;
+    }
+
+    .schedule-dates {
+        width: 100%;
+    }
+
+    /* .schedule-details {
         text-align: center;
+    } */
+
+    .schedule-details-dates-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
     }
 
     .schedule-icon-text, .schedule-dates {
-        text-align: center;
+        text-align: left;
+    }
+
+    .schedule-icon-text {
+        width: 35%;
     }
 
     .btn-outline-primary {
@@ -338,12 +402,23 @@
 /* Small Mobile Devices (max-width: 576px) */
 @media (max-width: 576px) {
     .schedule-item {
+        flex-direction: column;
         padding: 2em 1em;
     }
 
     .date-item {
         min-width: 45px;
         font-size: 0.8rem;
+    }
+
+    .schedule-icon-text {
+        width: 100%;    
+    }
+
+    .schedule-details-dates-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 }
 
