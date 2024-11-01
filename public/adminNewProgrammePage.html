@@ -26,7 +26,7 @@
             <div class="container mt-5">
                 <div class="header">New Programme</div>
                 <form>
-                    <!-- Updated form inputs without the .form-control class -->
+                    <!-- Programme Title and Picture -->
                     <section class="programme-title-section mb-4">
                         <label for="programmeTitle" class="form-label">Title</label>
                         <input type="text" id="programmeTitle" placeholder="Programme Name" class="custom-input">
@@ -37,6 +37,7 @@
                         <input type="file" accept="image/*" class="custom-input">
                     </section>
 
+                    <!-- Programme Description -->
                     <section class="programme-description-section mb-4">
                         <label for="programmeDescription" class="form-label">Description</label>
                         <textarea id="programmeDescription" rows="3" placeholder="Details of the Programme" class="custom-input"></textarea>
@@ -45,43 +46,57 @@
                     <!-- Classes Section -->
                     <section class="programme-classes-section mb-4">
                         <label class="form-label">Classes</label>
-                        <div class="classes-container">
-                            <div class="class-item border p-3 mb-3 rounded">
-                                <div class="class-inputs-group">
-                                    <input type="text" class="form-control class-input" placeholder="Class 1">
-                                    <input type="text" class="form-control class-input" placeholder="Capacity">
-                                    <input type="text" class="form-control class-input" placeholder="Difficulty">
-                                    <input type="text" class="form-control class-input" placeholder="Time">
+                        <div class="accordion" id="classesAccordion">
+                            <div class="accordion-item class-item border mb-3 rounded">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#class1">
+                                        Class 1
+                                    </button>
+                                    <button type="button" class="btn-delete-class">&times;</button>
+                                </h2>
+                                <div id="class1" class="accordion-collapse collapse" data-bs-parent="#classesAccordion">
+                                    <div class="accordion-body">
+                                        <input type="text" class="custom-input mb-2" placeholder="Capacity">
+                                        <input type="text" class="custom-input mb-2" placeholder="Difficulty">
+                                        <input type="text" class="custom-input mb-2" placeholder="Time">
+                                        <div class="custom-input-group mb-2">
+                                            <input type="text" class="custom-input small-input" placeholder="Day">
+                                            <button class="btn-delete-day">&times;</button>
+                                        </div>
+                                        <button type="button" class="btn btn-add-day">+ Add Day</button>
+                                    </div>
                                 </div>
-                                <div class="custom-input-group mb-2">
-                                    <input type="text" class="form-control class-input" placeholder="Day 1">
-                                    <button class="btn-delete">&times;</button>
-                                </div>
-                                <button type="button" class="btn btn-add-day">+ Add Day</button>
                             </div>
                         </div>
                         <button type="button" class="btn btn-outline-warning mt-3 btn-add-class">Add Class</button>
                     </section>
 
+                    <!-- Programme Fees Section -->
                     <section class="programme-fees-section mb-4">
                         <label class="form-label">Programme Fees</label>
-                        <div class="fees-container">
-                            <div class="fee-item border p-3 mb-3 rounded">
-                                <div class="fee-inputs-group">
-                                    <input type="text" class="form-control fee-input" placeholder="Fee 1">
-                                    <input type="text" class="form-control fee-input" placeholder="Name">
-                                    <input type="text" class="form-control fee-input" placeholder="Description">
+                        <div class="accordion" id="feesAccordion">
+                            <div class="accordion-item fee-item border mb-3 rounded">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#fee1">
+                                        Fee 1
+                                    </button>
+                                    <button type="button" class="btn-delete-fee">&times;</button>
+                                </h2>
+                                <div id="fee1" class="accordion-collapse collapse" data-bs-parent="#feesAccordion">
+                                    <div class="accordion-body">
+                                        <input type="text" class="custom-input mb-2" placeholder="Name">
+                                        <input type="text" class="custom-input mb-2" placeholder="Description">
+                                        <div class="additional-info mb-2">
+                                            <input type="text" class="custom-input small-input" placeholder="Info">
+                                            <button class="btn-delete-info">&times;</button>
+                                        </div>
+                                        <button type="button" class="btn btn-add-info">+ Add Info</button>
+                                    </div>
                                 </div>
-                                <div class="additional-info mb-2">
-                                    <input type="text" class="form-control info-input" placeholder="Info 1">
-                                    <button class="btn-delete">&times;</button>
-                                </div>
-                                <button type="button" class="btn btn-add-info">+ Add Info</button>
                             </div>
                         </div>
                         <button type="button" class="btn btn-outline-warning mt-3 btn-add-fee">Add Fee</button>
                     </section>
-
 
                     <button type="submit" class="btn-programme">Add Programme</button>
                 </form>
