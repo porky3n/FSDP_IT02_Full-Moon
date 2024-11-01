@@ -28,13 +28,14 @@ exports.adminLogin = async (req, res) => {
     // Set the session variable to indicate an admin login
     req.session.isAdmin = true;
 
-    // Redirect to the admin home page
-    res.redirect('/adminHomePage.html');
+    // Respond with JSON indicating a successful login
+    res.status(200).json({ message: 'Admin login successful' });
   } catch (error) {
     console.error('Error during admin login:', error);
     res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
+
 
 
 // Handle signup
@@ -109,9 +110,16 @@ exports.login = async (req, res) => {
       expiresIn: '1h',
     });
 
-    return res.json({ message: 'Login successful', token });
+    // Set session data to maintain login state
+    req.session.isLoggedIn = true;
+    req.session.accountId = account.AccountID;
+    req.session.accountType = account.AccountType;
+
+    // Send a success response
+    res.json({ message: 'Login successful' });
   } catch (error) {
-    return res.status(500).json({ message: 'Error logging in', error: error.message });
+    console.error('Error during login:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
