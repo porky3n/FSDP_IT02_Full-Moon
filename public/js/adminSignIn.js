@@ -4,33 +4,34 @@ document.getElementById('adminSignInForm').addEventListener('submit', handleAdmi
 
 async function handleAdminLogin(event) {
     event.preventDefault(); // Prevent form submission
-
+  
     const email = document.querySelector('input[placeholder="Admin Email"]').value;
     const password = document.querySelector('input[placeholder="Password"]').value;
-
+  
     try {
-        const response = await fetch('/auth/admin-login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email, password })
-        });
-
-        const result = await response.json();
-
-        if (response.ok && result.message === 'Admin login successful') {
-            // Successful login as admin
-            window.location.href = 'adminHomePage.html'; // Redirect to admin home page
-        } else {
-            // Display an error message
-            displayError(result.message || 'Login failed. Please try again.');
-        }
+      const response = await fetch('/auth/admin-login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      });
+  
+      const result = await response.json();
+  
+      if (response.ok && result.message === 'Admin login successful') {
+        // Successful login as admin, redirect
+        window.location.href = 'adminHomePage.html';
+      } else {
+        // Display an error message
+        displayError(result.message || 'Login failed. Please try again.');
+      }
     } catch (error) {
-        displayError('An error occurred during login. Please try again later.');
-        console.error('Error:', error);
+      displayError('An error occurred during login. Please try again later.');
+      console.error('Error:', error);
     }
-}
+  }
+  
 
 function displayError(message) {
     const errorMessage = document.getElementById('error-message');

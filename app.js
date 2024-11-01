@@ -2,26 +2,26 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
+const authRoutes = require('./modules/auth/authRoutes'); // Import auth routes
+const ensureAdminAuthenticated = require('./middlewares/auth');
+
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Import middleware and routes
-const authRoutes = require('./modules/auth/authRoutes'); // Import auth routes from modules/auth
-const ensureAdminAuthenticated = require('./middlewares/auth');
-
-// Middleware for parsing JSON and URL-encoded request bodies
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
 // Set up session handling
 app.use(session({
-  secret: 'jason1234', // Replace with a secure key
+  secret: 'jason1234',
   resave: false,
   saveUninitialized: false,
 }));
 
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Middleware for parsing JSON and URL-encoded request bodies
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 
 // Mount authentication routes at /auth
 app.use('/auth', authRoutes);
