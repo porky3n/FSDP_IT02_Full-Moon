@@ -12,6 +12,49 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("footer-container").innerHTML = data;
     });
 
+  // Fetch initial profile data
+  async function fetchProfileData() {
+    try {
+      const response = await fetch("/auth/profile", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const profileData = await response.json();
+
+      // Populate form fields
+      document.getElementById("firstName").value = profileData.FirstName || "";
+      document.getElementById("lastName").value = profileData.LastName || "";
+      document.getElementById("email").value = profileData.Email || "";
+      document.getElementById("phoneNumber").value =
+        profileData.ContactNumber || "";
+      document.getElementById("dietary").value = profileData.Dietary || "";
+
+      // Store initial data for change detection
+      initialFormData = {
+        firstName: profileData.FirstName || "",
+        lastName: profileData.LastName || "",
+        email: profileData.Email || "",
+        contactNumber: profileData.ContactNumber || "",
+        dietary: profileData.Dietary || "",
+      };
+    } catch (error) {
+      console.error("Error fetching profile data:", error);
+      alert("Failed to load profile data. Please try again later.");
+    }
+  }
+
+  // Call fetchProfileData when the page loads
+  fetchProfileData();
+
   // Handle profile picture upload
   const uploadButton = document.getElementById("uploadButton");
   const profilePictureInput = document.getElementById("profilePictureInput");
@@ -51,6 +94,8 @@ document.addEventListener("DOMContentLoaded", function () {
       firstName: document.getElementById("firstName").value,
       lastName: document.getElementById("lastName").value,
       email: document.getElementById("email").value,
+      contactNumber: document.getElementById("phoneNumber").value,
+      dietary: document.getElementById("dietary").value,
       profilePicture: document.getElementById("profilePreview").src,
     };
   }
@@ -63,7 +108,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Function to check if form has changes
   function hasFormChanges() {
     const currentData = getCurrentFormData();
-    return Object.keys(initialFormData).some(
+    return Object.keys(currentData).some(
       (key) => initialFormData[key] !== currentData[key]
     );
   }
@@ -100,7 +145,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Handle form submission
   if (form) {
-    form.addEventListener("submit", function (e) {
+    form.addEventListener("submit", async function (e) {
       e.preventDefault();
 
       // Check if all required fields are filled
@@ -115,16 +160,50 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // Get full phone number with country code
-      const countryCode = document.getElementById("countryCode").value;
-      const phoneNumber = document.getElementById("phoneNumber").value;
-      const fullPhoneNumber = `${countryCode} ${phoneNumber}`;
+      // Show custom modal instead of confirm()
+      const modal = document.getElementById("confirmationModal");
+      modal.style.display = "flex";
 
-      console.log("Full Phone Number:", fullPhoneNumber);
+      // Handle confirm button click
+      document.getElementById("confirmSave").onclick = async function () {
+        modal.style.display = "none";
 
-      // If everything is valid and changes were made, proceed with submission
-      alert("Profile updated successfully!");
-      window.location.href = "./user-profile.html";
+        try {
+          const formData = {
+            firstName: document.getElementById("firstName").value,
+            lastName: document.getElementById("lastName").value,
+            email: document.getElementById("email").value,
+            contactNumber: document.getElementById("phoneNumber").value,
+            dietary: document.getElementById("dietary").value,
+          };
+
+          const response = await fetch("/auth/profile", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            credentials: "include",
+            body: JSON.stringify(formData),
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+
+          const result = await response.json();
+          initialFormData = getCurrentFormData();
+          window.location.href = "./user-profile.html";
+        } catch (error) {
+          console.error("Error updating profile:", error);
+          alert("Failed to update profile. Please try again later.");
+        }
+      };
+
+      // Handle cancel button click
+      document.getElementById("cancelSave").onclick = function () {
+        modal.style.display = "none";
+      };
     });
   }
 

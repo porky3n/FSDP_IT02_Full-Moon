@@ -18,7 +18,7 @@ async function executeSQL() {
     console.log("Connected to MySQL server!");
 
     // Execute tableCreation.sql
-    const tableSqlPath = path.join(__dirname, "SQL Scripts/tableCreation.sql");
+    const tableSqlPath = path.join(__dirname, "SQL Scripts/userprofile.sql");
     let tableSql = fs.readFileSync(tableSqlPath, "utf8");
     tableSql = tableSql.replace(/\r/g, "").trim(); // Sanitize
     const tableQueries = tableSql
