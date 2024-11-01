@@ -1,4 +1,62 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // Function to load existing children
+  async function loadExistingChildren() {
+    try {
+      // Replace with your actual API endpoint
+      const response = await fetch(
+        "/api/children?parentId=" + getCurrentParentId()
+      );
+      const children = await response.json();
+
+      const existingChildrenContainer =
+        document.getElementById("existingChildren");
+      existingChildrenContainer.innerHTML = ""; // Clear existing content
+
+      children.forEach((child) => {
+        const childCard = createChildCard(child);
+        existingChildrenContainer.appendChild(childCard);
+      });
+    } catch (error) {
+      console.error("Error loading existing children:", error);
+    }
+  }
+
+  // Function to create child card element
+  function createChildCard(child) {
+    const card = document.createElement("div");
+    card.className = "child-card mb-4 p-3 border rounded";
+    card.innerHTML = `
+      <div class="row">
+        <div class="col-md-2">
+          <img src="${
+            child.ProfilePictureURL || "/images/default-profile.jpg"
+          }" 
+               class="img-fluid rounded-circle" alt="${
+                 child.FirstName
+               }'s profile">
+        </div>
+        <div class="col-md-8">
+          <h3>${child.FirstName} ${child.LastName}</h3>
+          <p>Date of Birth: ${new Date(
+            child.DateOfBirth
+          ).toLocaleDateString()}</p>
+          <p>School: ${child.School || "Not specified"}</p>
+          <p>Emergency Contact: ${child.EmergencyContactNumber}</p>
+          ${child.Dietary ? `<p>Dietary Needs: ${child.Dietary}</p>` : ""}
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-primary mb-2 w-100" onclick="editChild(${
+            child.ChildID
+          })">Edit</button>
+          <button class="btn btn-danger w-100" onclick="deleteChild(${
+            child.ChildID
+          })">Delete</button>
+        </div>
+      </div>
+    `;
+    return card;
+  }
+
   // Store initial form values
   const form = document.getElementById("childProfileForm");
   let initialFormData = {};
@@ -10,12 +68,15 @@ document.addEventListener("DOMContentLoaded", function () {
       lastName: document.getElementById("lastName").value,
       dob: document.getElementById("dob").value,
       school: document.getElementById("school").value,
-      level: document.getElementById("level").value,
-      email: document.getElementById("email").value,
-      biography: document.getElementById("biography").value,
+      emergencyContact: document.getElementById("emergencyContact").value,
+      gender: document.getElementById("gender").value,
+      dietary: document.getElementById("dietary").value,
       profilePicture: document.getElementById("profilePreview").src,
     };
   }
+
+  // Load existing children when page loads
+  loadExistingChildren();
 
   // Store initial values once the form is loaded
   if (form) {
@@ -35,13 +96,10 @@ document.addEventListener("DOMContentLoaded", function () {
     profilePictureInput.addEventListener("change", function (e) {
       if (e.target.files && e.target.files[0]) {
         const file = e.target.files[0];
-
-        // Validate file type
         if (!file.type.startsWith("image/")) {
           alert("Please upload an image file");
           return;
         }
-
         const reader = new FileReader();
         reader.onload = function (event) {
           profilePreview.src = event.target.result;
@@ -59,15 +117,52 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   }
 
-  // Function to validate email
-  function isValidEmail(email) {
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailPattern.test(email);
+  // Handle form submission
+  if (form) {
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      if (!validateForm()) {
+        alert("Please fill in all required fields correctly.");
+        return;
+      }
+
+      if (!hasFormChanges()) {
+        alert("No changes have been made to the form.");
+        return;
+      }
+
+      try {
+        const formData = getCurrentFormData();
+        // Replace with your actual API endpoint
+        const response = await fetch("/api/children", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
+
+        if (response.ok) {
+          alert("Child profile added successfully!");
+          loadExistingChildren(); // Reload the list of children
+          form.reset(); // Reset the form
+          initialFormData = getCurrentFormData(); // Reset initial form data
+        } else {
+          alert("Error adding child profile. Please try again.");
+        }
+      } catch (error) {
+        console.error("Error submitting form:", error);
+        alert("Error adding child profile. Please try again.");
+      }
+    });
   }
 
-  // Function to validate form
+  // Function to validate form (including new fields)
   function validateForm() {
-    const inputs = form.querySelectorAll("input[required], textarea[required]");
+    const inputs = form.querySelectorAll(
+      "input[required], textarea[required], select[required]"
+    );
     let isValid = true;
 
     inputs.forEach((input) => {
@@ -79,59 +174,44 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-    // Special validation for email
-    const emailInput = document.getElementById("email");
-    if (emailInput.value.trim() && !isValidEmail(emailInput.value.trim())) {
-      emailInput.classList.add("is-invalid");
-      isValid = false;
-    }
-
     return isValid;
   }
 
-  // Handle form submission
-  if (form) {
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-
-      // Check if all required fields are filled
-      if (!validateForm()) {
-        alert("Please fill in all required fields correctly.");
-        return;
-      }
-
-      // Check if any changes were made
-      if (!hasFormChanges()) {
-        alert("No changes have been made to the form.");
-        return;
-      }
-
-      // If everything is valid and changes were made, proceed with submission
-      alert("Child profile added successfully!");
-      window.location.href = "./user-profile.html";
-    });
-  }
-
-  // Handle cancel button
-  const cancelBtn = document.getElementById("cancelBtn");
-  if (cancelBtn) {
-    cancelBtn.addEventListener("click", function (e) {
-      e.preventDefault();
-      if (
-        confirm(
-          "Are you sure you want to cancel? All entered information will be lost."
-        )
-      ) {
-        window.location.href = "./user-profile.html";
-      }
-    });
-  }
-
-  // Add input event listeners to remove invalid state when user starts typing
-  const inputs = form.querySelectorAll("input[required], textarea[required]");
+  // Add input event listeners to remove invalid state
+  const inputs = form.querySelectorAll(
+    "input[required], textarea[required], select[required]"
+  );
   inputs.forEach((input) => {
     input.addEventListener("input", function () {
       this.classList.remove("is-invalid");
     });
   });
+
+  // Handle edit child function
+  window.editChild = function (childId) {
+    // Implement edit functionality
+    console.log("Edit child:", childId);
+    // You would typically load the child's data into the form
+  };
+
+  // Handle delete child function
+  window.deleteChild = async function (childId) {
+    if (confirm("Are you sure you want to delete this child profile?")) {
+      try {
+        // Replace with your actual API endpoint
+        const response = await fetch(`/api/children/${childId}`, {
+          method: "DELETE",
+        });
+
+        if (response.ok) {
+          loadExistingChildren(); // Reload the list
+        } else {
+          alert("Error deleting child profile");
+        }
+      } catch (error) {
+        console.error("Error deleting child:", error);
+        alert("Error deleting child profile");
+      }
+    }
+  };
 });

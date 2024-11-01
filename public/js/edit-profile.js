@@ -51,12 +51,6 @@ document.addEventListener("DOMContentLoaded", function () {
       firstName: document.getElementById("firstName").value,
       lastName: document.getElementById("lastName").value,
       email: document.getElementById("email").value,
-<<<<<<< HEAD
-      dietary: document.getElementById("dietary").value,
-      countryCode: document.getElementById("countryCode").value,
-      phoneNumber: document.getElementById("phoneNumber").value,
-=======
->>>>>>> 6a00b93b6662dd7873a01d1a8d8b2cd0108dee1c
       profilePicture: document.getElementById("profilePreview").src,
     };
   }
@@ -139,11 +133,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (addChildBtn) {
     addChildBtn.addEventListener("click", function (e) {
       e.preventDefault();
-<<<<<<< HEAD
-      window.location.href = "../add-child.html";
-=======
       window.location.href = "./add-child.html"; // Adjust path as needed
->>>>>>> 6a00b93b6662dd7873a01d1a8d8b2cd0108dee1c
     });
   }
 
