@@ -28,56 +28,69 @@ confirmPassword.addEventListener("input", function () {
 });
 
 // Form submission handler
-const signUpForm = document.getElementById("signUpForm");
-signUpForm.addEventListener("submit", function (event) {
-  event.preventDefault(); // Prevent form submission
+// /public/js/userSignUp.js
 
-  // Check if passwords match
-  if (password.value !== confirmPassword.value) {
-    passwordError.style.display = "block";
-    return;
-  }
+document
+  .getElementById("signUpForm")
+  .addEventListener("submit", async function (event) {
+    event.preventDefault(); // Prevent the default form submission
 
-  // Get all form data
-  const formData = {
-    firstName: document.getElementById("firstName").value,
-    lastName: document.getElementById("lastName").value,
-    email: document.getElementById("email").value,
-    dob: document.getElementById("dob").value,
-    password: password.value,
-    timestamp: new Date().toISOString(),
-  };
+    // Gather form data
+    const firstName = document.querySelector(
+      'input[placeholder="First Name"]'
+    ).value;
+    const lastName = document.querySelector(
+      'input[placeholder="Last Name"]'
+    ).value;
+    const email = document.querySelector('input[type="email"]').value;
+    const dob = document.getElementById("dob").value;
+    const countryCode = document.getElementById("countryCode").value;
+    const phoneNumber = document.querySelector('input[type="tel"]').value;
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+    const termsAccepted = document.getElementById("terms").checked;
+    const passwordError = document.getElementById("passwordError");
 
-  // Store user data in localStorage
-  try {
-    // Get existing users or initialize empty array
-    const existingUsers = JSON.parse(localStorage.getItem("users")) || [];
+    // Validate password confirmation
+    if (password !== confirmPassword) {
+      passwordError.style.display = "block";
+      return;
+    } else {
+      passwordError.style.display = "none";
+    }
 
-    // Add new user
-    existingUsers.push(formData);
+    if (!termsAccepted) {
+      alert("Please accept the terms and privacy policy.");
+      return;
+    }
 
-    // Save back to localStorage
-    localStorage.setItem("users", JSON.stringify(existingUsers));
+    try {
+      // Send data to backend
+      const response = await fetch("/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          email,
+          dob,
+          phoneNumber: countryCode + phoneNumber,
+          password,
+        }),
+      });
 
-    // Optional: Store current user separately
-    localStorage.setItem("currentUser", JSON.stringify(formData));
+      const result = await response.json();
 
-    // Clear the form
-    signUpForm.reset();
-
-    // Show success message
-    alert("Sign up successful!");
-
-    // Optional: Redirect to another page
-    // window.location.href = 'dashboard.html';
-  } catch (error) {
-    console.error("Error saving user data:", error);
-    alert("There was an error signing up. Please try again.");
-  }
-});
-
-// Optional: Function to retrieve users (for reference)
-function getUsers() {
-  const users = localStorage.getItem("users");
-  return users ? JSON.parse(users) : [];
-}
+      if (response.ok) {
+        alert("Account created successfully! Redirecting to sign in.");
+        window.location.href = "/userSignIn.html"; // Redirect to sign-in page
+      } else {
+        alert(result.message || "Signup failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An error occurred during signup. Please try again.");
+    }
+  });
