@@ -18,7 +18,7 @@ async function executeSQL() {
 
     console.log('Connected to MySQL server!');
     // Read the SQL file
-    const sqlPath = path.join(__dirname, 'SQL Scripts/tableCreation.sql');
+    const sqlPath = path.join(__dirname, 'SQL Scripts/testdata.sql');
     let sql = fs.readFileSync(sqlPath, 'utf8');
 
     // Sanitize SQL content: Remove unnecessary line breaks and extra spaces
