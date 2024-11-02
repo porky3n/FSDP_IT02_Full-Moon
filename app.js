@@ -5,6 +5,7 @@ const session = require("express-session");
 const cors = require("cors");
 const authRoutes = require("./modules/auth/authRoutes"); // Import auth routes
 const profileRoutes = require("./modules/auth/profileRoutes"); // Import profile routes
+const userProfileRoutes = require("./modules/auth/userProfileRoutes");
 const ensureAdminAuthenticated = require("./middlewares/auth");
 
 const app = express();
@@ -30,6 +31,10 @@ app.use(
   })
 );
 
+// Serve static files
+app.use(express.static(path.join(__dirname, "public")));
+app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
+
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -39,7 +44,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Mount authentication routes at /auth
 app.use("/auth", authRoutes);
-
+app.use("/api", userProfileRoutes);
 app.use("/auth/profile", profileRoutes); // Mount profile routes
 
 // Route for the index page
