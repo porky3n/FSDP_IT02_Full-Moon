@@ -3,6 +3,8 @@ DROP TABLE IF EXISTS Token;
 DROP TABLE IF EXISTS Payment;
 DROP TABLE IF EXISTS Reviews;
 DROP TABLE IF EXISTS Slot;
+DROP TABLE IF EXISTS ProgrammeMeals;
+DROP TABLE IF EXISTS ProgrammeDetails;
 DROP TABLE IF EXISTS Programme;
 DROP TABLE IF EXISTS Child;
 DROP TABLE IF EXISTS Parent;
@@ -53,14 +55,33 @@ CREATE TABLE Programme (
     ProgrammeID INT AUTO_INCREMENT PRIMARY KEY,
     ProgrammeName VARCHAR(255) NOT NULL,
     Category ENUM('Workshop') NOT NULL,
+    Description TEXT NOT NULL
+);
+
+-- Create ProgrammeDetails table
+CREATE TABLE ProgrammeDetails (
+    ProgrammeClassID INT, -- Class 1, Class 2, etc.
+    ProgrammeID INT, 
     Location VARCHAR(200) NOT NULL,
-    Description TEXT NOT NULL,
     StartDate DATE NOT NULL,
     EndDate DATE NOT NULL,
     Fee DECIMAL(10,2) CHECK (Fee >= 0) NOT NULL,
     MaxSlots INT CHECK (MaxSlots > 0) NOT NULL,
     ProgrammeLevel ENUM('Beginner', 'Intermediate', 'Advanced') NOT NULL,
+    CONSTRAINT PK_ProgrammeDetails PRIMARY KEY (ProgrammeClassID, ProgrammeID),
+    CONSTRAINT FK_ProgrammeDetails_Programme FOREIGN KEY (ProgrammeID) REFERENCES Programme(ProgrammeID),
     CHECK (EndDate >= StartDate)
+);
+
+-- Create ProgrammeMeals table
+CREATE TABLE ProgrammeMeals (
+    ProgrammeClassID INT NOT NULL,
+    ProgrammeID INT NOT NULL,
+    Breakfast BOOLEAN DEFAULT FALSE,
+    Lunch BOOLEAN DEFAULT FALSE,
+    Dinner BOOLEAN DEFAULT FALSE,
+    Remarks TEXT NULL,
+    CONSTRAINT FK_ProgrammeMeals_ProgrammeDetails FOREIGN KEY (ProgrammeClassID, ProgrammeID) REFERENCES ProgrammeDetails(ProgrammeClassID, ProgrammeID)
 );
 
 -- Create Slot table
