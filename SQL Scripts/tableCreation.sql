@@ -4,6 +4,8 @@ DROP TABLE IF EXISTS Payment;
 DROP TABLE IF EXISTS Reviews;
 DROP TABLE IF EXISTS Slot;
 DROP TABLE IF EXISTS ProgrammeMeals;
+DROP TABLE IF EXISTS ProgrammeSchedule;
+DROP TABLE IF EXISTS ProgrammeClass;
 DROP TABLE IF EXISTS ProgrammeDetails;
 DROP TABLE IF EXISTS Programme;
 DROP TABLE IF EXISTS Child;
@@ -16,7 +18,7 @@ CREATE TABLE Account (
     Email VARCHAR(100) NOT NULL UNIQUE,
     AccountType ENUM('P', 'A') NOT NULL, -- Parent, Admin
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    PasswordHashed VARCHAR(255) NOT NULL
+    PasswordHashed VARCHAR(1000) NOT NULL
 );
 
 -- Create Parent table  
@@ -54,23 +56,33 @@ CREATE TABLE Child (
 CREATE TABLE Programme (
     ProgrammeID INT AUTO_INCREMENT PRIMARY KEY,
     ProgrammeName VARCHAR(255) NOT NULL,
-    Category ENUM('Workshop') NOT NULL,
+    Category TEXT NOT NULL, -- seper
+    ProgrammePictureURL TEXT NULL,
     Description TEXT NOT NULL
 );
 
--- Create ProgrammeDetails table
-CREATE TABLE ProgrammeDetails (
+-- Create ProgrammeClass table
+CREATE TABLE ProgrammeClass (
     ProgrammeClassID INT, -- Class 1, Class 2, etc.
     ProgrammeID INT, 
-    Location VARCHAR(200) NOT NULL,
-    StartDate DATE NOT NULL,
-    EndDate DATE NOT NULL,
-    Fee DECIMAL(10,2) CHECK (Fee >= 0) NOT NULL,
+    Location VARCHAR(200) NOT NULL, -- if it's online, can be the link to the online class
+    Fee DECIMAL(10,2) CHECK (Fee >= 0) NOT NULL, -- allows for free classes given that the company wants to give back to the community / promotions
     MaxSlots INT CHECK (MaxSlots > 0) NOT NULL,
     ProgrammeLevel ENUM('Beginner', 'Intermediate', 'Advanced') NOT NULL,
-    CONSTRAINT PK_ProgrammeDetails PRIMARY KEY (ProgrammeClassID, ProgrammeID),
-    CONSTRAINT FK_ProgrammeDetails_Programme FOREIGN KEY (ProgrammeID) REFERENCES Programme(ProgrammeID),
-    CHECK (EndDate >= StartDate)
+    Remarks TEXT NULL, -- any additional information, seperated by '~' 
+    CONSTRAINT PK_ProgrammeClass PRIMARY KEY (ProgrammeClassID, ProgrammeID),
+    CONSTRAINT FK_ProgrammeClass_Programme FOREIGN KEY (ProgrammeID) REFERENCES Programme(ProgrammeID)
+);
+
+-- Create ProgrammeSchedule table
+CREATE TABLE ProgrammeSchedule (
+    ScheduleID INT AUTO_INCREMENT PRIMARY KEY,
+    ProgrammeClassID INT NOT NULL,
+    ProgrammeID INT NOT NULL,
+    StartDateTime DATETIME NOT NULL,
+    EndDateTime DATETIME NOT NULL,
+    CONSTRAINT FK_ProgrammeSchedule_ProgrammeClass FOREIGN KEY (ProgrammeClassID, ProgrammeID) REFERENCES ProgrammeClass(ProgrammeClassID, ProgrammeID),
+    CHECK (EndDateTime > StartDateTime)
 );
 
 -- Create ProgrammeMeals table
@@ -80,23 +92,22 @@ CREATE TABLE ProgrammeMeals (
     Breakfast BOOLEAN DEFAULT FALSE,
     Lunch BOOLEAN DEFAULT FALSE,
     Dinner BOOLEAN DEFAULT FALSE,
-    Remarks TEXT NULL,
-    CONSTRAINT FK_ProgrammeMeals_ProgrammeDetails FOREIGN KEY (ProgrammeClassID, ProgrammeID) REFERENCES ProgrammeDetails(ProgrammeClassID, ProgrammeID)
+    Remarks TEXT NULL, -- any additional information, seperated by '~' 
+    CONSTRAINT FK_ProgrammeMeals_ProgrammeClass FOREIGN KEY (ProgrammeClassID, ProgrammeID) REFERENCES ProgrammeClass(ProgrammeClassID, ProgrammeID)
 );
 
 -- Create Slot table
+-- Created when user books a slot for a class of a programme
 CREATE TABLE Slot (
     SlotID INT AUTO_INCREMENT PRIMARY KEY,
+    ProgrammeClassID INT NOT NULL,
     ProgrammeID INT NOT NULL,
     ParentID INT NULL,
     ChildID INT NULL,
-    StartDateTime DATETIME NOT NULL,
-    EndDateTime DATETIME NOT NULL,
-    CONSTRAINT FK_Slot_Programme FOREIGN KEY (ProgrammeID) REFERENCES Programme(ProgrammeID),
+    CONSTRAINT FK_Slot_Programme FOREIGN KEY (ProgrammeClassID, ProgrammeID) REFERENCES ProgrammeClass(ProgrammeClassID, ProgrammeID),
     CONSTRAINT FK_Slot_Parent FOREIGN KEY (ParentID) REFERENCES Parent(ParentID),
     CONSTRAINT FK_Slot_Child FOREIGN KEY (ChildID) REFERENCES Child(ChildID),
-    CHECK (EndDateTime > StartDateTime),
-    CHECK ((ParentID IS NOT NULL AND ChildID IS NULL) OR (ParentID IS NULL AND ChildID IS NOT NULL))
+    CHECK ((ParentID IS NOT NULL AND ChildID IS NULL) OR (ParentID IS NULL AND ChildID IS NOT NULL)) -- ensures that user is either a parent or a child
 );
 
 -- Create Reviews table
@@ -117,11 +128,12 @@ CREATE TABLE Payment (
     SlotID INT NOT NULL,
     PaymentAmount DECIMAL(10,2) CHECK (PaymentAmount > 0) NOT NULL,
     PaymentDate DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    PaymentMethod ENUM('PayNow') NOT NULL,
+    PaymentMethod VARCHAR(255) NOT NULL,
     CONSTRAINT FK_Payment_Slot FOREIGN KEY (SlotID) REFERENCES Slot(SlotID)
 );
 
 -- Create Token table
+-- delete token after it expires or if a newer token is generated
 CREATE TABLE Token (
     TokenID INT AUTO_INCREMENT PRIMARY KEY,
     AccountID INT NOT NULL,

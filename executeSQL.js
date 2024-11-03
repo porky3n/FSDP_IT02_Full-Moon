@@ -17,31 +17,18 @@ async function executeSQL() {
 
     console.log('Connected to MySQL server!');
 
-    // Execute tableCreation.sql
-    const tableSqlPath = path.join(__dirname, 'SQL Scripts/tableCreation.sql');
+    // Execute SQL Script
+    const tableSqlPath = path.join(__dirname, 'SQL Scripts/tableCreation.sql'); // Path to SQL script, change as needed
     let tableSql = fs.readFileSync(tableSqlPath, 'utf8');
     tableSql = tableSql.replace(/\r/g, '').trim(); // Sanitize
     const tableQueries = tableSql.split(';').map(q => q.trim()).filter(q => q.length);
     
-    console.log('Executing table creation script...');
+    console.log('Executing script...');
     for (const query of tableQueries) {
       console.log(`Executing: ${query}`);
       await connection.query(query);
     }
-    console.log('Table creation script executed successfully!');
-
-    // Execute dummyData.sql
-    const dummySqlPath = path.join(__dirname, 'SQL Scripts/dummyData.sql');
-    let dummySql = fs.readFileSync(dummySqlPath, 'utf8');
-    dummySql = dummySql.replace(/\r/g, '').trim(); // Sanitize
-    const dummyQueries = dummySql.split(';').map(q => q.trim()).filter(q => q.length);
-    
-    console.log('Executing dummy data script...');
-    for (const query of dummyQueries) {
-      console.log(`Executing: ${query}`);
-      await connection.query(query);
-    }
-    console.log('Dummy data script executed successfully!');
+    console.log('SQL Script executed successfully!');
 
     // Close the connection
     await connection.end();
