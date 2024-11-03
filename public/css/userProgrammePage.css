@@ -336,6 +336,11 @@ height: 16px; /* Adjust the height as needed */
 display: block;
 }
 
+.search-input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
 .input-group {
 overflow: hidden; /* Ensures the icon doesn't cut off the border */
 border-radius: 15px; /* Match the border radius */

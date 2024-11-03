@@ -172,7 +172,7 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    width: 40%;
+    width: 30%;
 }
 
 .schedule-icon-text i {
@@ -195,6 +195,7 @@
 .schedule-info {
     display: flex;  
     align-items: center;
+    font-size: 14px;
 }
 /* Date and Badge Styles */
 .schedule-dates {
@@ -212,12 +213,11 @@
 }
 
 .date-list {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start; /* Distributes items evenly */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(65px, 1fr)); /* Creates equal-width columns */
+    gap: 5px;
     padding-left: 5%;
-    padding-right: 5%;
-    gap: 5px; /* Optional: Adds a small gap between items */
+    padding-right: 5%;/* Optional: Adds a small gap between items */
 }
 
 .date-item {
@@ -251,6 +251,7 @@
 .schedule-details-dates-container {
     display: flex;
     flex-direction: row;
+    width: 100%;
 }
 /* Responsive Styles */
 

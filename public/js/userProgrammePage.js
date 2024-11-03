@@ -71,7 +71,7 @@ async function populateFeaturedPrograms() {
 
 // Populate the private coaching section
 async function populatePrivateCoaching() {
-  const programs = await getProgramsData("/api/programme/Private Coaching");
+  const programs = await getProgramsData("/api/programme/category/Workshop");
   const privateCoachingContainer = document.querySelector('.private .row.mt-4');
   privateCoachingContainer.innerHTML = ''; // Clear existing content if needed
 
@@ -153,3 +153,5 @@ async function initPage() {
 }
 
 document.addEventListener("DOMContentLoaded", initPage);
+
+

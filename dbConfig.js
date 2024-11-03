@@ -11,21 +11,33 @@
 //     },
 // };
 
-// Load environment variables from .env
-require('dotenv').config();
-const mysql = require('mysql2');
+// // Load environment variables from .env
+// require('dotenv').config();
+// const mysql = require('mysql2');
 
-// Create a connection pool (recommended for production)
-const pool = mysql.createPool({
-  host: process.env.MYSQL_HOST,
-  user: process.env.MYSQL_USER,
-  password: process.env.MYSQL_PASSWORD,
-  database: process.env.MYSQL_DATABASE,
-  port: process.env.MYSQL_PORT,
-  waitForConnections: true,
-  connectionLimit: 10,  // Adjust based on your usage
-  queueLimit: 0
-});
+// // Create a connection pool (recommended for production)
+// const pool = mysql.createPool({
+//   host: process.env.MYSQL_HOST,
+//   user: process.env.MYSQL_USER,
+//   password: process.env.MYSQL_PASSWORD,
+//   database: process.env.MYSQL_DATABASE,
+//   port: process.env.MYSQL_PORT,
+//   waitForConnections: true,
+//   connectionLimit: 10,  // Adjust based on your usage
+//   queueLimit: 0
+// });
 
-// Export the pool to use in other parts of your app
-module.exports = pool.promise();
+// // Export the pool to use in other parts of your app
+// module.exports = pool.promise();
+
+module.exports = {
+  user: "booksapi_user", // Replace with your SQL Server login username
+  password: "booksapi_user", // Replace with your SQL Server login password
+  server: "localhost",
+  database: "FSDP",
+  trustServerCertificate: true,
+  options: {
+    port: 1433, // Default SQL Server port
+    connectionTimeout: 60000, // Connection timeout in milliseconds
+  },
+};

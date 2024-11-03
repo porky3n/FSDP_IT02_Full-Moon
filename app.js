@@ -51,8 +51,42 @@ app.get('/programme/:id', async (req, res) => {
 app.get('/api/programme', programmeController.getAllProgrammes);
 app.get('/api/featuredProgramme', programmeController.getFeaturedProgrammes);
 app.get('/api/searchProgramme', programmeController.searchProgrammes);
-app.get('/api/programme/:programmeID', programmeController.getProgrammeByID);
-app.get('/api/programme/:category', programmeController.getProgrammesByCategory);
+app.get('/api/programme/:id', programmeController.getProgrammeByID);
+
+// Route to get schedules for a specific programme
+app.get("/api/programme/:id/schedules", programmeController.getUpcomingSchedules);
+
+// Route to get fees for a specific programme
+app.get("/api/programme/:id/fees", programmeController.getProgrammeFees);
+
+app.get('/api/programme/category/:category', programmeController.getProgrammesByCategory);
+
+app.get("/api/upcoming-schedules", programmeController.getUpcomingSchedules);
+
+/*chat gpt
+// Route to fetch schedules
+app.get('/api/programme-schedules', async (req, res) => {
+    try {
+        const schedules = await Programme.getUpcomingSchedules();
+        res.json(schedules);
+    } catch (error) {
+        console.error('Error fetching schedules:', error);
+        res.status(500).json({ error: 'Error fetching schedules' });
+    }
+});
+
+// Route to fetch fees
+app.get('/api/programme-fees', async (req, res) => {
+    try {
+        const fees = await Programme.getProgrammeFees();
+        res.json(fees);
+    } catch (error) {
+        console.error('Error fetching fees:', error);
+        res.status(500).json({ error: 'Error fetching fees' });
+    }
+});
+
+*/
 
 // Start the server
 app.listen(port, () => {
