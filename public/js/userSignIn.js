@@ -15,12 +15,17 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
             },
             body: JSON.stringify({ email, password })
         });
-        
 
         const result = await response.json();
 
         if (response.ok) {
-            // If login is successful, redirect the user
+            // If login is successful, store user details in localStorage
+            localStorage.setItem('userDetails', JSON.stringify({
+                firstName: result.firstName, // Ensure the backend response includes firstName
+                email: result.email
+            }));
+
+            // Redirect the user to the home page or desired page
             window.location.href = '/index.html'; // Adjust this path based on your app's structure
         } else {
             // Display error message if login failed

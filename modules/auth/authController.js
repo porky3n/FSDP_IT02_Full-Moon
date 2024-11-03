@@ -36,8 +36,6 @@ exports.adminLogin = async (req, res) => {
   }
 };
 
-
-
 // Handle signup
 exports.signup = async (req, res) => {
   const { firstName, lastName, email, dob, phoneNumber, password } = req.body;
@@ -88,7 +86,6 @@ exports.signup = async (req, res) => {
   }
 };
 
-// Handle login
 exports.login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -99,29 +96,34 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
 
+    // Check if the account type is 'P' (Parent)
+    if (account.AccountType !== 'P') {
+      return res.status(403).json({ message: 'Access denied. Admins please use Admin Portal.' });
+    }
+
     // Compare passwords
     const match = await bcrypt.compare(password, account.PasswordHashed);
     if (!match) {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
 
-    // Generate JWT (JSON Web Token)
-    const token = jwt.sign({ accountId: account.AccountID, accountType: account.AccountType }, process.env.JWT_SECRET, {
-      expiresIn: '1h',
-    });
+    // Fetch the first name from the Parent table
+    const [parentData] = await pool.query('SELECT FirstName FROM Parent WHERE AccountID = ?', [account.AccountID]);
+    const firstName = parentData[0]?.FirstName;
 
-    // Set session data to maintain login state
+    // Set session data
     req.session.isLoggedIn = true;
     req.session.accountId = account.AccountID;
     req.session.accountType = account.AccountType;
 
-    // Send a success response
-    res.json({ message: 'Login successful' });
+    // Send the response with the first name
+    res.json({ message: 'Login successful', firstName, email });
   } catch (error) {
     console.error('Error during login:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 exports.getUsers = async (req, res) => {
   try {
@@ -164,3 +166,156 @@ exports.getUsers = async (req, res) => {
       res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
+
+exports.deleteParent = async (req, res) => {
+  const { parentId } = req.body;
+  try {
+    // Start a transaction to maintain data integrity
+    const connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    try {
+      // Find the AccountID associated with the ParentID
+      const [parentData] = await connection.query('SELECT AccountID FROM Parent WHERE ParentID = ?', [parentId]);
+      if (parentData.length === 0) {
+        throw new Error('Parent not found');
+      }
+
+      const accountId = parentData[0].AccountID;
+
+      // Delete child records associated with the parent
+      await connection.query('DELETE FROM Child WHERE ParentID = ?', [parentId]);
+
+      // Delete the parent record
+      await connection.query('DELETE FROM Parent WHERE ParentID = ?', [parentId]);
+
+      // Delete the account record
+      await connection.query('DELETE FROM Account WHERE AccountID = ?', [accountId]);
+
+      // Commit the transaction
+      await connection.commit();
+      res.status(200).json({ message: 'Parent and associated account deleted successfully' });
+    } catch (error) {
+      // Rollback the transaction in case of error
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  } catch (error) {
+    console.error('Error deleting parent:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+
+exports.deleteChild = async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query('DELETE FROM Child WHERE ChildID = ?', [id]);
+    res.status(200).json({ message: 'Child deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting child:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+exports.updateParent = async (req, res) => {
+  const { id } = req.params;
+  const { firstName, lastName, dob, contactNumber, dietary } = req.body;
+
+  try {
+    const result = await pool.query(
+      `UPDATE Parent SET FirstName = ?, LastName = ?, DateOfBirth = ?, ContactNumber = ?, Dietary = ? WHERE ParentID = ?`,
+      [firstName, lastName, dob, contactNumber, dietary, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Parent not found' });
+    }
+
+    res.status(200).json({ message: 'Parent updated successfully' });
+  } catch (error) {
+    console.error('Error updating parent:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+exports.updateChild = async (req, res) => {
+  const { id } = req.params;
+  const { firstName, lastName, dob, school, dietary } = req.body;
+
+  try {
+    const result = await pool.query(
+      `UPDATE Child SET FirstName = ?, LastName = ?, DateOfBirth = ?, School = ?, Dietary = ? WHERE ChildID = ?`,
+      [firstName, lastName, dob, school, dietary, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Child not found' });
+    }
+
+    res.status(200).json({ message: 'Child updated successfully' });
+  } catch (error) {
+    console.error('Error updating child:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+exports.getParentById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [parent] = await pool.query('SELECT * FROM Parent WHERE ParentID = ?', [id]);
+    res.json(parent[0]);
+  } catch (error) {
+    console.error('Error fetching parent by ID:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+exports.getChildById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [child] = await pool.query('SELECT * FROM Child WHERE ChildID = ?', [id]);
+    res.json(child[0]);
+  } catch (error) {
+    console.error('Error fetching child by ID:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+exports.checkSession = async (req, res) => {
+  if (req.session.isLoggedIn && req.session.accountId) {
+      try {
+          const [parentData] = await pool.query('SELECT FirstName FROM Parent WHERE AccountID = ?', [req.session.accountId]);
+          const firstName = parentData.length > 0 ? parentData[0].FirstName : null;
+
+          return res.json({ isLoggedIn: true, firstName: firstName || 'Guest', email: req.session.email });
+      } catch (error) {
+          console.error('Error fetching session details:', error);
+          return res.status(500).json({ isLoggedIn: false, message: 'Error fetching session details' });
+      }
+  } else {
+      return res.json({ isLoggedIn: false });
+  }
+};
+
+exports.logout = (req, res) => {
+  req.session.destroy(err => {
+      if (err) {
+          console.error('Error during logout:', err);
+          return res.status(500).json({ message: 'Failed to log out' });
+      }
+      res.clearCookie('connect.sid'); // Clear the session cookie
+      res.status(200).json({ message: 'Logged out successfully' });
+  });
+};
+
+
+
+
+
+
+
