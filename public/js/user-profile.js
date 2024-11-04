@@ -35,8 +35,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const userEmail = document.getElementById("userEmail");
 
       if (userName && userEmail) {
-        userName.textContent = "Error loading profile";
-        userEmail.textContent = "Please try again later";
+        userName.textContent = "Guest";
+        userEmail.textContent = "";
       }
     }
   };
