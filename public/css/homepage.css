@@ -1,0 +1,460 @@
+.navbar-brand {
+    padding-left: 300px; /* Adjust padding to move logo right */
+}
+
+.navbar {
+    padding: 20px 30px; /* Adjust navbar padding as needed */
+}
+
+.nav-link {
+    margin-right: 20px; /* Space between nav links */
+}
+.navbar-nav {
+    margin-right: 100px; /* Optional: add left margin for navbar items */
+}
+.btn-warning {
+    background-color: #FFC107; /* Yellow background */
+    color: white; /* White text */
+}
+
+.btn-warning:hover {
+    background-color: #FFA000; /* Darker yellow on hover */
+}
+.hero {
+    background-image: url('images/hero.773f6dce.jpg');
+    background-size: cover;
+    background-position: center;
+    height: 578px; /* Match the height of the uploaded image */
+    display: flex;
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    text-align: center;
+    color: white; /* Text color */
+}
+
+.hero-title {
+    font-size: 36px; /* Adjust font size */
+    font-weight: bold;
+    margin-bottom: 20px; /* Space between title and subtitle */
+}
+
+.highlight {
+    color: #FFC107; /* Highlight color for "Impactful Speaking Skills" */
+}
+
+.hero-subtitle {
+    font-size: 20px; /* Adjust subtitle size */
+    margin-bottom: 30px; /* Space between subtitle and button */
+}
+
+.btn-primary {
+    background-color: #007BFF; /* Bootstrap primary color */
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px; /* Rounded corners */
+    text-decoration: none; /* Remove underline */
+}
+
+.btn-primary:hover {
+    background-color: #0056b3; /* Darker shade on hover */
+}
+.income-sources {
+    background-color: #f7f7f7; /* Light background color */
+    padding: 60px 20px; /* Padding around the section */
+}
+
+.trusted-text {
+    font-size: 16px; /* Font size for trusted companies text */
+    margin-bottom: 15px; /* Space below the text */
+    color: #333; /* Text color */
+}
+
+.trusted-logos {
+    display: flex; /* Use flexbox for logo alignment */
+    justify-content: center; /* Center logos */
+    gap: 150px; /* Space between logos */
+    margin-bottom: 100px; /* Space below the logos */
+}
+
+.headline {
+    font-size: 40px; /* Adjust font size */
+    max-width: 600px; /* Limit width for better readability */
+    font-weight: bold;
+    margin-bottom: 20px; /* Space between headline and description */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.description {
+    font-size: 18px; /* Adjust font size for description */
+    margin-bottom: 40px; /* Space below the description */
+    font-weight: bold;
+    max-width: 600px; /* Limit width for better readability */
+    margin-left: auto;
+    margin-right: auto;
+    
+}
+
+.tlogos1 {
+    width: auto; /* Set a fixed width for both logos */
+    height: 25px; /* Maintain aspect ratio */
+    
+}
+.tlogos {
+    width: 150px; /* Set a fixed width for both logos */
+    height: auto; /* Maintain aspect ratio */
+    max-height: 50px; /* Set a maximum height to ensure consistency */
+}
+.courses {
+    background-color: #f7f7f7; /* Light background color */
+    padding: 60px 20px; /* Padding around the section */
+}
+
+.section-title {
+    font-size: 36px; /* Title font size */
+    font-weight: bold;
+    margin-bottom: 40px; /* Space below the title */
+}
+
+.courses-row {
+    
+    justify-content: space-around; /* Space out the cards */
+    flex-wrap: wrap; /* Allow wrapping */
+}
+
+.course-card {
+    background-color: white; /* Card background */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+    overflow: hidden; /* Clip overflow */
+    max-width: 300px; /* Max width for cards */
+    margin: 10px; /* Space around cards */
+    text-align: left; /* Align text to the left */
+}
+
+.course-image {
+    width: 100%; /* Full width of the card */
+    height: auto; /* Maintain aspect ratio */
+}
+
+.course-content {
+    padding: 20px; /* Padding inside the card */
+}
+
+.course-title {
+    font-size: 24px; /* Title font size */
+    margin-bottom: 10px; /* Space below the title */
+}
+
+.course-details {
+    list-style: none; /* Remove bullet points */
+    padding: 0; /* Remove padding */
+    margin-bottom: 20px; /* Space below the details */
+}
+
+.btn-link {
+    color: #007BFF; /* Bootstrap link color */
+    text-decoration: none; /* Remove underline */
+    font-weight: bold; /* Bold text */
+}
+
+.btn-link:hover {
+    text-decoration: underline; /* Underline on hover */
+}
+.courses {
+    background-color: #f7f7f7; /* Light background color */
+    padding: 60px 20px; /* Padding around the section */
+}
+
+.section-title {
+    font-size: 36px; /* Title font size */
+    font-weight: bold;
+    margin-bottom: 40px; /* Space below the title */
+}
+
+.nav-tabs .nav-link {
+    border: 1px solid transparent; /* Border for tab links */
+    margin-right: 5px; /* Space between tabs */
+}
+
+.nav-tabs .nav-link.active {
+    border-color: #007BFF; /* Active tab border color */
+    background-color: #ffffff; /* Active tab background color */
+}
+
+.course-card {
+    background-color: white; /* Card background */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+    overflow: hidden; /* Clip overflow */
+    max-width: 300px; /* Max width for cards */
+    margin: 10px auto; /* Center the cards */
+    text-align: left; /* Align text to the left */
+}
+
+.course-image {
+    width: 100%; /* Full width of the card */
+    height: auto; /* Maintain aspect ratio */
+}
+
+.course-content {
+    padding: 20px; /* Padding inside the card */
+}
+
+.course-title {
+    font-size: 24px; /* Title font size */
+    margin-bottom: 10px; /* Space below the title */
+}
+
+.course-details {
+    list-style: none; /* Remove bullet points */
+    padding: 0; /* Remove padding */
+    margin-bottom: 20px; /* Space below the details */
+}
+
+.btn-link {
+    color: #007BFF; /* Bootstrap link color */
+    text-decoration: none; /* Remove underline */
+    font-weight: bold; /* Bold text */
+}
+
+.btn-link:hover {
+    text-decoration: underline; /* Underline on hover */
+}
+.courses {
+    background-color: #f7f7f7; /* Light background color */
+    padding: 60px 20px; /* Padding around the section */
+}
+
+.section-title {
+    font-size: 36px; /* Title font size */
+    font-weight: bold;
+    margin-bottom: 40px; /* Space below the title */
+}
+
+.course-card {
+    background-color: white; /* Card background */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+    overflow: hidden; /* Clip overflow */
+    width: 902px; /* Set width to match the image */
+    height: 341px; /* Set height to match the image */
+    margin: auto; /* Center the cards */
+    text-align: left; /* Align text to the left */
+}
+
+.course-image {
+    width: 100%; /* Full width of the card */
+    height: auto; /* Maintain aspect ratio */
+}
+
+.course-content {
+    padding: 20px; /* Padding inside the card */
+}
+
+.course-title {
+    font-size: 24px; /* Title font size */
+    margin-bottom: 10px; /* Space below the title */
+}
+
+.course-details {
+    list-style: none; /* Remove bullet points */
+    padding: 0; /* Remove padding */
+    margin-bottom: 20px; /* Space below the details */
+}
+
+.btn-link {
+    color: #007BFF; /* Bootstrap link color */
+    text-decoration: none; /* Remove underline */
+    font-weight: bold; /* Bold text */
+}
+
+.btn-link:hover {
+    text-decoration: underline; /* Underline on hover */
+}
+#tranding {
+    overflow: hidden; /* Prevent overflow */
+}
+
+.tranding-slider {
+    position: relative; /* Positioning context for children */
+}
+
+.swiper-wrapper {
+    display: flex; /* Use flexbox for layout */
+    align-items: center; /* Center items vertically */
+}
+
+.swiper-slide {
+    width: 50%; /* Width of each slide, adjusted for gaps */
+    transition: transform 0.5s; /* Smooth transition */
+    opacity: 0.7; /* Slightly transparent for non-active slides */
+    margin: 30px; /* Allow for visible overflow and add gaps */
+    box-sizing: border-box; /* Include padding and border in width */
+}
+
+.swiper-slide-active {
+    opacity: 1; /* Fully visible for the active slide */
+    transform: scale(1.1); /* Scale up the active slide */
+}
+
+.tranding-slide {
+    position: relative; /* Allows for absolute positioning of content */
+}
+
+.tranding-slide-img img {
+    width: 100%; /* Full width of the slide */
+    height: auto; /* Maintain aspect ratio */
+    border-radius: 0.7rem; /* Rounded corners */
+}
+
+.tranding-slide-content {
+    position: absolute; /* Position text absolutely */
+    bottom: 20%; /* Position from the bottom */
+    left: 5%; /* Position from the left */
+    color: white; /* Text color for visibility */
+    z-index: 10; /* Ensure content is on top of the image */
+    background: rgba(0, 0, 0, 0.5); /* Background for better contrast */
+    padding: 10px; /* Padding around text */
+    border-radius: 8px; /* Rounded corners for content background */
+}
+
+/* Adjust the swiper control buttons */
+.tranding-slider-control {
+    display: flex;
+    justify-content: space-between; /* Space buttons evenly */
+    position: absolute; /* Position control buttons */
+    top: 50%; /* Center vertically */
+    width: 100%; /* Full width */
+    transform: translateY(-50%); /* Adjust for vertical centering */
+    z-index: 20; /* Ensure controls are above slides */
+}
+.tranding-slide-content {
+    position: absolute; /* Position text absolutely */
+    bottom: 10%; /* Position from the bottom, adjust as needed */
+    left: 5%; /* Position from the left */
+    color: white; /* Text color for visibility */
+    z-index: 10; /* Ensure content is on top of the image */
+    background: rgba(0, 0, 0, 0.5); /* Background for better contrast */
+    padding: 10px; /* Padding around text */
+    border-radius: 8px; /* Rounded corners for content background */
+    max-width: 90%; /* Ensure it doesn't exceed slide width */
+    text-align: center; /* Center text alignment */
+    overflow: hidden; /* Prevent overflow */
+    white-space: nowrap; /* Prevent text wrapping */
+    text-overflow: ellipsis; /* Add ellipsis for overflowing text */
+}
+
+.course-title {
+    font-size: 1.5rem; /* Adjust title font size */
+    margin-bottom: 5px; /* Space below the title */
+}
+
+.course-details {
+    font-size: 1rem; /* Adjust details font size */
+    margin-bottom: 5px; /* Space below the details */
+}
+.events-section {
+    padding: 60px 20px; /* Adjust padding for the section */
+    background-color: #f7f7f7; /* Light background color */
+}
+
+.section-title {
+    font-size: 36px;
+    font-weight: bold;
+    margin-bottom: 20px; /* Space below the title */
+    text-align: center; /* Center align title */
+}
+
+.events-grid {
+    display: flex; /* Use flexbox for layout */
+    justify-content: center; /* Center items horizontally */
+    flex-wrap: wrap; /* Allow wrapping */
+    gap: 20px; /* Gap between cards */
+}
+
+.event-card {
+    background-color: white; /* Card background color */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+    overflow: hidden; /* Clip overflow */
+    max-width: 300px; /* Max width for cards */
+    text-align: left; /* Align text to the left */
+}
+
+.event-card img {
+    width: 100%; /* Full width of the card */
+    height: auto; /* Maintain aspect ratio */
+}
+
+.event-details {
+    padding: 20px; /* Padding inside the card */
+}
+
+.event-date {
+    font-size: 14px; /* Font size for the date */
+    color: #777; /* Lighter color for date */
+}
+
+.event-title {
+    font-size: 18px; /* Title font size */
+    font-weight: bold; /* Bold title */
+    margin: 10px 0; /* Space around title */
+}
+
+.event-description {
+    font-size: 14px; /* Description font size */
+    margin-bottom: 10px; /* Space below description */
+}
+
+.button-container {
+    display: flex; /* Flexbox for buttons */
+    justify-content: center; /* Center buttons */
+    margin: 20px 0; /* Space above and below buttons */
+}
+
+.btn-show-more, .btn-view-all {
+    background-color: #FFC107; /* Button background color */
+    color: white; /* Button text color */
+    border: none;
+    padding: 10px 20px; /* Padding for button */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor */
+    margin: 0 10px; /* Space between buttons */
+}
+
+.btn-show-more:hover, .btn-view-all:hover {
+    background-color: #FFA000; /* Darker shade on hover */
+}
+.cta-section {
+    background-color: #2c3e50; /* Dark background color */
+    padding: 60px 20px; /* Padding around the section */
+    text-align: center; /* Center align text */
+    color: white; /* Text color */
+}
+
+.cta-title {
+    font-size: 28px; /* Title font size */
+    font-weight: bold; /* Bold text */
+    margin-bottom: 20px; /* Space below the title */
+}
+
+.cta-button {
+    background-color: #FFC107; /* Button background color */
+    color: white; /* Button text color */
+    border: none;
+    padding: 15px 30px; /* Padding for button */
+    border-radius: 5px; /* Rounded corners */
+    text-decoration: none; /* Remove underline */
+    font-size: 16px; /* Font size for button text */
+}
+
+.cta-button:hover {
+    background-color: #FFA000; /* Darker shade on hover */
+}
+
+
+
+
+
