@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <title>New Announcement</title>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-white">
+    <a class="navbar-brand" href="#">
+        <img src="images/logo-colour.2df06475 (1).png" alt="mindSphere Logo" class="logo">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="#">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">About Us</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">CSR</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Programmes</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Media</a>
+            </li>
+            <li class="nav-item">
+                <a class="btn btn-warning" href="#">Get started today</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+    <div class="container mt-5">
+        <h2 class="text-center">New Announcement</h2>
+        <form>
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input type="text" class="form-control" id="title" placeholder="Announcement title">
+            </div>
+            <div class="form-group">
+                <label for="picture">Picture</label>
+                <div class="upload-box">
+                    <input type="file" class="form-control-file" id="picture">
+                    <label for="picture" class="upload-label">Upload picture for the announcement</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea class="form-control" id="description" rows="5" placeholder="Content for the announcement"></textarea>
+            </div>
+            <button type="submit" class="btn btn-warning btn-block">Create</button>
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
