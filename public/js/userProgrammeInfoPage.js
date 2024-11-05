@@ -45,74 +45,98 @@ async function getProgrammeDetails(programmeId) {
     }
 }
 
-//chaatgpt
+
+
+// new version
 async function getProgrammeSchedules(programmeId) {
     try {
-        const response = await fetch(`/api/programme/${programmeId}/schedules`);
+        const response = await fetch(`/api/programmeSchedule/${programmeId}/schedules`);
         if (!response.ok) throw new Error("Failed to load programme schedules.");
         const schedules = await response.json();
 
-        // Select the container for the schedule section and clear existing content
         const scheduleSection = document.querySelector(".upcoming-schedule");
-        scheduleSection.innerHTML = "<h2>Upcoming Schedules</h2>"; // Reset with header
+        scheduleSection.innerHTML = "<h2>Upcoming Schedules</h2>";
 
-        let rowElement = null; // Variable to hold the current row
+        let rowElement = document.createElement("div");
+        rowElement.classList.add("row");
+
         schedules.forEach((schedule, index) => {
-            // Create the schedule item element
+            const scheduleList = document.createElement("div");
+            scheduleList.classList.add("schedule-list", "mt-4");
+
             const scheduleElement = document.createElement("div");
-            scheduleElement.classList.add("schedule-item", "p-3", "mb-3", "col-md-6"); // Set to half-width in row
+            scheduleElement.classList.add("schedule-item", "p-3", "mb-3");
+
+            const startDate = new Date(schedule.startDateTime);
+            const endDate = new Date(schedule.endDateTime);
+
+            const dateItemsHTML = generateDateItems(schedule.dates);
+
             scheduleElement.innerHTML = `
                 <div class="schedule-details-dates-container">
                     <div class="schedule-icon-text">
                         <div class="schedule-details">
                             <p class="schedule-info mb-1">
                                 <img src="/images/Vector.png" alt="Date Icon" class="schedule-icon">
-                                ${formatDate(schedule.StartDate)} - ${formatDate(schedule.EndDate)}
+                                ${formatDate(startDate)} - ${formatDate(endDate)}
                             </p>
                             <p class="schedule-info mb-0">
                                 <img src="/images/alert-circle.png" alt="Level Icon" class="schedule-icon">
-                                <span>${schedule.Level}</span>
+                                <span>${schedule.level || 'No Level'}</span> <!-- Placeholder for Level -->
                             </p>
+                            <!--
                             <p class="schedule-info mb-0">
                                 <img src="/images/clock-time-three-outline.png" alt="Time Icon" class="schedule-icon">
-                                ${formatTime(schedule.StartTime)} - ${formatTime(schedule.EndTime)}
+                                ${formatTime(startDate)} - ${formatTime(endDate)}
                             </p>
+                            -->
                         </div>
                     </div>
                     <div class="schedule-dates mt-3 mt-md-0 text-center">
                         <div class="date-list">
-                            <div class="date-item p-2 mx-1 bg-light border rounded">Mon<br>${formatDate(schedule.StartDate)}</div>
-                            <div class="date-item p-2 mx-1 bg-light border rounded">Tues<br>${formatDate(schedule.EndDate)}</div>
+                            ${dateItemsHTML}
                         </div>
-                        <span class="badge bg-warning text-dark mt-2">${schedule.MaxSlots} Slots Left!</span>
+                        <span class="badge bg-warning text-dark mt-2">${schedule.slots || 'Limited Slots Available!'}</span>
                     </div>
                 </div>
-                <button class="btn btn-outline-primary mt-3 mt-md-0">Apply</button>
+                <button class="btn btn-outline-primary mt-3 mt-md-0" onclick="(() => applyForProgramme('${schedule.programmeClassID}', ${JSON.stringify(schedule).replace(/"/g, '&quot;')}))()">Apply</button>
             `;
 
-            // Add a new row for every two schedules
-            if (index % 2 === 0) {
+            // old                 <button class="btn btn-outline-primary mt-3 mt-md-0" onclick="location.href='payment-page.html?programmeClassId=${encodeURIComponent(schedule.programmeClassID)}'">Apply</button>
+            // new              <button class="btn btn-outline-primary mt-3 mt-md-0" onclick="applyForProgramme('${schedule.programmeClassID}', ${JSON.stringify(schedule)})">Apply</button>
+
+            scheduleList.appendChild(scheduleElement);
+            rowElement.appendChild(scheduleList);
+
+            // Append the row element to the schedule section after every 2 schedules
+            if ((index + 1) % 2 === 0 || index === schedules.length - 1) {
+                scheduleSection.appendChild(rowElement);
                 rowElement = document.createElement("div");
                 rowElement.classList.add("row");
-                scheduleSection.appendChild(rowElement);
             }
-
-            // Append schedule item to the current row
-            rowElement.appendChild(scheduleElement);
         });
     } catch (error) {
         console.error("Error fetching schedules:", error);
     }
 }
 
-// // Helper function to generate date items for each schedule
-// function generateDateItems(dates) {
-//     return dates.map(date => `
-//         <div class="date-item p-2 mx-1 bg-light border rounded">
-//             ${formatDay(date)}<br>${formatDate(date)}
-//         </div>
-//     `).join('');
-// }
+function generateDateItems(dates) {
+    return dates.map(date => `
+        <div class="date-item p-2 mx-1 bg-light border rounded">
+            ${formatDay(date)}<br>${formatDate(date)}
+        </div>
+    `).join('');
+}
+
+// Function to handle storing schedule data in sessionStorage and navigating to payment page
+function applyForProgramme(programmeClassID, scheduleData) {
+    // Store the schedule data in sessionStorage
+    sessionStorage.setItem("selectedSchedule", JSON.stringify(scheduleData));
+    
+    // Navigate to the payment page with the programmeClassID as a URL parameter
+    // location.href = `payment-page.html?programmeClassId=${encodeURIComponent(programmeClassID)}`;
+    location.href = `payment-page.html?`;
+}
 
 // function formatDay(dateString) {
 //     const date = new Date(dateString);
@@ -134,7 +158,7 @@ async function getProgrammeSchedules(programmeId) {
 
 async function getProgrammeFees(programmeId) {
     try {
-        const response = await fetch(`/api/programme/${programmeId}/fees`);
+        const response = await fetch(`/api/programmeClass/${programmeId}/classes`);
         if (!response.ok) throw new Error("Failed to load programme fees.");
         const fees = await response.json();
 
@@ -147,23 +171,26 @@ async function getProgrammeFees(programmeId) {
             // Alternate between 'card-1' and 'card-2' classes based on the index
             const cardClass = index % 2 === 0 ? "card-1" : "card-2";
 
+            // Parse remarks as a list, separated by "~"
+            const remarksList = fee.remarks ? fee.remarks.split("~") : [];
+
             // Create the card element for each fee item
             const feeElement = document.createElement("div");
             feeElement.classList.add("col-md-4"); // Set to one-third width in row
             feeElement.innerHTML = `
                 <div class="card ${cardClass}">
                     <div class="card-body">
-                        <h3>$${fee.Price}*</h3>
-                        ${fee.OriginalPrice ? `<p class="old-price"><del>Was $${fee.OriginalPrice}</del></p>` : ""}
-                        <p>${fee.FeeType}</p>
-                        <p>${fee.Benefits || "No additional benefits"}</p>
-                        <button class="btn btn-light">Get started</button>
+                        <h3>$${fee.fee}*</h3>
+                        <!-- Commented out Original Price since it's not available
+                        ${fee.OriginalPrice ? `<p class="old-price"><del>Was $${fee.OriginalPrice}</del></p>` : ""} -->
+                        <p>${fee.programmeLevel}</p>
+                        <!-- Commented out Benefits since it's not available
+                        <p>${fee.Benefits || "No additional benefits"}</p> -->
+                        <button class="btn btn-light" onclick="scrollToSection('upcoming-schedule')">Get started</button>
                         <ul class="list-unstyled">
-                            <li><img src="/images/check-circle-outline.png" alt="Check icon" class="check-icon"> Class size: ${fee.ClassSize}</li>
-                            <li><img src="/images/check-circle-outline.png" alt="Check icon" class="check-icon"> Duration: ${fee.Duration}</li>
-                            <li><img src="/images/check-circle-outline.png" alt="Check icon" class="check-icon"> Lunch provided</li>
-                            <li><img src="/images/check-circle-outline.png" alt="Check icon" class="check-icon"> Lesson materials provided</li>
-                            <li><img src="/images/check-circle-outline.png" alt="Check icon" class="check-icon"> Complimentary 1 year membership with access to our resources and member rates for all programmes</li>
+                            <!-- <li><img src="/images/check-circle-outline.png" alt="Check icon" class="check-icon"> Location: ${fee.location}</li> -->
+                            <li><img src="/images/check-circle-outline.png" alt="Check icon" class="check-icon"> Max Slots: ${fee.maxSlots}</li>
+                            ${remarksList.map(remark => `<li><img src="/images/check-circle-outline.png" alt="Check icon" class="check-icon"> ${remark}</li>`).join("")}
                         </ul>
                     </div>
                 </div>
@@ -183,6 +210,8 @@ async function getProgrammeFees(programmeId) {
         console.error("Error fetching fees:", error);
     }
 }
+
+
 
 // Function to fetch and display related webinars by category
 async function getRelatedWebinars(category, excludeProgrammeID = null, limit = 3) {
@@ -237,6 +266,11 @@ function formatTime(timeString) {
     const options = { hour: '2-digit', minute: '2-digit', hour12: true };
     return date.toLocaleTimeString(undefined, options);
 }
+// Helper function to format day
+function formatDay(dateString) {
+    const options = { weekday: 'short' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+}
 
 // Initialize programme details display on page load
 const programmeId = getProgrammeIdFromUrl();
@@ -249,5 +283,15 @@ if (programmeId) {
     alert("Invalid programme ID. Please check the URL.");
 }
 
-
+function scrollToSection(target) {
+    const element = document.getElementsByClassName(target)[0];
+    if (element) {
+        element.scrollIntoView({
+            behavior: "smooth", // Enables smooth scrolling
+            block: "start"      // Aligns the element to the top of the view
+        });
+    } else {
+        console.error("Target section not found:", target);
+    }
+}
 

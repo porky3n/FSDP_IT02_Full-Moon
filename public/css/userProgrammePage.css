@@ -315,6 +315,16 @@ flex-direction: row;
 gap: 1rem;
 }
 
+.card-text {
+  display: -webkit-box;            /* Necessary for multi-line ellipsis */
+  -webkit-box-orient: vertical;    /* Set the box orientation to vertical */
+  overflow: hidden;                /* Hide any overflowing text */
+  text-overflow: ellipsis;         /* Add ellipsis (...) */
+  -webkit-line-clamp: 1;           /* Limit text to 2 lines; adjust to your preference */
+  /*max-height: 3em;*/                 /* Set max-height based on the line limit */
+}
+
+
 .button-containers {
 display: flex;
 justify-content: flex-start;
