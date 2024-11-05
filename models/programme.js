@@ -185,230 +185,364 @@
 
 // module.exports = Programme;
 
-// mssql
-const sql = require("mssql");
-const dbConfig = require("../dbConfig");
+
+// ver 2.0
+const pool = require("../dbConfig");
 
 class Programme {
-    constructor(programmeID, programmeName, category, location, description, startDate, endDate, fee, maxSlots, programmeLevel) {
+    constructor(programmeID, programmeName, category, programmePictureURL, description) {
         this.programmeID = programmeID;
         this.programmeName = programmeName;
         this.category = category;
-        this.location = location;
+        this.programmePictureURL = programmePictureURL;
         this.description = description;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.fee = fee;
-        this.maxSlots = maxSlots;
-        this.programmeLevel = programmeLevel;
     }
 
     // Get all programmes
     static async getAllProgrammes() {
-        const connection = await sql.connect(dbConfig);
         const sqlQuery = `SELECT * FROM Programme`;
-
-        const request = connection.request();
-        const result = await request.query(sqlQuery);
-
-        connection.close();
-
-        return result.recordset.map(row => new Programme(
-            row.ProgrammeID, row.ProgrammeName, row.Category, row.Location,
-            row.Description, row.StartDate, row.EndDate, row.Fee,
-            row.MaxSlots, row.ProgrammeLevel
+        const [rows] = await pool.query(sqlQuery);
+        return rows.map(row => new Programme(
+            row.ProgrammeID,
+            row.ProgrammeName,
+            row.Category,
+            row.ProgrammePictureURL,
+            row.Description
         ));
     }
 
     // Get programme by ID
     static async getProgrammeByID(programmeID) {
-        const connection = await sql.connect(dbConfig);
-        const sqlQuery = `SELECT * FROM Programme WHERE ProgrammeID = @programmeID`;
+        const sqlQuery = `SELECT * FROM Programme WHERE ProgrammeID = ?`;
+        const [rows] = await pool.query(sqlQuery, [programmeID]);
 
-        const request = connection.request();
-        request.input("programmeID", sql.Int, programmeID);
-        const result = await request.query(sqlQuery);
-
-        connection.close();
-
-        if (result.recordset.length === 0) return null;
-        
-        const row = result.recordset[0];
+        if (rows.length === 0) return null;
+        const row = rows[0];
         return new Programme(
-            row.ProgrammeID, row.ProgrammeName, row.Category, row.Location,
-            row.Description, row.StartDate, row.EndDate, row.Fee,
-            row.MaxSlots, row.ProgrammeLevel
+            row.ProgrammeID,
+            row.ProgrammeName,
+            row.Category,
+            row.ProgrammePictureURL,
+            row.Description
         );
     }
 
-    // Get featured programmes
+    // Get featured programmes (customize selection criteria as needed)
     static async getFeaturedProgrammes() {
-        const connection = await sql.connect(dbConfig);
         const sqlQuery = `
             SELECT * FROM Programme
-            WHERE StartDate > GETDATE()
-            ORDER BY StartDate ASC
-            OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY;
+            ORDER BY ProgrammeID DESC
+            LIMIT 5;
         `;
-
-        const request = connection.request();
-        const result = await request.query(sqlQuery);
-
-        connection.close();
-
-        return result.recordset.map(row => new Programme(
-            row.ProgrammeID, row.ProgrammeName, row.Category, row.Location,
-            row.Description, row.StartDate, row.EndDate, row.Fee,
-            row.MaxSlots, row.ProgrammeLevel
+        const [rows] = await pool.query(sqlQuery);
+        return rows.map(row => new Programme(
+            row.ProgrammeID,
+            row.ProgrammeName,
+            row.Category,
+            row.ProgrammePictureURL,
+            row.Description
         ));
     }
 
-    
     // Get programmes by category with optional exclusion and limit
     static async getProgrammesByCategory(category, excludeProgrammeID = null, limit = null) {
-        const connection = await sql.connect(dbConfig);
-        let sqlQuery = `
-            SELECT * FROM Programme 
-            WHERE Category = @category
-        `;
+        let sqlQuery = `SELECT * FROM Programme WHERE Category = ?`;
+        const params = [category];
 
         if (excludeProgrammeID) {
-            sqlQuery += ` AND ProgrammeID != @programmeID`;
+            sqlQuery += ` AND ProgrammeID != ?`;
+            params.push(excludeProgrammeID);
         }
 
-        sqlQuery += ` ORDER BY StartDate DESC`;
-
+        sqlQuery += ` ORDER BY ProgrammeID DESC`;
+        
         if (limit) {
-            sqlQuery += ` OFFSET 0 ROWS FETCH NEXT @limit ROWS ONLY`;
+            sqlQuery += ` LIMIT ?`;
+            params.push(limit);
         }
 
-        const request = connection.request();
-        request.input("category", sql.VarChar, category);
-
-        if (excludeProgrammeID) {
-            request.input("programmeID", sql.Int, excludeProgrammeID);
-        }
-
-        if (limit) {
-            request.input("limit", sql.Int, limit);
-        }
-
-        const result = await request.query(sqlQuery);
-        connection.close();
-
-        return result.recordset.map(row => new Programme(
-            row.ProgrammeID, row.ProgrammeName, row.Category, row.Location,
-            row.Description, row.StartDate, row.EndDate, row.Fee,
-            row.MaxSlots, row.ProgrammeLevel
+        const [rows] = await pool.query(sqlQuery, params);
+        return rows.map(row => new Programme(
+            row.ProgrammeID,
+            row.ProgrammeName,
+            row.Category,
+            row.ProgrammePictureURL,
+            row.Description
         ));
     }
 
-
-    // Search programmes
+    // Search programmes by keyword in ProgrammeName or Description
     static async searchProgrammes(keyword) {
-        const connection = await sql.connect(dbConfig);
         const sqlQuery = `
             SELECT * FROM Programme
-            WHERE ProgrammeName LIKE @keyword 
-            OR Description LIKE @keyword 
+            WHERE ProgrammeName LIKE ? OR Description LIKE ?
         `;
-
-        const request = connection.request();
-        request.input("keyword", sql.VarChar, `%${keyword}%`);
-        const result = await request.query(sqlQuery);
-
-        connection.close();
-
-        return result.recordset.map(row => new Programme(
-            row.ProgrammeID, row.ProgrammeName, row.Category, row.Location,
-            row.Description, row.StartDate, row.EndDate, row.Fee,
-            row.MaxSlots, row.ProgrammeLevel
+        const [rows] = await pool.query(sqlQuery, [`%${keyword}%`, `%${keyword}%`]);
+        return rows.map(row => new Programme(
+            row.ProgrammeID,
+            row.ProgrammeName,
+            row.Category,
+            row.ProgrammePictureURL,
+            row.Description
         ));
     }
-
-    //user programme info
-    
-    //chatgpt
-    // Method to get schedules for a specific programme
-    static async getUpcomingSchedules(programmeId) {
-        const connection = await sql.connect(dbConfig);
-        const sqlQuery = `
-            SELECT ScheduleID, Level, StartDate, EndDate, StartTime, EndTime, MaxSlots
-            FROM ProgrammeSchedule
-            WHERE ProgrammeID = @programmeId AND StartDate >= GETDATE()
-            ORDER BY StartDate
-        `;
-        const request = connection.request();
-        request.input('programmeId', sql.Int, programmeId); // Pass programmeId as a parameter
-        const result = await request.query(sqlQuery);
-        connection.close();
-        return result.recordset;
-    }
-
-    // Method to get fees for a specific programme
-    static async getProgrammeFees(programmeId) {
-        const connection = await sql.connect(dbConfig);
-        const sqlQuery = `
-            SELECT FeeID, FeeType, Price, OriginalPrice, Benefits
-            FROM ProgrammeFee
-            WHERE ProgrammeID = @programmeId
-            ORDER BY FeeType
-        `;
-        const request = connection.request();
-        request.input('programmeId', sql.Int, programmeId); // Pass programmeId as a parameter
-        const result = await request.query(sqlQuery);
-        connection.close();
-        return result.recordset;
-    }   
-
-    
-    // Get programmes by category
-    // static async getProgrammesByCategory(category) {
-    //     const connection = await sql.connect(dbConfig);
-    //     const sqlQuery = `
-    //         SELECT * FROM Programme 
-    //         WHERE Category = @category
-    //         ORDER BY StartDate DESC
-    //     `;
-
-    //     const request = connection.request();
-    //     request.input("category", sql.VarChar, category);
-    //     const result = await request.query(sqlQuery);
-
-    //     connection.close();
-
-    //     return result.recordset.map(row => new Programme(
-    //         row.ProgrammeID, row.ProgrammeName, row.Category, row.Location,
-    //         row.Description, row.StartDate, row.EndDate, row.Fee,
-    //         row.MaxSlots, row.ProgrammeLevel
-    //     ));
-    // }
-
-    // Get Related Programmes by Category
-    // static async getRelatedProgrammesByCategory(category) {
-    //     const connection = await sql.connect(dbConfig);
-    //     const sqlQuery = `
-    //         SELECT * FROM Programme 
-    //         WHERE Category = @category
-    //         AND ProgrammeID != @programmeID
-    //         ORDER BY StartDate DESC
-    //     `;
-
-    //     const request = connection.request();
-    //     request.input("category", sql.VarChar, category);
-    //     const result = await request.query(sqlQuery);
-
-    //     connection.close();
-
-    //     return result.recordset.map(row => new Programme(
-    //         row.ProgrammeID, row.ProgrammeName, row.Category, row.Location,
-    //         row.Description, row.StartDate, row.EndDate, row.Fee,
-    //         row.MaxSlots, row.ProgrammeLevel
-    //     ));
-    // }
-    
-
-
 }
 
 module.exports = Programme;
+
+
+//     // Method to get schedules for a specific programme
+//     static async getUpcomingSchedules(programmeId) {
+//         const sqlQuery = `
+//             SELECT ScheduleID, Level, StartDate, EndDate, StartTime, EndTime, MaxSlots
+//             FROM ProgrammeSchedule
+//             WHERE ProgrammeID = ? AND StartDate >= NOW()
+//             ORDER BY StartDate
+//         `;
+//         const [rows] = await pool.query(sqlQuery, [programmeId]);
+//         return rows;
+//     }
+
+//     // Method to get fees for a specific programme
+//     static async getProgrammeFees(programmeId) {
+//         const sqlQuery = `
+//             SELECT FeeID, FeeType, Price, OriginalPrice, Benefits
+//             FROM ProgrammeFee
+//             WHERE ProgrammeID = ?
+//             ORDER BY FeeType
+//         `;
+//         const [rows] = await pool.query(sqlQuery, [programmeId]);
+//         return rows;
+//     }
+// }
+
+
+
+
+// mssql
+// const sql = require("mssql");
+// const dbConfig = require("../dbConfig");
+
+// class Programme {
+//     constructor(programmeID, programmeName, category, location, description, startDate, endDate, fee, maxSlots, programmeLevel) {
+//         this.programmeID = programmeID;
+//         this.programmeName = programmeName;
+//         this.category = category;
+//         this.location = location;
+//         this.description = description;
+//         this.startDate = startDate;
+//         this.endDate = endDate;
+//         this.fee = fee;
+//         this.maxSlots = maxSlots;
+//         this.programmeLevel = programmeLevel;
+//     }
+
+//     // Get all programmes
+//     static async getAllProgrammes() {
+//         const connection = await sql.connect(dbConfig);
+//         const sqlQuery = `SELECT * FROM Programme`;
+
+//         const request = connection.request();
+//         const result = await request.query(sqlQuery);
+
+//         connection.close();
+
+//         return result.recordset.map(row => new Programme(
+//             row.ProgrammeID, row.ProgrammeName, row.Category, row.Location,
+//             row.Description, row.StartDate, row.EndDate, row.Fee,
+//             row.MaxSlots, row.ProgrammeLevel
+//         ));
+//     }
+
+//     // Get programme by ID
+//     static async getProgrammeByID(programmeID) {
+//         const connection = await sql.connect(dbConfig);
+//         const sqlQuery = `SELECT * FROM Programme WHERE ProgrammeID = @programmeID`;
+
+//         const request = connection.request();
+//         request.input("programmeID", sql.Int, programmeID);
+//         const result = await request.query(sqlQuery);
+
+//         connection.close();
+
+//         if (result.recordset.length === 0) return null;
+        
+//         const row = result.recordset[0];
+//         return new Programme(
+//             row.ProgrammeID, row.ProgrammeName, row.Category, row.Location,
+//             row.Description, row.StartDate, row.EndDate, row.Fee,
+//             row.MaxSlots, row.ProgrammeLevel
+//         );
+//     }
+
+//     // Get featured programmes
+//     static async getFeaturedProgrammes() {
+//         const connection = await sql.connect(dbConfig);
+//         const sqlQuery = `
+//             SELECT * FROM Programme
+//             WHERE StartDate > GETDATE()
+//             ORDER BY StartDate ASC
+//             OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY;
+//         `;
+
+//         const request = connection.request();
+//         const result = await request.query(sqlQuery);
+
+//         connection.close();
+
+//         return result.recordset.map(row => new Programme(
+//             row.ProgrammeID, row.ProgrammeName, row.Category, row.Location,
+//             row.Description, row.StartDate, row.EndDate, row.Fee,
+//             row.MaxSlots, row.ProgrammeLevel
+//         ));
+//     }
+
+    
+//     // Get programmes by category with optional exclusion and limit
+//     static async getProgrammesByCategory(category, excludeProgrammeID = null, limit = null) {
+//         const connection = await sql.connect(dbConfig);
+//         let sqlQuery = `
+//             SELECT * FROM Programme 
+//             WHERE Category = @category
+//         `;
+
+//         if (excludeProgrammeID) {
+//             sqlQuery += ` AND ProgrammeID != @programmeID`;
+//         }
+
+//         sqlQuery += ` ORDER BY StartDate DESC`;
+
+//         if (limit) {
+//             sqlQuery += ` OFFSET 0 ROWS FETCH NEXT @limit ROWS ONLY`;
+//         }
+
+//         const request = connection.request();
+//         request.input("category", sql.VarChar, category);
+
+//         if (excludeProgrammeID) {
+//             request.input("programmeID", sql.Int, excludeProgrammeID);
+//         }
+
+//         if (limit) {
+//             request.input("limit", sql.Int, limit);
+//         }
+
+//         const result = await request.query(sqlQuery);
+//         connection.close();
+
+//         return result.recordset.map(row => new Programme(
+//             row.ProgrammeID, row.ProgrammeName, row.Category, row.Location,
+//             row.Description, row.StartDate, row.EndDate, row.Fee,
+//             row.MaxSlots, row.ProgrammeLevel
+//         ));
+//     }
+
+
+//     // Search programmes
+//     static async searchProgrammes(keyword) {
+//         const connection = await sql.connect(dbConfig);
+//         const sqlQuery = `
+//             SELECT * FROM Programme
+//             WHERE ProgrammeName LIKE @keyword 
+//             OR Description LIKE @keyword 
+//         `;
+
+//         const request = connection.request();
+//         request.input("keyword", sql.VarChar, `%${keyword}%`);
+//         const result = await request.query(sqlQuery);
+
+//         connection.close();
+
+//         return result.recordset.map(row => new Programme(
+//             row.ProgrammeID, row.ProgrammeName, row.Category, row.Location,
+//             row.Description, row.StartDate, row.EndDate, row.Fee,
+//             row.MaxSlots, row.ProgrammeLevel
+//         ));
+//     }
+
+//     //user programme info
+    
+//     //chatgpt
+//     // Method to get schedules for a specific programme
+//     static async getUpcomingSchedules(programmeId) {
+//         const connection = await sql.connect(dbConfig);
+//         const sqlQuery = `
+//             SELECT ScheduleID, Level, StartDate, EndDate, StartTime, EndTime, MaxSlots
+//             FROM ProgrammeSchedule
+//             WHERE ProgrammeID = @programmeId AND StartDate >= GETDATE()
+//             ORDER BY StartDate
+//         `;
+//         const request = connection.request();
+//         request.input('programmeId', sql.Int, programmeId); // Pass programmeId as a parameter
+//         const result = await request.query(sqlQuery);
+//         connection.close();
+//         return result.recordset;
+//     }
+
+//     // Method to get fees for a specific programme
+//     static async getProgrammeFees(programmeId) {
+//         const connection = await sql.connect(dbConfig);
+//         const sqlQuery = `
+//             SELECT FeeID, FeeType, Price, OriginalPrice, Benefits
+//             FROM ProgrammeFee
+//             WHERE ProgrammeID = @programmeId
+//             ORDER BY FeeType
+//         `;
+//         const request = connection.request();
+//         request.input('programmeId', sql.Int, programmeId); // Pass programmeId as a parameter
+//         const result = await request.query(sqlQuery);
+//         connection.close();
+//         return result.recordset;
+//     }   
+
+    
+//     // Get programmes by category
+//     // static async getProgrammesByCategory(category) {
+//     //     const connection = await sql.connect(dbConfig);
+//     //     const sqlQuery = `
+//     //         SELECT * FROM Programme 
+//     //         WHERE Category = @category
+//     //         ORDER BY StartDate DESC
+//     //     `;
+
+//     //     const request = connection.request();
+//     //     request.input("category", sql.VarChar, category);
+//     //     const result = await request.query(sqlQuery);
+
+//     //     connection.close();
+
+//     //     return result.recordset.map(row => new Programme(
+//     //         row.ProgrammeID, row.ProgrammeName, row.Category, row.Location,
+//     //         row.Description, row.StartDate, row.EndDate, row.Fee,
+//     //         row.MaxSlots, row.ProgrammeLevel
+//     //     ));
+//     // }
+
+//     // Get Related Programmes by Category
+//     // static async getRelatedProgrammesByCategory(category) {
+//     //     const connection = await sql.connect(dbConfig);
+//     //     const sqlQuery = `
+//     //         SELECT * FROM Programme 
+//     //         WHERE Category = @category
+//     //         AND ProgrammeID != @programmeID
+//     //         ORDER BY StartDate DESC
+//     //     `;
+
+//     //     const request = connection.request();
+//     //     request.input("category", sql.VarChar, category);
+//     //     const result = await request.query(sqlQuery);
+
+//     //     connection.close();
+
+//     //     return result.recordset.map(row => new Programme(
+//     //         row.ProgrammeID, row.ProgrammeName, row.Category, row.Location,
+//     //         row.Description, row.StartDate, row.EndDate, row.Fee,
+//     //         row.MaxSlots, row.ProgrammeLevel
+//     //     ));
+//     // }
+    
+
+
+// }
+
+// module.exports = Programme;
