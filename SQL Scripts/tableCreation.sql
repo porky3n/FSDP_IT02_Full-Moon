@@ -82,7 +82,7 @@ CREATE TABLE ProgrammeSchedule (
     StartDateTime DATETIME NOT NULL,
     EndDateTime DATETIME NOT NULL,
     CONSTRAINT FK_ProgrammeSchedule_ProgrammeClass FOREIGN KEY (ProgrammeClassID, ProgrammeID) REFERENCES ProgrammeClass(ProgrammeClassID, ProgrammeID),
-    CHECK (EndDateTime > StartDateTime),
+    CHECK (EndDateTime > StartDateTime)
 );
 
 -- Create ProgrammeMeals table
