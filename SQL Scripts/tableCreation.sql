@@ -6,7 +6,6 @@ DROP TABLE IF EXISTS Slot;
 DROP TABLE IF EXISTS ProgrammeMeals;
 DROP TABLE IF EXISTS ProgrammeSchedule;
 DROP TABLE IF EXISTS ProgrammeClass;
-DROP TABLE IF EXISTS ProgrammeDetails;
 DROP TABLE IF EXISTS Programme;
 DROP TABLE IF EXISTS Child;
 DROP TABLE IF EXISTS Parent;
@@ -79,10 +78,11 @@ CREATE TABLE ProgrammeSchedule (
     ScheduleID INT AUTO_INCREMENT PRIMARY KEY,
     ProgrammeClassID INT NOT NULL,
     ProgrammeID INT NOT NULL,
+    InstanceID INT NOT NULL, -- Identifies a unique instance/batch of the same class
     StartDateTime DATETIME NOT NULL,
     EndDateTime DATETIME NOT NULL,
     CONSTRAINT FK_ProgrammeSchedule_ProgrammeClass FOREIGN KEY (ProgrammeClassID, ProgrammeID) REFERENCES ProgrammeClass(ProgrammeClassID, ProgrammeID),
-    CHECK (EndDateTime > StartDateTime)
+    CHECK (EndDateTime > StartDateTime),
 );
 
 -- Create ProgrammeMeals table
@@ -92,7 +92,8 @@ CREATE TABLE ProgrammeMeals (
     Breakfast BOOLEAN DEFAULT FALSE,
     Lunch BOOLEAN DEFAULT FALSE,
     Dinner BOOLEAN DEFAULT FALSE,
-    Remarks TEXT NULL, -- any additional information, seperated by '~' 
+    Remarks TEXT NULL, -- any additional information, seperated by '~',
+    CONSTRAINT PK_ProgrammeMeals PRIMARY KEY (ProgrammeClassID, ProgrammeID),
     CONSTRAINT FK_ProgrammeMeals_ProgrammeClass FOREIGN KEY (ProgrammeClassID, ProgrammeID) REFERENCES ProgrammeClass(ProgrammeClassID, ProgrammeID)
 );
 
