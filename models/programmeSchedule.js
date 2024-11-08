@@ -80,10 +80,25 @@ class ProgrammeSchedule {
 
     static async getProgrammeSchedules(programmeID) {
         const sqlQuery = `
-            SELECT instanceID, ProgrammeClassID, ProgrammeID, StartDateTime, EndDateTime 
-            FROM ProgrammeSchedule 
-            WHERE ProgrammeID = ? 
-            ORDER BY instanceID, StartDateTime ASC;
+            SELECT 
+                ps.InstanceID,
+                pcb.ProgrammeClassID,
+                pc.ProgrammeID,
+                ps.StartDateTime,
+                ps.EndDateTime,
+                pc.ProgrammeLevel,
+                (
+                    SELECT COUNT(*) 
+                    FROM Slot 
+                    WHERE Slot.ProgrammeClassID = pcb.ProgrammeClassID 
+                    AND Slot.ProgrammeID = pc.ProgrammeID
+                ) AS slotsTaken
+            FROM ProgrammeSchedule ps
+            JOIN ProgrammeClassBatch pcb ON ps.InstanceID = pcb.InstanceID
+            JOIN ProgrammeClass pc ON pcb.ProgrammeClassID = pc.ProgrammeClassID 
+                AND pcb.ProgrammeID = pc.ProgrammeID
+            WHERE pc.ProgrammeID = ?
+            ORDER BY ps.InstanceID, ps.StartDateTime ASC;
         `;
         
         try {
@@ -93,14 +108,16 @@ class ProgrammeSchedule {
             const schedulesByInstance = {};
             
             rows.forEach(schedule => {
-                const { instanceID, ProgrammeClassID, ProgrammeID, StartDateTime, EndDateTime } = schedule;
+                const { InstanceID, ProgrammeClassID, ProgrammeID, StartDateTime, EndDateTime, ProgrammeLevel, slotsTaken } = schedule;
                 
                 // If the instanceID doesn't exist in the object, initialize it
-                if (!schedulesByInstance[instanceID]) {
-                    schedulesByInstance[instanceID] = {
-                        instanceID,
+                if (!schedulesByInstance[InstanceID]) {
+                    schedulesByInstance[InstanceID] = {
+                        instanceID: InstanceID,
                         programmeClassID: ProgrammeClassID,
                         programmeID: ProgrammeID,
+                        programmeLevel: ProgrammeLevel,
+                        slotsTaken: slotsTaken,
                         startDateTime: StartDateTime,
                         endDateTime: EndDateTime,  // Initialize with the first EndDateTime
                         dates: []
@@ -108,11 +125,11 @@ class ProgrammeSchedule {
                 }
     
                 // Add each StartDateTime to the dates array for this instance
-                schedulesByInstance[instanceID].dates.push(StartDateTime);
+                schedulesByInstance[InstanceID].dates.push(StartDateTime);
     
                 // Update endDateTime if this EndDateTime is later than the current endDateTime
-                if (new Date(EndDateTime) > new Date(schedulesByInstance[instanceID].endDateTime)) {
-                    schedulesByInstance[instanceID].endDateTime = EndDateTime;
+                if (new Date(EndDateTime) > new Date(schedulesByInstance[InstanceID].endDateTime)) {
+                    schedulesByInstance[InstanceID].endDateTime = EndDateTime;
                 }
             });
     
@@ -123,6 +140,8 @@ class ProgrammeSchedule {
             throw error;
         }
     }
+    
+    
     
 
 }

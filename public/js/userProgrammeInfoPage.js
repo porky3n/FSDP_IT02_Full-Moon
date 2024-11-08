@@ -70,6 +70,7 @@ async function getProgrammeSchedules(programmeId) {
             const startDate = new Date(schedule.startDateTime);
             const endDate = new Date(schedule.endDateTime);
 
+            // Generate the HTML for each date in the `dates` array
             const dateItemsHTML = generateDateItems(schedule.dates);
 
             scheduleElement.innerHTML = `
@@ -82,28 +83,21 @@ async function getProgrammeSchedules(programmeId) {
                             </p>
                             <p class="schedule-info mb-0">
                                 <img src="/images/alert-circle.png" alt="Level Icon" class="schedule-icon">
-                                <span>${schedule.level || 'No Level'}</span> <!-- Placeholder for Level -->
+                                <span>${schedule.programmeLevel || 'No Level'}</span>
                             </p>
-                            <!--
-                            <p class="schedule-info mb-0">
-                                <img src="/images/clock-time-three-outline.png" alt="Time Icon" class="schedule-icon">
-                                ${formatTime(startDate)} - ${formatTime(endDate)}
-                            </p>
-                            -->
                         </div>
                     </div>
                     <div class="schedule-dates mt-3 mt-md-0 text-center">
                         <div class="date-list">
                             ${dateItemsHTML}
                         </div>
-                        <span class="badge bg-warning text-dark mt-2">${schedule.slots || 'Limited Slots Available!'}</span>
+                        <span class="badge bg-warning text-dark mt-2">
+                            ${schedule.slotsTaken > 0 ? `Slots: ${schedule.slotsTaken}` : 'Limited Slots Available!'}
+                        </span>
                     </div>
                 </div>
-                <button class="btn btn-outline-primary mt-3 mt-md-0" onclick="(() => applyForProgramme('${schedule.programmeClassID}', ${JSON.stringify(schedule).replace(/"/g, '&quot;')}))()">Apply</button>
+                <button class="btn btn-outline-primary mt-3 mt-md-0" onclick="applyForProgramme('${schedule.programmeClassID}', ${JSON.stringify(schedule).replace(/"/g, '&quot;')})">Apply</button>
             `;
-
-            // old                 <button class="btn btn-outline-primary mt-3 mt-md-0" onclick="location.href='payment-page.html?programmeClassId=${encodeURIComponent(schedule.programmeClassID)}'">Apply</button>
-            // new              <button class="btn btn-outline-primary mt-3 mt-md-0" onclick="applyForProgramme('${schedule.programmeClassID}', ${JSON.stringify(schedule)})">Apply</button>
 
             scheduleList.appendChild(scheduleElement);
             rowElement.appendChild(scheduleList);
@@ -119,6 +113,8 @@ async function getProgrammeSchedules(programmeId) {
         console.error("Error fetching schedules:", error);
     }
 }
+
+
 
 function generateDateItems(dates) {
     return dates.map(date => `
@@ -181,14 +177,10 @@ async function getProgrammeFees(programmeId) {
                 <div class="card ${cardClass}">
                     <div class="card-body">
                         <h3>$${fee.fee}*</h3>
-                        <!-- Commented out Original Price since it's not available
-                        ${fee.OriginalPrice ? `<p class="old-price"><del>Was $${fee.OriginalPrice}</del></p>` : ""} -->
-                        <p>${fee.programmeLevel}</p>
-                        <!-- Commented out Benefits since it's not available
-                        <p>${fee.Benefits || "No additional benefits"}</p> -->
+                        <p><b>${fee.programmeLevel}</b></p>
+                        <p>${fee.shortDescription}</p> <!-- Display short description -->
                         <button class="btn btn-light" onclick="scrollToSection('upcoming-schedule')">Get started</button>
                         <ul class="list-unstyled">
-                            <!-- <li><img src="/images/check-circle-outline.png" alt="Check icon" class="check-icon"> Location: ${fee.location}</li> -->
                             <li><img src="/images/check-circle-outline.png" alt="Check icon" class="check-icon"> Max Slots: ${fee.maxSlots}</li>
                             ${remarksList.map(remark => `<li><img src="/images/check-circle-outline.png" alt="Check icon" class="check-icon"> ${remark}</li>`).join("")}
                         </ul>

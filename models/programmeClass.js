@@ -1,9 +1,10 @@
 const pool = require("../dbConfig");
 
 class ProgrammeClass {
-    constructor(programmeClassID, programmeID, location, fee, maxSlots, programmeLevel, remarks) {
+    constructor(programmeClassID, programmeID, shortDescription, location, fee, maxSlots, programmeLevel, remarks) {
         this.programmeClassID = programmeClassID;
         this.programmeID = programmeID;
+        this.shortDescription = shortDescription;
         this.location = location;
         this.fee = fee;
         this.maxSlots = maxSlots;
@@ -11,19 +12,39 @@ class ProgrammeClass {
         this.remarks = remarks;
     }
 
-    // Get classes for a specific programme
+    // Get classes for a specific programme with additional details
     static async getProgrammeClasses(programmeID) {
-
         const sqlQuery = `
-            SELECT * FROM ProgrammeClass 
+            SELECT 
+                ProgrammeClassID, 
+                ProgrammeID, 
+                ShortDescription,
+                Location, 
+                Fee, 
+                MaxSlots, 
+                ProgrammeLevel, 
+                Remarks
+            FROM ProgrammeClass
             WHERE ProgrammeID = ?
         `;
 
-        const [rows] = await pool.query(sqlQuery, [programmeID]);
-        return rows.map(row => new ProgrammeClass(
-            row.ProgrammeClassID, row.ProgrammeID, row.Location,
-            row.Fee, row.MaxSlots, row.ProgrammeLevel, row.Remarks
-        ));
+        try {
+            const [rows] = await pool.query(sqlQuery, [programmeID]);
+            
+            return rows.map(row => ({
+                programmeClassID: row.ProgrammeClassID,
+                programmeID: row.ProgrammeID,
+                shortDescription: row.ShortDescription,
+                location: row.Location,
+                fee: row.Fee,
+                maxSlots: row.MaxSlots,
+                programmeLevel: row.ProgrammeLevel,
+                remarks: row.Remarks || ''
+            }));
+        } catch (error) {
+            console.error("Error fetching programme classes:", error);
+            throw error;
+        }
     }
 
     // Get fee information for a specific programme class
