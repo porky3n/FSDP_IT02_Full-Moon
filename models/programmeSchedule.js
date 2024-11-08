@@ -1,10 +1,8 @@
 const pool = require('../dbConfig');
 
 class ProgrammeSchedule {
-    constructor(scheduleID, programmeClassID, programmeID, instanceID, startDateTime, endDateTime) {
+    constructor(scheduleID, instanceID, startDateTime, endDateTime) {
         this.scheduleID = scheduleID;
-        this.programmeClassID = programmeClassID;
-        this.programmeID = programmeID;
         this.instanceID = instanceID;
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
@@ -22,7 +20,7 @@ class ProgrammeSchedule {
         const [rows] = await pool.query(sqlQuery, [programmeID]);
         if (rows.length === 0) return null;
         const row = rows[0];
-        return new ProgrammeSchedule(row.ScheduleID, row.ProgrammeClassID, row.ProgrammeID, row.instanceID, row.StartDateTime, row.EndDateTime);
+        return new ProgrammeSchedule(row.ScheduleID, row.instanceID, row.StartDateTime, row.EndDateTime);
     }
 
     // Get upcoming schedules grouped by instance for a specific programme
@@ -80,25 +78,39 @@ class ProgrammeSchedule {
 
     static async getProgrammeSchedules(programmeID) {
         const sqlQuery = `
+        SELECT 
+            ps.InstanceID,
+            pcb.ProgrammeClassID,
+            pc.ProgrammeID,
+            ps.StartDateTime,
+            ps.EndDateTime,
+            pc.ProgrammeLevel,
+            COALESCE(s.SlotsTaken, 0) AS slotsTaken
+        FROM ProgrammeSchedule ps
+        JOIN ProgrammeClassBatch pcb 
+            ON ps.InstanceID = pcb.InstanceID
+        JOIN ProgrammeClass pc 
+            ON pcb.ProgrammeClassID = pc.ProgrammeClassID 
+            AND pcb.ProgrammeID = pc.ProgrammeID
+        LEFT JOIN (
             SELECT 
-                ps.InstanceID,
-                pcb.ProgrammeClassID,
-                pc.ProgrammeID,
-                ps.StartDateTime,
-                ps.EndDateTime,
-                pc.ProgrammeLevel,
-                (
-                    SELECT COUNT(*) 
-                    FROM Slot 
-                    WHERE Slot.ProgrammeClassID = pcb.ProgrammeClassID 
-                    AND Slot.ProgrammeID = pc.ProgrammeID
-                ) AS slotsTaken
-            FROM ProgrammeSchedule ps
-            JOIN ProgrammeClassBatch pcb ON ps.InstanceID = pcb.InstanceID
-            JOIN ProgrammeClass pc ON pcb.ProgrammeClassID = pc.ProgrammeClassID 
-                AND pcb.ProgrammeID = pc.ProgrammeID
-            WHERE pc.ProgrammeID = ?
-            ORDER BY ps.InstanceID, ps.StartDateTime ASC;
+                ProgrammeClassID, 
+                ProgrammeID, 
+                COUNT(*) AS SlotsTaken
+            FROM Slot
+            GROUP BY ProgrammeClassID, ProgrammeID
+        ) s 
+            ON pcb.ProgrammeClassID = s.ProgrammeClassID 
+            AND pcb.ProgrammeID = s.ProgrammeID
+        -- Filter for InstanceIDs with their first schedule date still upcoming
+        WHERE pc.ProgrammeID = ?
+            AND ps.InstanceID IN (
+                SELECT InstanceID
+                FROM ProgrammeSchedule
+                GROUP BY InstanceID
+                HAVING MIN(StartDateTime) >= NOW()
+            )
+        ORDER BY ps.InstanceID, ps.StartDateTime ASC;
         `;
         
         try {
