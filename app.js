@@ -6,6 +6,7 @@ const cors = require("cors");
 const authRoutes = require("./modules/auth/authRoutes"); // Import auth routes
 const profileRoutes = require("./modules/auth/profileRoutes"); // Import profile routes
 const userProfileRoutes = require("./modules/auth/userProfileRoutes");
+const childRoutes = require("./modules/auth/addChildRoutes");
 const ensureAdminAuthenticated = require("./middlewares/auth");
 
 const app = express();
@@ -46,6 +47,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/auth", authRoutes);
 app.use("/api", userProfileRoutes);
 app.use("/auth/profile", profileRoutes); // Mount profile routes
+app.use("/api/children", childRoutes); // Mount child routes
 
 // Route for the index page
 app.get("/", (req, res) => {
