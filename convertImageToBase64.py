@@ -1,4 +1,5 @@
 import base64
+import re
 
 # Function to read image and convert to base64
 def image_to_base64(image_path):
@@ -49,3 +50,33 @@ sql_data = sql_data.replace('PLACEHOLDER_PROGRAMME_2_CONTENT_1', programme_2_con
 # Write the updated SQL back to the file
 with open('SQL Scripts/dummyData.sql', 'w') as file:
     file.write(sql_data)
+
+# # !!! This is to convert the base64 strings back to placeholders in the SQL file !!!
+
+# # Define the placeholders and their corresponding base64 strings
+# placeholders = {
+#     'PLACEHOLDER_PAYMENT_1': payment_1_base64,
+#     'PLACEHOLDER_PAYMENT_2': payment_2_base64,
+#     'PLACEHOLDER_PROFILE_USER_1': profile_user_1_base64,
+#     'PLACEHOLDER_PROFILE_USER_2': profile_user_2_base64,
+#     'PLACEHOLDER_PROFILE_CHILD_1': profile_child_1_path,
+#     'PLACEHOLDER_PROFILE_CHILD_2': profile_child_2_base64,
+#     'PLACEHOLDER_PROGRAMME_1': programme_1_base64,
+#     'PLACEHOLDER_PROGRAMME_2': programme_2_base64,
+#     'PLACEHOLDER_PROGRAMME_1_CONTENT_1': programme_1_content_1_base64,
+#     'PLACEHOLDER_PROGRAMME_2_CONTENT_1': programme_2_content_1_base64 
+# }
+
+# # Read the SQL file
+# with open('SQL Scripts/dummyData.sql', 'r') as file:
+#     sql_data = file.read()
+
+# # Replace base64 strings with placeholders
+# for placeholder, base64_string in placeholders.items():
+#     sql_data = re.sub(re.escape(base64_string), placeholder, sql_data)
+
+# # Write the updated SQL back to the file
+# with open('SQL Scripts/dummyData.sql', 'w') as file:
+#     file.write(sql_data)
+
+print('Done!')

@@ -64,7 +64,7 @@ CREATE TABLE Programme (
 
 -- Create ProgrammeClass table
 CREATE TABLE ProgrammeClass (
-    ProgrammeClassID INT, -- Class 1, Class 2, etc.
+    ProgrammeClassID INT AUTO_INCREMENT PRIMARY KEY, -- Class 1, Class 2, etc.
     ProgrammeID INT, 
     ShortDescription TEXT NOT NULL, -- Short description of the class
     Location VARCHAR(200) NOT NULL, -- if it's online, can be the link to the online class
@@ -72,7 +72,6 @@ CREATE TABLE ProgrammeClass (
     MaxSlots INT CHECK (MaxSlots > 0) NOT NULL,
     ProgrammeLevel VARCHAR(100) NOT NULL, -- Beginner, Intermediate, Advanced, Lite, etc
     Remarks TEXT NULL, -- any additional information, seperated by '~', e.g "Materials are provided ~ Lunch is provided"
-    CONSTRAINT PK_ProgrammeClass PRIMARY KEY (ProgrammeClassID, ProgrammeID),
     CONSTRAINT FK_ProgrammeClass_Programme FOREIGN KEY (ProgrammeID) REFERENCES Programme(ProgrammeID)
 );
 
@@ -80,9 +79,8 @@ CREATE TABLE ProgrammeClass (
 -- This table is used to store the different instances of the same class
 CREATE TABLE ProgrammeClassBatch (
     ProgrammeClassID INT NOT NULL,
-    ProgrammeID INT NOT NULL,
     InstanceID INT AUTO_INCREMENT PRIMARY KEY,
-    CONSTRAINT FK_ProgrammeClassBatch_ProgrammeClass FOREIGN KEY (ProgrammeClassID, ProgrammeID) REFERENCES ProgrammeClass(ProgrammeClassID, ProgrammeID)
+    CONSTRAINT FK_ProgrammeClassBatch_ProgrammeClass FOREIGN KEY (ProgrammeClassID) REFERENCES ProgrammeClass(ProgrammeClassID)
 );
 
 -- Create ProgrammeSchedule table
@@ -113,7 +111,8 @@ CREATE TABLE Slot (
     InstanceID INT NOT NULL,
     ParentID INT NULL,
     ChildID INT NULL,
-    CONSTRAINT FK_Slot_Programme FOREIGN KEY (ProgrammeClassID, ProgrammeID) REFERENCES ProgrammeClass(ProgrammeClassID, ProgrammeID),
+    CONSTRAINT FK_Slot_Programme FOREIGN KEY (ProgrammeClassID) REFERENCES ProgrammeClass(ProgrammeClassID),
+    CONSTRAINT FK_Slot_ProgrammeID FOREIGN KEY (ProgrammeID) REFERENCES Programme(ProgrammeID),
     CONSTRAINT FK_Slot_Parent FOREIGN KEY (ParentID) REFERENCES Parent(ParentID),
     CONSTRAINT FK_Slot_Child FOREIGN KEY (ChildID) REFERENCES Child(ChildID),
     CONSTRAINT FK_Slot_ProgrammeClassBatch FOREIGN KEY (InstanceID) REFERENCES ProgrammeClassBatch(InstanceID),
