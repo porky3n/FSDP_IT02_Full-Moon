@@ -1,6 +1,7 @@
 -- Drop tables if they exist
 DROP TABLE IF EXISTS Token;
 DROP TABLE IF EXISTS Payment;
+DROP TABLE IF EXISTS Promotion;
 DROP TABLE IF EXISTS Reviews;
 DROP TABLE IF EXISTS Slot;
 DROP TABLE IF EXISTS ProgrammeImages;
@@ -33,7 +34,7 @@ CREATE TABLE Parent (
     Membership ENUM('Member', 'Non-Member') DEFAULT 'Non-Member' NOT NULL,
     MembershipExpirationDate DATE NULL,
     Dietary TEXT NULL,
-    ProfilePictureURL VARCHAR(255) NULL,
+    ProfilePicture MEDIUMBLOB NULL,
     CONSTRAINT FK_Parent_Account FOREIGN KEY (AccountID) REFERENCES Account(AccountID)
 );
 
@@ -48,7 +49,7 @@ CREATE TABLE Child (
     Gender ENUM('M', 'F') NOT NULL,
     Dietary TEXT NULL,
     ParentID INT NOT NULL,
-    ProfilePictureURL VARCHAR(255) NULL,
+    ProfilePicture MEDIUMBLOB NULL, -- Binary data for the profile picture
     CONSTRAINT FK_Child_Parent FOREIGN KEY (ParentID) REFERENCES Parent(ParentID)
 );
 
@@ -57,7 +58,7 @@ CREATE TABLE Programme (
     ProgrammeID INT AUTO_INCREMENT PRIMARY KEY,
     ProgrammeName VARCHAR(255) NOT NULL,
     Category TEXT NOT NULL, -- "Workshop", "Camp", etc
-    ProgrammePictureURL TEXT NULL, -- URL to the MAIN Picture of the programme
+    ProgrammePicture MEDIUMBLOB NULL, -- Binary data for the programme picture
     Description TEXT NOT NULL
 );
 
@@ -99,7 +100,7 @@ CREATE TABLE ProgrammeSchedule (
 CREATE TABLE ProgrammeImages (
     ImageID INT AUTO_INCREMENT PRIMARY KEY,
     ProgrammeID INT NOT NULL,
-    ImageURL TEXT NOT NULL, -- URL to the content image of the programme
+    Image MEDIUMBLOB NOT NULL, -- Binary data for the image
     CONSTRAINT FK_ProgrammeImages_Programme FOREIGN KEY (ProgrammeID) REFERENCES Programme(ProgrammeID)
 );
 
@@ -131,15 +132,32 @@ CREATE TABLE Reviews (
     CONSTRAINT FK_Reviews_Programme FOREIGN KEY (ProgrammeID) REFERENCES Programme(ProgrammeID)
 );
 
+-- Create Promotion table
+-- Promotion is linked to a specific programme
+CREATE TABLE Promotion (
+    PromotionID INT AUTO_INCREMENT PRIMARY KEY,
+    ProgrammeID INT NOT NULL, -- Links the promotion to a specific programme
+    PromotionName VARCHAR(255) NOT NULL, -- Name of the promotion
+    DiscountType ENUM('Percentage', 'Fixed Amount') NOT NULL, -- Type of discount
+    DiscountValue DECIMAL(10,2) CHECK (DiscountValue > 0) NOT NULL, -- The value of the discount
+    StartDateTime DATETIME NOT NULL, -- When the promotion starts
+    EndDateTime DATETIME NOT NULL, -- When the promotion ends
+    Remarks TEXT NULL, -- Any additional information related to the promotion
+    CONSTRAINT FK_Promotion_Programme FOREIGN KEY (ProgrammeID) REFERENCES Programme(ProgrammeID),
+    CHECK (EndDateTime > StartDateTime) -- Ensure that the end date is after the start date
+);
+
 -- Create Payment table
 CREATE TABLE Payment (
     PaymentID INT AUTO_INCREMENT PRIMARY KEY,
     SlotID INT NOT NULL,
+    PromotionID INT NULL, -- Promotion code used for the payment
     PaymentAmount DECIMAL(10,2) CHECK (PaymentAmount > 0) NOT NULL,
     PaymentDate DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
     PaymentMethod VARCHAR(255) NOT NULL, -- PayNow for now,
-    PaymentImage VARCHAR(255) NOT NULL, -- URL to the uploaded payment image
-    CONSTRAINT FK_Payment_Slot FOREIGN KEY (SlotID) REFERENCES Slot(SlotID)
+    PaymentImage MEDIUMBLOB NOT NULL, -- Binary data for the payment image
+    CONSTRAINT FK_Payment_Slot FOREIGN KEY (SlotID) REFERENCES Slot(SlotID),
+    CONSTRAINT FK_Payment_Promotion FOREIGN KEY (PromotionID) REFERENCES Promotion(PromotionID)
 );
 
 -- Create Token table
