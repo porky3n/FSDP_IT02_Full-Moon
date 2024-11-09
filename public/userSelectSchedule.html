@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    
+    <!-- Custom CSS for Navbar and Footer -->
+    <link rel="stylesheet" href="./css/navbar.css" />
+    <link rel="stylesheet" href="./css/footer.css" />
+    <link rel="stylesheet" href="./css/userSelectSchedule.css" />
+
+    <title>Mindsphere</title>
+</head>
+<body>
+
+    <!-- Navbar Section -->
+    <header>
+        <div id="navbar-container"></div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container-fluid">
+        <div class="row">
+            <!-- Middle Section (Main Content) -->
+            <div class="col-md-8 schedule-section">
+                <!-- Steps Header -->
+                <div class="step-header mb-4">
+                    <span id="step-1" class="active-step">1 Select Schedule</span> &nbsp;&nbsp;
+                    <span id="step-2">2 Select Profile</span> &nbsp;&nbsp;
+                    <span id="step-3">3 Payment</span>
+                </div>
+    
+                <!-- Select Schedule Section -->
+                <div id="select-schedule-section" class="section">
+                    <!-- Schedules will be loaded here dynamically -->
+                </div>
+            </div>
+    
+            <!-- Right Column -->
+            <div class="col-md-4 p-5 bg-light">
+                <h4>Profile</h4>
+                <p>Who do you want to sign up for.</p>
+    
+                <!-- Profile Cards -->
+                <div class="card mb-3 profile-item" data-profile-id="yourProfile">
+                    <div class="card-body">
+                        <input type="radio" name="profile-selection" class="me-2">
+                        <div class="d-flex align-items-center mt-2">
+                            <img src="/images/profile-placeholder.png" alt="Profile Picture" class="rounded-circle me-3" width="50" height="50">
+                            <div>
+                                <h5 class="card-title mb-0">Your Profile</h5>
+                                <p class="card-text small text-muted">John Doe</p>
+                            </div>
+                        </div>
+                        <ul class="list-unstyled mt-3">
+                            <li><strong>Age:</strong> 30</li>
+                            <li><strong>Email:</strong> johndoe@example.com</li>
+                            <li><strong>Phone:</strong> +123 456 7890</li>
+                        </ul>
+                    </div>
+                </div>
+    
+                <div class="card mb-3 profile-item" data-profile-id="childProfile">
+                    <div class="card-body">
+                        <input type="radio" name="profile-selection" class="me-2">
+                        <div class="d-flex align-items-center mt-2">
+                            <img src="/images/profile-placeholder.png" alt="Child Profile Picture" class="rounded-circle me-3" width="50" height="50">
+                            <div>
+                                <h5 class="card-title mb-0">Child's Profile</h5>
+                                <p class="card-text small text-muted">Jane Doe</p>
+                            </div>
+                        </div>
+                        <ul class="list-unstyled mt-3">
+                            <li><strong>Age:</strong> 10</li>
+                            <li><strong>School:</strong> XYZ Primary School</li>
+                            <li><strong>Grade:</strong> 4</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+
+    <!-- Footer Section -->
+    <footer class="bg-dark text-white mt-5">
+        <div id="footer-container"></div>
+    </footer>
+
+    <!-- Bootstrap JS and other dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Load external navbar and footer into the template
+            $("#navbar-container").load("navbar.html");
+            $("#footer-container").load("footer.html");
+        });
+    </script>
+    <script src="/js/userSelectSchedule.js"></script>
+</body>
+</html>
