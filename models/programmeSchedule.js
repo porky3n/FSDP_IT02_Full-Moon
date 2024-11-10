@@ -91,17 +91,14 @@ class ProgrammeSchedule {
             ON ps.InstanceID = pcb.InstanceID
         JOIN ProgrammeClass pc 
             ON pcb.ProgrammeClassID = pc.ProgrammeClassID 
-            AND pcb.ProgrammeID = pc.ProgrammeID
         LEFT JOIN (
             SELECT 
                 ProgrammeClassID, 
-                ProgrammeID, 
                 COUNT(*) AS SlotsTaken
             FROM Slot
-            GROUP BY ProgrammeClassID, ProgrammeID
+            GROUP BY ProgrammeClassID
         ) s 
-            ON pcb.ProgrammeClassID = s.ProgrammeClassID 
-            AND pcb.ProgrammeID = s.ProgrammeID
+            ON pcb.ProgrammeClassID = s.ProgrammeClassID
         -- Filter for InstanceIDs with their first schedule date still upcoming
         WHERE pc.ProgrammeID = ?
             AND ps.InstanceID IN (
@@ -111,6 +108,7 @@ class ProgrammeSchedule {
                 HAVING MIN(StartDateTime) >= NOW()
             )
         ORDER BY ps.InstanceID, ps.StartDateTime ASC;
+
         `;
         
         try {
