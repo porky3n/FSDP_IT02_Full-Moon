@@ -1,19 +1,43 @@
-// Fetch programs data from the API endpoint
-async function getProgramsData(endpoint = "/api/programme") {
-  try {
-    const response = await fetch(endpoint); // Endpoint dynamically set by calling function
-    const data = await response.json();
-    return data.map((program) => ({
-      ProgrammeID: program.programmeID,
-      ProgrammeName: program.programmeName,
-      Description: program.description,
-      Category: program.category,
-      ProgrammePicture: program.programmePicture || 'https://via.placeholder.com/400x200'
-    }));
-  } catch (error) {
-    console.error("Error fetching program data:", error);
-    return [];
-  }
+document.addEventListener("DOMContentLoaded", () => {
+  initPage(); // Initialize featured, private coaching, and initial search results
+
+  // Search input listener
+  const searchInput = document.querySelector(".search-bar input");
+  searchInput.addEventListener("keypress", function (event) {
+    if (event.key === "Enter") {
+      const keyword = searchInput.value.trim();
+      if (keyword) {
+        populateSearchResults(keyword, 1); // Call the search function with page 1
+      }
+    }
+  });
+
+  // Sort dropdown listener
+  const sortDropdown = document.querySelector(".sort-dropdown select");
+  sortDropdown.addEventListener("change", function () {
+    const keyword = searchInput.value.trim();
+    const sortOption = sortDropdown.value;
+    populateSearchResults(keyword, 1, 6, sortOption); // Pass sort option to search
+  });
+
+  // Reset button listener
+  const resetButton = document.getElementById("reset-button");
+  resetButton.addEventListener("click", () => {
+    searchInput.value = ""; // Clear the search input
+    sortDropdown.selectedIndex = 0; // Reset the dropdown to the default option
+    populateSearchResults("", 1); // Call the search function with no keyword to reset
+  });
+});
+
+// Caching variables
+let featuredProgramsCache = null;
+let privateCoachingCache = null;
+
+// Initialize the page with dynamic content
+async function initPage() {
+  await populateFeaturedPrograms();
+  await populatePrivateCoaching();
+  await populateSearchResults("", 1); // Initialize with empty search to load all results
 }
 
 // Initialize featured slider
@@ -41,102 +65,146 @@ function initFeaturedSlider() {
   });
 }
 
-// Helper function to get the common card content
-function getCardContent(program) {
-  return `
-    <img src="${program.ProgrammePicture}" class="card-img-top" alt="${program.ProgrammeName}">
-    <div class="card-body">
-      <h5 class="card-title">${program.ProgrammeName}</h5>
-      <p class="card-text">${program.Description}</p>
-    </div>
-  `;
-}
-
-// Populate the featured programs section
+// Populate the featured programs section with caching
 async function populateFeaturedPrograms() {
-  const programs = await getProgramsData("/api/programme/featured");
-  const featuredSliderContainer = document.querySelector('.featured-slider .swiper-wrapper');
-
-  programs.forEach((program) => {
-    const slide = document.createElement('div');
-    slide.classList.add('swiper-slide', 'featured-slide');
-    slide.innerHTML = `
-      <div class="card" onclick="location.href='userProgrammeInfoPage.html?programmeId=${encodeURIComponent(program.ProgrammeID)}'">
-        ${getCardContent(program)}
-      </div>
-    `;
-    featuredSliderContainer.appendChild(slide);
-  });
-
-  initFeaturedSlider(); // Initialize the slider after adding slides
-}
-
-// Populate the private coaching section
-async function populatePrivateCoaching() {
-  const programs = await getProgramsData("/api/programme/category/Workshop");
-  const privateCoachingContainer = document.querySelector('.private .row.mt-4');
-  privateCoachingContainer.innerHTML = ''; // Clear existing content if needed
-
-  // Loop through programs and get the first schedule date for each
-  for (const program of programs.slice(0, 3)) { // Display first three items as an example
-    const col = document.createElement('div');
-    col.classList.add('col-md-4');
-
-    col.innerHTML = `
-      <div class="card" onclick="location.href='userProgrammeInfoPage.html?programmeId=${encodeURIComponent(program.ProgrammeID)}'">
-        <img src="${program.ProgrammePicture}" class="card-img-top" alt="${program.ProgrammeName}">
-        <div class="card-body">
-          <div>
-            <h5 class="card-title">${program.ProgrammeName}</h5>
-            <p class="card-text">${program.Description}</p>
-          </div>
-        </div>
-      </div>
-    `;
-    privateCoachingContainer.appendChild(col);
-  }
-}
-
-// Populate the search results section
-async function populateSearchResults(keyword) {
-  const programs = await getProgramsData(`/api/programme/search?keyword=${encodeURIComponent(keyword)}`);
-  const cardGridContainer = document.querySelector('.card-grid'); // Select only the card grid
-  cardGridContainer.innerHTML = ''; // Clear existing card content
-
-  let row;
-
-  // Loop through programs and add them in a row structure
-  for (const [index, program] of programs.entries()) {
-    // Create a new row for every 3 programs
-    if (index % 3 === 0) {
-      row = document.createElement('div');
-      row.classList.add('row', 'mt-5');
-      cardGridContainer.appendChild(row);
+  try {
+    // Check cache first
+    if (!featuredProgramsCache) {
+      const response = await fetch("/api/programme/featured");
+      featuredProgramsCache = await response.json();
     }
 
-    const col = document.createElement('div');
-    col.classList.add('col-md-4');
+    const featuredSliderContainer = document.querySelector('.featured-slider .swiper-wrapper');
+    const programmes = featuredProgramsCache.map(program => ({
+      ProgrammeID: program.programmeID,
+      ProgrammeName: program.programmeName,
+      Description: program.description,
+      Category: program.category,
+      ProgrammePicture: program.programmePicture || 'https://via.placeholder.com/400x200'
+    }));
 
-    col.innerHTML = `
-      <div class="card" onclick="location.href='userProgrammeInfoPage.html?programmeId=${encodeURIComponent(program.ProgrammeID)}'">
-        <img src="${program.ProgrammePicture}" class="card-img-top" alt="${program.ProgrammeName}">
-        <div class="card-body">
-          <div>
+    programmes.forEach((program) => {
+      const slide = document.createElement('div');
+      slide.classList.add('swiper-slide', 'featured-slide');
+      slide.innerHTML = `
+        <div class="card" onclick="location.href='userProgrammeInfoPage.html?programmeId=${encodeURIComponent(program.ProgrammeID)}'">
+          <img src="${program.ProgrammePicture}" class="card-img-top" alt="${program.ProgrammeName}">
+          <div class="card-body">
             <h5 class="card-title">${program.ProgrammeName}</h5>
             <p class="card-text">${program.Description}</p>
           </div>
         </div>
-      </div>
-    `;
-    row.appendChild(col);
+      `;
+      featuredSliderContainer.appendChild(slide);
+    });
+
+    initFeaturedSlider(); // Initialize the slider after adding slides
+  } catch (error) {
+    console.error("Error fetching featured programs:", error);
   }
 }
 
-// Initialize the page with dynamic content
-async function initPage() {
-  await populateFeaturedPrograms();
-  await populatePrivateCoaching();
-  await populateSearchResults(""); // Initialize with empty search to load all results
+// Populate the private coaching section with caching
+async function populatePrivateCoaching() {
+  try {
+    // Check cache first
+    if (!privateCoachingCache) {
+      const response = await fetch("/api/programme/category/Workshop");
+      privateCoachingCache = await response.json();
+    }
+
+    const privateCoachingContainer = document.querySelector('.private .row.mt-4');
+    privateCoachingContainer.innerHTML = ''; // Clear existing content if needed
+
+    const programmes = privateCoachingCache.map(program => ({
+      ProgrammeID: program.programmeID,
+      ProgrammeName: program.programmeName,
+      Description: program.description,
+      Category: program.category,
+      ProgrammePicture: program.programmePicture || 'https://via.placeholder.com/400x200'
+    }));
+
+    programmes.slice(0, 3).forEach((program) => { // Display first three items as an example
+      const col = document.createElement('div');
+      col.classList.add('col-md-4');
+
+      col.innerHTML = `
+        <div class="card" onclick="location.href='userProgrammeInfoPage.html?programmeId=${encodeURIComponent(program.ProgrammeID)}'">
+          <img src="${program.ProgrammePicture}" class="card-img-top" alt="${program.ProgrammeName}">
+          <div class="card-body">
+            <div>
+              <h5 class="card-title">${program.ProgrammeName}</h5>
+              <p class="card-text">${program.Description}</p>
+            </div>
+          </div>
+        </div>
+      `;
+      privateCoachingContainer.appendChild(col);
+    });
+  } catch (error) {
+    console.error("Error fetching private coaching programs:", error);
+  }
 }
 
-document.addEventListener("DOMContentLoaded", initPage);
+// Populate the search results section (no caching for search)
+async function populateSearchResults(keyword, page = 1, limit = 6, sortOption = "Sort By Date") {
+  try {
+    const response = await fetch(`/api/programme/search?keyword=${encodeURIComponent(keyword)}&page=${page}&limit=${limit}`);
+    const { programmes, total, totalPages } = await response.json();
+
+    const cardGridContainer = document.querySelector('.card-grid'); // Select the card grid container
+    cardGridContainer.innerHTML = ''; // Clear existing content
+
+    let row;
+
+    // Loop through programs and add them in a row structure
+    programmes.forEach((program, index) => {
+      // Create a new row for every 3 programs
+      if (index % 3 === 0) {
+        row = document.createElement('div');
+        row.classList.add('row', 'mt-5');
+        cardGridContainer.appendChild(row);
+      }
+
+      const col = document.createElement('div');
+      col.classList.add('col-md-4');
+
+      col.innerHTML = `
+        <div class="card" onclick="location.href='userProgrammeInfoPage.html?programmeId=${encodeURIComponent(program.programmeID)}'">
+          <img src="${program.programmePicture || 'https://via.placeholder.com/400x200'}" class="card-img-top" alt="${program.programmeName}">
+          <div class="card-body">
+            <div>
+              <h5 class="card-title">${program.programmeName}</h5>
+              <p class="card-text">${program.description}</p>
+            </div>
+          </div>
+        </div>
+      `;
+      row.appendChild(col);
+    });
+
+    // Render pagination controls with the current page, total pages, and keyword
+    renderPaginationControls(page, totalPages, keyword);
+  } catch (error) {
+    console.error("Error populating search results:", error);
+  }
+}
+
+// Render pagination controls
+function renderPaginationControls(currentPage, totalPages, keyword, sortOption) {
+  const paginationContainer = document.querySelector('.pagination-container');
+  paginationContainer.innerHTML = ''; // Clear existing pagination controls
+
+  for (let page = 1; page <= totalPages; page++) {
+    const button = document.createElement("button");
+    button.classList.add("pagination-button", "btn", "btn-primary", "m-1");
+    button.textContent = page;
+    button.disabled = page === currentPage;
+
+    button.addEventListener("click", () => {
+      populateSearchResults(keyword, page, 6, sortOption); // Fetch selected page with sort option
+    });
+
+    paginationContainer.appendChild(button);
+  }
+}

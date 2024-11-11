@@ -297,21 +297,38 @@ class Programme {
         ));
     }
 
-    // Search programmes by keyword in ProgrammeName or Description
-    static async searchProgrammes(keyword) {
+    // Search programmes by keyword with pagination and total count
+    static async searchProgrammes(keyword, page = 1, limit = 6) {
+        const offset = (page - 1) * limit;
+        
+        // Main query for fetching results with pagination
         const sqlQuery = `
             SELECT * FROM Programme
             WHERE ProgrammeName LIKE ? OR Description LIKE ?
+            LIMIT ? OFFSET ?
         `;
-        const [rows] = await pool.query(sqlQuery, [`%${keyword}%`, `%${keyword}%`]);
-        return rows.map(row => new Programme(
-            row.ProgrammeID,
-            row.ProgrammeName,
-            row.Category,
-            row.ProgrammePicture,
-            row.Description
-        ));
+        
+        // Separate query to count the total matching records (without pagination)
+        const countQuery = `
+            SELECT COUNT(*) AS total FROM Programme
+            WHERE ProgrammeName LIKE ? OR Description LIKE ?
+        `;
+        
+        const [rows] = await pool.query(sqlQuery, [`%${keyword}%`, `%${keyword}%`, limit, offset]);
+        const [[{ total }]] = await pool.query(countQuery, [`%${keyword}%`, `%${keyword}%`]);
+        
+        return {
+            programmes: rows.map(row => new Programme(
+                row.ProgrammeID,
+                row.ProgrammeName,
+                row.Category,
+                row.ProgrammePicture,
+                row.Description
+            )),
+            total
+        };
     }
+
 }
 
 module.exports = Programme;

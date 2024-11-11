@@ -144,16 +144,24 @@ const getProgrammesByCategory = async (req, res) => {
 
 // Controller to search programmes
 const searchProgrammes = async (req, res) => {
-    const { keyword } = req.query;
+    const { keyword = '', page = 1, limit = 6 } = req.query;
+    
     try {
-        const programmes = await Programme.searchProgrammes(keyword);
+        const { programmes, total } = await Programme.searchProgrammes(keyword, parseInt(page), parseInt(limit));
         const programmesWithBase64Images = programmes.map(convertToBase64);
-        res.json(programmesWithBase64Images);
+        
+        res.json({
+            programmes: programmesWithBase64Images,
+            total,           // Total count of results
+            page: parseInt(page),
+            totalPages: Math.ceil(total / limit)  // Calculate total pages
+        });
     } catch (error) {
         console.error(error);
         res.status(500).send("Error searching programmes");
     }
 };
+
 
 // Controller to get a programme by ID with Base64 image conversion
 const getProgrammeByID = async (req, res) => {
