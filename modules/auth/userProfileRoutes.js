@@ -1,30 +1,23 @@
-// userProfileRoutes.js
 const express = require("express");
 const router = express.Router();
-const multer = require("multer"); // For handling file uploads
+const multer = require("multer");
+const upload = multer();
 const userProfileController = require("./userProfileController");
 
-// Configure multer for profile picture uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "public/uploads/profile-pictures");
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + "-" + file.originalname);
-  },
-});
-
-const upload = multer({ storage: storage });
-
-// Route to get user profile data
+// Route to get user profile
 router.get("/profile", userProfileController.getProfile);
 
-// Route to update profile picture
+// Route to update child information
+router.put("/child/:id", userProfileController.updateChild);
+
+// Route to update profile picture (using multer for file upload)
 router.post(
-  "/profile/picture",
+  "/profile-picture",
   upload.single("profilePicture"),
   userProfileController.updateProfilePicture
 );
+
+// Route for logout
+router.post("/logout", userProfileController.logout);
 
 module.exports = router;

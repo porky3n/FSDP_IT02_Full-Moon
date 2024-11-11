@@ -3,6 +3,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const editBtn = document.querySelector(".btn-edit");
   const signInBtn = document.querySelector(".btn-signin");
   const logoutBtn = document.querySelector(".btn-logout");
+  const profileContent = document.getElementById("profileContent");
+  const guestContent = document.getElementById("guestContent");
   const logoutModal = new bootstrap.Modal(
     document.getElementById("logoutModal")
   );
@@ -10,25 +12,29 @@ document.addEventListener("DOMContentLoaded", function () {
   // Function to check if user is authenticated
   const isAuthenticated = async () => {
     try {
-      const response = await fetch("/api/profile", {
+      const response = await fetch("/auth/profile", {
         method: "GET",
-        credentials: "include", // Important: Include credentials for session
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       });
 
       if (!response.ok) {
-        clearAllStorageAndCache();
+        await clearAllStorageAndCache();
         return false;
       }
       return true;
     } catch (error) {
       console.error("Auth check error:", error);
-      clearAllStorageAndCache();
+      await clearAllStorageAndCache();
       return false;
     }
   };
 
   // Function to clear all storage and cache
-  const clearAllStorageAndCache = () => {
+  const clearAllStorageAndCache = async () => {
     // Clear all local storage
     localStorage.clear();
 
@@ -41,29 +47,41 @@ document.addEventListener("DOMContentLoaded", function () {
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("user");
 
-    // Clear any cookies (except those httpOnly)
-    document.cookie.split(";").forEach(function (c) {
-      document.cookie = c
-        .replace(/^ +/, "")
-        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-    });
+    // Clear cookies (except httpOnly cookies which can only be cleared by the server)
+    const cookies = document.cookie.split(";");
+    for (let cookie of cookies) {
+      const eqPos = cookie.indexOf("=");
+      const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+      document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+    }
+
+    // If you're using any other storage mechanisms, clear them here
+    try {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((key) => caches.delete(key)));
+    } catch (e) {
+      console.error("Cache clear error:", e);
+    }
   };
 
   // Function to handle logout
   const handleLogout = async () => {
     try {
-      // First clear all storage and cookies
-      clearAllStorageAndCache();
-
-      // Call logout endpoint
       const response = await fetch("/auth/logout", {
         method: "POST",
         credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
 
       if (!response.ok) {
-        throw new Error("Logout failed");
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Logout failed");
       }
+
+      // Clear all storage and cookies
+      await clearAllStorageAndCache();
 
       // Hide the modal
       const logoutModal = document.getElementById("logoutModal");
@@ -72,10 +90,13 @@ document.addEventListener("DOMContentLoaded", function () {
         if (bsModal) bsModal.hide();
       }
 
-      // Redirect to home page
-      window.location.href = "/";
+      // Add a small delay to ensure everything is cleared
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 100);
     } catch (error) {
       console.error("Logout error:", error);
+      // Show user-friendly error message
       alert("Error during logout. Please try again.");
     }
   };
@@ -101,20 +122,35 @@ document.addEventListener("DOMContentLoaded", function () {
     const userName = document.getElementById("userName");
     const userEmail = document.getElementById("userEmail");
     const profilePic = document.querySelector(".profile-picture");
+    const profileContent = document.getElementById("profileContent");
+    const guestContent = document.getElementById("guestContent");
 
     if (userName) userName.textContent = "Guest";
     if (userEmail)
       userEmail.textContent = "Please sign in to view your profile";
-    if (profilePic) profilePic.src = "/images/default-profile.png"; // Make sure to have a default image
+    if (profilePic) profilePic.src = "../images/profilePicture.png";
+    if (profileContent) profileContent.style.display = "none";
+    if (guestContent) guestContent.style.display = "block";
   };
 
   // Function to fetch and display user profile data
   const loadUserProfile = async () => {
     try {
-      const response = await fetch("/api/profile", {
+      const response = await fetch("/auth/profile", {
         method: "GET",
         credentials: "include",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       });
+
+      if (response.status === 401) {
+        if (profileContent) profileContent.style.display = "none";
+        if (guestContent) guestContent.style.display = "block";
+        return;
+      }
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -122,33 +158,71 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const profileData = await response.json();
 
-      // Update all profile fields
+      // Show profile content and hide guest content
+      if (profileContent) profileContent.style.display = "block";
+      if (guestContent) guestContent.style.display = "none";
+
+      // Format the date
+      const formatDate = (dateStr) => {
+        if (!dateStr) return "Not provided";
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return "Not provided";
+        return date.toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+      };
+
+      // Format membership status based on the Membership column value
+      const formatMembership = (status) => {
+        if (!status) return "Not a Member";
+        return status === "Non-Member" ? "Not a Member" : "Member";
+      };
+
+      // Update profile fields
       const profileFields = {
         userName: `${profileData.FirstName} ${profileData.LastName}`,
         userEmail: profileData.Email,
-        userDOB: profileData.DateOfBirth,
-        userContact: profileData.ContactNumber,
-        userMembership: profileData.Membership,
-        userDietary: profileData.Dietary,
-      };
+        userDOB: formatDate(profileData.DateOfBirth),
+        userContact: profileData.ContactNumber || "Not provided",
+        userMembership: formatMembership(profileData.Membership),
 
-      // Update each field if the element exists
+        userDietary: profileData.Dietary || "Not provided",
+      };
+      console.log(profileData.Membership);
+
       Object.entries(profileFields).forEach(([id, value]) => {
         const element = document.getElementById(id);
-        if (element && value) {
+        if (element) {
           element.textContent = value;
         }
       });
 
-      // Update profile picture if it exists
+      // Update profile picture with error handling
       const profilePic = document.querySelector(".profile-picture");
-      if (profilePic && profileData.ProfilePictureURL) {
-        profilePic.src = profileData.ProfilePictureURL;
+      if (profilePic) {
+        try {
+          await fetch(
+            profileData.ProfilePicture || "../images/profilePicture.png"
+          );
+          profilePic.src =
+            profileData.ProfilePicture || "../images/profilePicture.png";
+        } catch {
+          profilePic.src = "../images/profilePicture.png";
+        }
       }
     } catch (error) {
       console.error("Error loading profile:", error);
-      showGuestProfile();
+      // Show guest content on error
+      if (profileContent) profileContent.style.display = "none";
+      if (guestContent) guestContent.style.display = "block";
     }
+  };
+
+  const initializeProgrammeCards = async () => {
+    // This function can be implemented later for programme cards
+    console.log("Programme cards initialization will be implemented later");
   };
 
   // Initialize event listeners

@@ -8,7 +8,11 @@ document.addEventListener("DOMContentLoaded", function () {
   async function loadExistingChildren() {
     try {
       const response = await fetch("/api/children", {
-        credentials: "include", // Important for sending cookies
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
       });
 
       if (!response.ok) {
@@ -34,6 +38,22 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  };
+  function formatDateForInput(dateStr) {
+    if (!dateStr) return "";
+    const [day, month, year] = dateStr.split(" ");
+    const monthNum = new Date(`${month} 1, 2000`).getMonth() + 1;
+    return `${year}-${monthNum.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+  }
+
   // Function to display the children
   function displayChildren(children) {
     const childrenContainer = document.getElementById("childrenContainer");
@@ -45,8 +65,11 @@ document.addEventListener("DOMContentLoaded", function () {
         childDiv.className = "child-card";
 
         const profilePicture = document.createElement("img");
-        profilePicture.src =
-          child.ProfilePictureURL || "images/profilePicture.png";
+        if (child.ProfilePicture) {
+          profilePicture.src = `data:image/jpeg;base64,${child.ProfilePicture}`;
+        } else {
+          profilePicture.src = "images/profilePicture.png";
+        }
         profilePicture.alt = `${child.FirstName} ${child.LastName}`;
         profilePicture.className = "child-profile-picture";
 
@@ -57,12 +80,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const detailsDiv = document.createElement("div");
         detailsDiv.className = "child-details";
         detailsDiv.innerHTML = `
-        <p>Date of Birth: ${child.DateOfBirth}</p>
-        <p>Gender: ${child.Gender}</p>
-        <p>School: ${child.School || "N/A"}</p>
-        <p>Emergency Contact: ${child.EmergencyContactNumber}</p>
-        <p>Dietary: ${child.Dietary || "N/A"}</p>
-      `;
+          <p>Date of Birth: ${formatDate(child.DateOfBirth)}</p>
+          <p>Gender: ${child.Gender}</p>
+          <p>School: ${child.School || "N/A"}</p>
+          <p>Emergency Contact: ${child.EmergencyContactNumber}</p>
+          <p>Dietary: ${child.Dietary || "N/A"}</p>
+        `;
 
         const actionsDiv = document.createElement("div");
         actionsDiv.className = "child-actions";
@@ -92,19 +115,64 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Handle profile picture upload
+  async function compressImage(base64Str) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = function () {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+
+        // Calculate new dimensions while maintaining aspect ratio
+        const maxWidth = 800;
+        const maxHeight = 800;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height *= maxWidth / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width *= maxHeight / height;
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Compress as JPEG with 0.7 quality
+        resolve(canvas.toDataURL("image/jpeg", 0.7));
+      };
+      img.src = base64Str;
+    });
+  }
+
+  // Update the profile picture change handler
   if (profilePictureInput) {
-    profilePictureInput.addEventListener("change", function (e) {
+    profilePictureInput.addEventListener("change", async function (e) {
       if (e.target.files && e.target.files[0]) {
         const file = e.target.files[0];
         if (!file.type.startsWith("image/")) {
           alert("Please upload an image file");
           return;
         }
+
         const reader = new FileReader();
-        reader.onload = function (e) {
-          profilePreview.src = e.target.result;
-          currentProfilePicture = e.target.result;
+        reader.onload = async function (e) {
+          try {
+            // Compress the image before setting it
+            const compressedImage = await compressImage(e.target.result);
+            profilePreview.src = compressedImage;
+            currentProfilePicture = compressedImage;
+          } catch (error) {
+            console.error("Error processing image:", error);
+            alert("Error processing image. Please try a different image.");
+          }
         };
         reader.readAsDataURL(file);
       }
@@ -115,22 +183,34 @@ document.addEventListener("DOMContentLoaded", function () {
   if (form) {
     form.addEventListener("submit", async function (e) {
       e.preventDefault();
-
-      const formData = {
-        firstName: document.getElementById("firstName").value,
-        lastName: document.getElementById("lastName").value,
-        dob: document.getElementById("dob").value,
-        gender: document.getElementById("gender").value,
-        school: document.getElementById("school").value,
-        emergencyContactNumber:
-          document.getElementById("emergencyContact").value,
-        dietary: document.getElementById("dietary").value,
-        profilePicture: currentProfilePicture,
-      };
+      const submitBtn = document.getElementById("submitBtn");
+      const isUpdate = submitBtn.textContent === "Update Child";
+      const childId = form.dataset.childId;
 
       try {
-        const response = await fetch("/api/children", {
-          method: "POST",
+        // Create form data
+        const formData = {
+          firstName: document.getElementById("firstName").value,
+          lastName: document.getElementById("lastName").value,
+          dob: document.getElementById("dob").value,
+          gender: document.getElementById("gender").value,
+          school: document.getElementById("school").value,
+          emergencyContactNumber:
+            document.getElementById("emergencyContact").value,
+          dietary: document.getElementById("dietary").value,
+          profilePicture: currentProfilePicture,
+        };
+
+        let url = "/api/children";
+        let method = "POST";
+
+        if (isUpdate && childId) {
+          url = `/api/children/${childId}`;
+          method = "PUT";
+        }
+
+        const response = await fetch(url, {
+          method: method,
           headers: {
             "Content-Type": "application/json",
           },
@@ -138,18 +218,38 @@ document.addEventListener("DOMContentLoaded", function () {
           body: JSON.stringify(formData),
         });
 
-        if (!response.ok) throw new Error("Failed to add child");
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(
+            errorData.message ||
+              `Failed to ${isUpdate ? "update" : "add"} child`
+          );
+        }
 
-        alert("Child added successfully!");
-        form.reset();
-        profilePreview.src = "images/profilePicture.png";
-        currentProfilePicture = null;
+        const result = await response.json();
+        alert(result.message);
+        resetForm();
         loadExistingChildren();
       } catch (error) {
-        console.error("Error adding child:", error);
-        alert("Error adding child. Please try again.");
+        console.error(
+          `Error ${isUpdate ? "updating" : "adding"} child:`,
+          error
+        );
+        alert(
+          `Error ${isUpdate ? "updating" : "adding"} child: ${error.message}`
+        );
       }
     });
+  }
+
+  // Function to reset form
+  function resetForm() {
+    form.reset();
+    profilePreview.src = "images/profilePicture.png";
+    currentProfilePicture = null;
+    const submitBtn = document.getElementById("submitBtn");
+    submitBtn.textContent = "Add Child";
+    form.removeAttribute("data-child-id");
   }
 
   // Edit child function
@@ -157,35 +257,45 @@ document.addEventListener("DOMContentLoaded", function () {
     try {
       const response = await fetch(`/api/children/${childId}`, {
         credentials: "include",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
       });
 
-      if (!response.ok) throw new Error("Failed to fetch child details");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch child details");
+      }
 
       const child = await response.json();
 
+      // Populate form fields
       document.getElementById("firstName").value = child.FirstName;
       document.getElementById("lastName").value = child.LastName;
-      document.getElementById("dob").value = child.DateOfBirth;
+      document.getElementById("dob").value = formatDateForInput(
+        child.DateOfBirth
+      );
       document.getElementById("gender").value = child.Gender;
       document.getElementById("school").value = child.School || "";
       document.getElementById("emergencyContact").value =
         child.EmergencyContactNumber;
       document.getElementById("dietary").value = child.Dietary || "";
 
-      if (child.ProfilePictureURL) {
-        profilePreview.src = child.ProfilePictureURL;
-        currentProfilePicture = child.ProfilePictureURL;
+      if (child.ProfilePicture) {
+        profilePreview.src = `data:image/jpeg;base64,${child.ProfilePicture}`;
+        currentProfilePicture = `data:image/jpeg;base64,${child.ProfilePicture}`;
       }
 
       const submitBtn = document.getElementById("submitBtn");
       submitBtn.textContent = "Update Child";
-      submitBtn.onclick = async (e) => {
-        e.preventDefault();
-        await updateChild(childId);
-      };
+      form.dataset.childId = childId;
+
+      // Scroll to the form
+      form.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
       console.error("Error loading child details:", error);
-      alert("Error loading child details. Please try again.");
+      alert(error.message || "Error loading child details. Please try again.");
     }
   };
 

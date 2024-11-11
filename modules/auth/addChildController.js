@@ -1,5 +1,15 @@
 const pool = require("../../dbConfig");
 
+const formatDate = (dateStr) => {
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+};
+
 exports.getChildren = async (req, res) => {
   const accountId = req.session.accountId;
   if (!accountId) {
@@ -8,7 +18,7 @@ exports.getChildren = async (req, res) => {
 
   try {
     const [children] = await pool.query(
-      `SELECT 
+      `SELECT  
         c.ChildID,
         c.FirstName,
         c.LastName,
@@ -17,14 +27,23 @@ exports.getChildren = async (req, res) => {
         c.School,
         c.EmergencyContactNumber,
         c.Dietary,
-        c.ProfilePictureURL
+        c.ProfilePicture
       FROM Child c
       JOIN Parent p ON c.ParentID = p.ParentID
       WHERE p.AccountID = ?`,
       [accountId]
     );
 
-    res.json(children);
+    // Convert BLOB to base64 string if ProfilePicture exists and format date
+    const processedChildren = children.map((child) => ({
+      ...child,
+      ProfilePicture: child.ProfilePicture
+        ? child.ProfilePicture.toString("base64")
+        : null,
+      DateOfBirth: formatDate(child.DateOfBirth),
+    }));
+
+    res.json(processedChildren);
   } catch (error) {
     console.error("Error fetching children:", error);
     res.status(500).json({
@@ -34,10 +53,13 @@ exports.getChildren = async (req, res) => {
   }
 };
 
-// Add endpoint to get a single child
 exports.getChild = async (req, res) => {
+  console.log("Getting child with ID:", req.params.id);
+  console.log("Session accountId:", req.session.accountId);
+
   const accountId = req.session.accountId;
   if (!accountId) {
+    console.log("No accountId found in session");
     return res.status(401).json({ message: "Unauthorized access" });
   }
 
@@ -54,7 +76,7 @@ exports.getChild = async (req, res) => {
         c.School,
         c.EmergencyContactNumber,
         c.Dietary,
-        c.ProfilePictureURL
+        c.ProfilePicture
       FROM Child c
       JOIN Parent p ON c.ParentID = p.ParentID
       WHERE p.AccountID = ? AND c.ChildID = ?`,
@@ -65,7 +87,13 @@ exports.getChild = async (req, res) => {
       return res.status(404).json({ message: "Child not found" });
     }
 
-    res.json(children[0]);
+    const child = children[0];
+    child.ProfilePicture = child.ProfilePicture
+      ? child.ProfilePicture.toString("base64")
+      : null;
+    child.DateOfBirth = formatDate(child.DateOfBirth);
+
+    res.json(child);
   } catch (error) {
     console.error("Error fetching child:", error);
     res.status(500).json({
@@ -103,6 +131,11 @@ exports.addChild = async (req, res) => {
       return res.status(404).json({ message: "Parent record not found" });
     }
 
+    // Convert base64 string to Buffer if profilePicture exists
+    const profilePictureBuffer = profilePicture
+      ? Buffer.from(profilePicture.split(",")[1], "base64")
+      : null;
+
     const [result] = await pool.query(
       `INSERT INTO Child (
         FirstName,
@@ -112,7 +145,7 @@ exports.addChild = async (req, res) => {
         School,
         EmergencyContactNumber,
         Dietary,
-        ProfilePictureURL,
+        ProfilePicture,
         ParentID
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
@@ -123,7 +156,7 @@ exports.addChild = async (req, res) => {
         school,
         emergencyContactNumber,
         dietary,
-        profilePicture,
+        profilePictureBuffer,
         parentResult[0].ParentID,
       ]
     );
@@ -175,6 +208,11 @@ exports.updateChild = async (req, res) => {
       profilePicture,
     } = req.body;
 
+    // Convert base64 string to Buffer if profilePicture exists
+    const profilePictureBuffer = profilePicture
+      ? Buffer.from(profilePicture.split(",")[1], "base64")
+      : null;
+
     await pool.query(
       `UPDATE Child SET
         FirstName = ?,
@@ -184,7 +222,7 @@ exports.updateChild = async (req, res) => {
         School = ?,
         EmergencyContactNumber = ?,
         Dietary = ?,
-        ProfilePictureURL = ?
+        ProfilePicture = ?
       WHERE ChildID = ?`,
       [
         firstName,
@@ -194,7 +232,7 @@ exports.updateChild = async (req, res) => {
         school,
         emergencyContactNumber,
         dietary,
-        profilePicture,
+        profilePictureBuffer,
         childId,
       ]
     );
