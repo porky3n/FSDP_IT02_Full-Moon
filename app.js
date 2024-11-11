@@ -8,9 +8,13 @@ const port = process.env.PORT || 3000;
 const programmeRoutes = require('./modules/programme/programme.routes');
 const programmeClassRoutes = require('./modules/programmeClass/programmeClass.routes');
 const programmeScheduleRoutes = require('./modules/programmeSchedule/programmeSchedule.routes');
+const slotRoutes = require('./modules/slot/slot.routes');
 
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Middleware to parse JSON bodies
+app.use(express.json());
 
 // Route for the index page
 app.get('/', (req, res) => {
@@ -40,6 +44,15 @@ app.get('/programme', async (req, res) => {
   }
 });
 
+app.get('/payment', async (req, res) => {
+  try {
+    res.sendFile(path.join(__dirname, 'public', 'userSelectSchedule.html'));
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Database query failed');
+  }
+});
+
 // app.get('/programme/:id', async (req, res) => {
 //   try {
 //     console.log(__dirname);
@@ -54,6 +67,7 @@ app.get('/programme', async (req, res) => {
 app.use("/api/programme", programmeRoutes);
 app.use("/api/programmeClass", programmeClassRoutes);
 app.use("/api/programmeSchedule", programmeScheduleRoutes);
+app.use("/api/slot", slotRoutes);
 // app.get('/api/programme', programmeController.getAllProgrammes);
 // app.get('/api/programme/featuredProgramme', programmeController.getFeaturedProgrammes);
 // app.get('/api/programme/searchProgramme', programmeController.searchProgrammes);

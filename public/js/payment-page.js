@@ -1,12 +1,17 @@
-// Global variable to store the last successfully uploaded image's data URL
-let lastUploadedImage = null;
+// Global variables to store payment information and last uploaded image in binary format
+let lastUploadedImageBinary = null;
+let paymentMethod = "PayNow"; // Default payment method (can be updated based on fetched data)
+let promotionID = null;       // Will be updated based on fetched data
+let paymentAmount = 0;        // Updated based on original or discounted fee
 
-// Generate QR Code on page load
 document.addEventListener("DOMContentLoaded", function () {
   generateQRCode();
-  updateSummary();
+  fetchProgrammeCartDetails();
 });
 
+/**
+ * Generate QR Code
+ */
 function generateQRCode() {
   const qrcode = new QRCode(document.getElementById("qrcode"), {
     text: "https://payment-link-example.com",
@@ -18,27 +23,67 @@ function generateQRCode() {
   });
 }
 
-function printReceipt() {
+/**
+ * Fetch programme cart details from the server and populate the summary box
+ */
+async function fetchProgrammeCartDetails() {
   try {
-    createBooking(); // Attempt to create booking
-    window.location.href = "../paymentReceipt.html";
+    const scheduleDetails = JSON.parse(sessionStorage.getItem("selectedScheduleDetails"));
+    if (!scheduleDetails) {
+      alert("Programme details not found.");
+      return;
+    }
+
+    const { programmeClassId } = scheduleDetails;
+    const response = await fetch(`/api/programmeClass/${programmeClassId}/cart`);
+    if (!response.ok) throw new Error("Failed to fetch programme details");
+
+    const data = await response.json();
+    updateSummary(data);
+
+    // Set global variables for payment details
+    paymentMethod = data.paymentMethod || paymentMethod;
+    promotionID = data.promotionID || null;
+
   } catch (error) {
-    console.error("Failed to create booking:", error);
-    alert("There was an error creating your booking. Please try again.");
+    console.error("Error fetching programme cart details:", error);
   }
 }
 
-function updateSummary() {
-  const coursePrice = 120;
-  const subtotal = coursePrice;
+/**
+ * Update summary box with fetched data
+ * @param {Object} data - Programme cart data returned from server
+ */
+function updateSummary(data) {
+  console.log("Programme cart data:", data);
 
-  // Update summary box values
-  document.querySelector(
-    ".summary-item:nth-child(2) span:last-child"
-  ).textContent = `$${coursePrice.toFixed(2)}`;
-  document.querySelector(
-    ".total-section span:last-child"
-  ).textContent = `$${subtotal.toFixed(2)}`;
+  const courseName = data.programmeName;
+  const originalFee = parseFloat(data.originalFee);
+  const discountedFee = data.discountedFee ? parseFloat(data.discountedFee) : originalFee;
+  const promotionName = data.promotionName || "No promotion available";
+  const discountValue = originalFee - discountedFee;
+
+  // Set the payment amount to the discounted fee if available, otherwise to the original fee
+  paymentAmount = discountedFee;
+
+  // Update course name
+  document.getElementById("courseName").textContent = courseName;
+
+  // Update original price
+  document.getElementById("originalPrice").textContent = `$${originalFee.toFixed(2)}`;
+
+  // Display discount section if there is a discount
+  if (discountedFee < originalFee) {
+    document.getElementById("discountSection").classList.remove("d-none");
+    document.getElementById("discountLabel").textContent = `Discount (${promotionName})`;
+    document.getElementById("discountAmount").textContent = `-$${discountValue.toFixed(2)}`;
+  } else {
+    // Hide discount section if no discount
+    document.getElementById("discountSection").classList.add("d-none");
+  }
+
+  // Update total price
+  document.getElementById("totalPrice").textContent = `$${discountedFee.toFixed(2)}`;
 }
 
 /**
@@ -46,31 +91,18 @@ function updateSummary() {
  */
 function handleImageUpload(event) {
   const file = event.target.files[0];
-  const printReceiptButton = document.querySelector(".btn-print-receipt");
-
-  // Check if a file is selected
   if (file) {
     const reader = new FileReader();
     reader.onload = function (e) {
-      // Directly set the uploaded image as the last uploaded image
-      lastUploadedImage = e.target.result;
+      const base64Image = e.target.result.split(",")[1]; // Extract base64 part
+      lastUploadedImageBinary = Uint8Array.from(atob(base64Image), c => c.charCodeAt(0)); // Convert to binary
 
-      // Show confirmation message on main page
       document.getElementById("uploadedImageMessage").style.display = "block";
-
-      // Enable and style the Print Receipt button
+      const printReceiptButton = document.querySelector(".btn-print-receipt");
       printReceiptButton.disabled = false;
-      printReceiptButton.classList.remove("btn-secondary");
-      printReceiptButton.classList.add("btn-warning");
+      printReceiptButton.classList.replace("btn-secondary", "btn-warning");
     };
     reader.readAsDataURL(file);
-
-  } else {
-    // Hide the uploaded image message and disable the Print Receipt button if no file
-    document.getElementById("uploadedImageMessage").style.display = "none";
-    printReceiptButton.disabled = true;
-    printReceiptButton.classList.remove("btn-warning");
-    printReceiptButton.classList.add("btn-secondary");
   }
 }
 
@@ -78,41 +110,78 @@ function handleImageUpload(event) {
  * Open image preview modal on clicking the confirmation message
  */
 function openImageModal() {
-  if (lastUploadedImage) {
-    // Set the last uploaded image as the source for the modal preview
-    document.getElementById("modalImagePreview").src = lastUploadedImage;
-
-    // Open the modal
+  if (lastUploadedImageBinary) {
+    const modalImage = document.getElementById("modalImagePreview");
+    modalImage.src = URL.createObjectURL(new Blob([lastUploadedImageBinary]));
     const imageModal = new bootstrap.Modal(document.getElementById("imagePreviewModal"));
     imageModal.show();
   }
 }
 
-async function createBooking() {
-  const bookingData = {
-    programmeClassID: 1, // Replace with actual programmeClassID
-    programmeID: 1, // Replace with actual programmeID
-    instanceID: 1, // Replace with actual instanceID
-    parentID: 1, // Replace with actual parentID
-    childID: null // Replace with actual childID if applicable
+/**
+ * Function to create a slot, and upon success redirect to payment receipt page
+ */
+async function printReceipt() {
+  try {
+    const slotCreated = await createSlot();
+    if (slotCreated) {
+      // Redirect to payment receipt page only if slot creation is successful
+      window.location.href = "../paymentReceipt.html";
+    }
+  } catch (error) {
+    console.error("Failed to create slot:", error);
+    alert("There was an error creating your booking. Please try again.");
+  }
+}
+
+/**
+ * Create slot and store binary image in the database
+ * @returns {boolean} - Returns true if slot creation is successful, false otherwise
+ */
+async function createSlot() {
+  const scheduleDetails = JSON.parse(sessionStorage.getItem("selectedScheduleDetails"));
+  if (!scheduleDetails) {
+    alert("No schedule details found. Please select a schedule before proceeding.");
+    return false;
+  }
+
+  const { programmeId, instanceId, programmeClassId, profileId } = scheduleDetails;
+
+  const slotData = {
+    programmeClassID: programmeClassId,
+    programmeID: programmeId,
+    instanceID: instanceId,
+    parentID: 1, // Replace with actual parentID if applicable
+    childID: null, // Replace with actual childID if applicable
+    paymentAmount: paymentAmount, // Use calculated payment amount from updateSummary
+    paymentMethod: paymentMethod, // Retrieved from fetchProgrammeCartDetails
+    paymentImage: Array.from(lastUploadedImageBinary), // Convert binary data to array for JSON transmission
+    promotionID: promotionID // Retrieved from fetchProgrammeCartDetails
   };
 
+  console.log("Slot and payment data:", slotData);
+
   try {
-    const response = await fetch("/api/createBooking", {
+    const response = await fetch("/api/slot/create", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(bookingData)
+      body: JSON.stringify(slotData)
     });
 
     if (!response.ok) {
-      throw new Error("Failed to create booking.");
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to create slot and payment.");
     }
+
     const data = await response.json();
-    console.log("Booking created successfully:", data);
+    console.log("Slot and payment created successfully:", data);
+    alert("Slot and payment created successfully.");
+    return true; // Return true on successful slot creation
   } catch (error) {
-    console.error("Error creating booking:", error);
-    throw error;
+    alert(`Error creating slot and payment: ${error.message}`);
+    console.error("Error creating slot and payment:", error);
+    return false; // Return false on failure
   }
 }

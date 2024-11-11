@@ -19,7 +19,7 @@ const programmeClassRoutes = express.Router();
 
 // Get all programme classes
 programmeClassRoutes.get("/:id/classes", programmeClassController.getProgrammeClasses);
-
+programmeClassRoutes.get("/:id/cart", programmeClassController.getProgrammeCartDetails);
 // Get all programme fees (might need to change the path)
 // programmeRoutes.get("/:id/classes/:classid", programmeController.getSpecificProgrammeClass);
 

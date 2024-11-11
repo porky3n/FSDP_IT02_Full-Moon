@@ -123,10 +123,12 @@ function addNextButton(container) {
         const selectedSchedule = document.querySelector('input[name="schedule"]:checked').parentElement;
         const selectedProfile = document.querySelector('input[name="profile-selection"]:checked').closest('.profile-item');
 
+        const programmeId = selectedSchedule.getAttribute("data-programmeId");
+        const instanceId = selectedSchedule.getAttribute("data-instanceId");
         const programmeClassId = selectedSchedule.getAttribute("data-programmeClassId");
         const profileId = selectedProfile.getAttribute("data-profile-id");
 
-        sessionStorage.setItem("selectedScheduleDetails", JSON.stringify({ programmeClassId, profileId }));
+        sessionStorage.setItem("selectedScheduleDetails", JSON.stringify({ programmeId, instanceId, programmeClassId, profileId }));
         window.location.href = "payment-page.html";
     });
 
