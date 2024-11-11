@@ -151,8 +151,8 @@ async function createSlot() {
     programmeClassID: programmeClassId,
     programmeID: programmeId,
     instanceID: instanceId,
-    parentID: 1, // Replace with actual parentID if applicable
-    childID: null, // Replace with actual childID if applicable
+    parentID: null, // Replace with actual parentID if applicable
+    childID: 2, // Replace with actual childID if applicable
     paymentAmount: paymentAmount, // Use calculated payment amount from updateSummary
     paymentMethod: paymentMethod, // Retrieved from fetchProgrammeCartDetails
     paymentImage: Array.from(lastUploadedImageBinary), // Convert binary data to array for JSON transmission
