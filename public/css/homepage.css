@@ -1,0 +1,620 @@
+.hero {
+    background-image: url('images/hero.773f6dce.jpg'); /* Replace with your image path */
+    background-size: cover;
+    background-position: center;
+    height: 578px; /* Match the height of the uploaded image */
+    display: flex;
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    text-align: center;
+    color: white; /* Text color */
+  }
+  .hero-title {
+    font-size: 36px; /* Adjust font size */
+    font-weight: bold;
+    margin-bottom: 20px; /* Space between title and subtitle */
+  }
+  
+  .highlight {
+    color: #FFC107; /* Highlight color for "Impactful Speaking Skills" */
+  }
+  
+  .hero-subtitle {
+    font-size: 20px; /* Adjust subtitle size */
+    margin-bottom: 30px; /* Space between subtitle and button */
+  }
+  
+  .btn-primary {
+    background-color: #007BFF; /* Bootstrap primary color */
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px; /* Rounded corners */
+    text-decoration: none; /* Remove underline */
+  }
+  
+  .btn-primary:hover {
+    background-color: #0056b3; /* Darker shade on hover */
+  }
+  .income-sources {
+    background-color: #f7f7f7; /* Light background color */
+    padding: 60px 20px; /* Padding around the section */
+  }
+  
+  .trusted-text {
+    font-size: 16px; /* Font size for trusted companies text */
+    margin-bottom: 15px; /* Space below the text */
+    color: #333; /* Text color */
+  }
+  
+  .trusted-logos {
+    display: flex; /* Use flexbox for logo alignment */
+    justify-content: center; /* Center logos */
+    gap: 150px; /* Space between logos */
+    margin-bottom: 100px; /* Space below the logos */
+  }
+  
+  .headline {
+    font-size: 40px; /* Adjust font size */
+    max-width: 600px; /* Limit width for better readability */
+    font-weight: bold;
+    margin-bottom: 20px; /* Space between headline and description */
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .description {
+    font-size: 18px; /* Adjust font size for description */
+    margin-bottom: 40px; /* Space below the description */
+    font-weight: bold;
+    max-width: 600px; /* Limit width for better readability */
+    margin-left: auto;
+    margin-right: auto;
+    
+  }
+  
+  .tlogos1 {
+    width: auto; /* Set a fixed width for both logos */
+    height: 25px; /* Maintain aspect ratio */
+    
+  }
+  .tlogos {
+    width: 150px; /* Set a fixed width for both logos */
+    height: auto; /* Maintain aspect ratio */
+    max-height: 50px; /* Set a maximum height to ensure consistency */
+  }
+  .banner {
+      background-color: #2F455B;
+      padding: 60px 10px;
+  }
+  
+  .banner .container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+  }
+  
+  .text-left {
+      text-align: left;
+  }
+  
+  .card {
+      border: none;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      border-radius: 15px;
+      overflow: hidden;
+      /* opacity: 0; */
+  }
+  
+  .card img {
+      border-radius: 15px 15px 0 0;
+  }
+  
+  .category {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+  }
+  
+  .fade-in {
+      transition: transform 0.6s, opacity 0.6s;
+  }
+  
+  .visible {
+      transform: translateY(0);
+      opacity: 1;
+  }
+  
+  .banner .row .col-md-10 {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 10px; /* Adjust the gap size as needed */
+  }
+  
+  
+  /* button  */
+  .btn {
+    background-color: #fff;
+    color: black;
+    padding: 8px 12px;
+    border-radius: 5px;
+    /* font-weight: bold; */
+    text-decoration: none;
+  }
+  
+  .btn-rounded {
+    border-radius: 50px; /* Rounded corners */
+    font-weight: bold; /* Bold text */
+    width: fit-content;
+  }
+  
+  .btn-arrow {
+    display: inline-flex;
+    align-items: center;
+  }
+  
+  .arrow-img {
+    margin-left: 5px; /* Space between text and image */
+    width: 16px; /* Adjust the width as needed */
+    height: auto; /* Maintain aspect ratio */
+  }
+  
+  .button-containers .arrow-img {
+    width: 12px; /* Adjust the width as needed */
+    padding-bottom: 2px;
+  }
+  
+  /* Custom fill button */
+  .btn-custom-fill {
+    background-color: #DCAF27; /* Use the primary color defined in :root */
+    color: var(--white); /* White text */
+    border: none; /* Remove border */
+  }
+  
+  .btn-custom-fill:hover {
+    background-color: darken(#DCAF27, 10%); /* Darken the background color on hover */
+    color: var(--white); /* Ensure text remains white */
+  }
+  
+  /* Custom outline button */
+  .btn-custom-outline {
+    background-color: var(--white); /* White background */
+    color: #DCAF27; /* Primary color text */
+    border: 2px solid #DCAF27; /* Primary color border */
+  }
+  
+  .btn-custom-outline:hover {
+    background-color: #DCAF27; /* Primary color background on hover */
+    color: var(--white); /* White text on hover */
+  }
+  
+  /* Arrow image adjustments */
+  .arrow-img {
+    margin-left: 5px; /* Space between text and image */
+    width: 16px; /* Adjust the width as needed */
+    height: auto; /* Maintain aspect ratio */
+  }
+  
+  #featured .container {
+    padding-left: 0; /* Remove left padding */
+    padding-right: 0; /* Remove right padding */
+    max-width: 100%; /* Stretch the container to full width */
+    margin: 0 auto; /* Center align the container */
+  }
+  
+  #featured h2 {
+    text-align: center;
+  }
+  
+  #featured .row {
+    margin-left: 0; /* Remove row margin */
+    margin-right: 0; /* Remove row margin */
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #222224;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #f9f9f9;
+  }
+  
+  .section-heading {
+    font-size: 3rem;
+    color: var(--primary);
+  }
+  
+  #featured {
+    padding: 0;
+  }
+  
+  /* @media (max-width:1440px) {
+    #featured {
+      padding: 0rem 0;
+    }
+  } */
+  
+  #featured .featured-slider {
+    padding: 0;
+    position: relative;
+  }
+  
+  @media (max-width:500px) {
+    #featured .featured-slider {
+      height: 45rem;
+    }
+  }
+  
+  .featured-slide {
+    width: 40rem;
+    height: 36rem;
+    position: relative;
+  }
+  
+  @media (max-width:500px) {
+    .featured-slide {
+      width: 40rem !important;
+      height: 36rem !important;
+    }
+    .featured-slide .featured-slide-img img {
+      width: 40rem !important;
+      height: 36rem !important;
+    }
+  }
+  
+  .featured-slide .featured-slide-img img {
+    width: 40rem;
+    height: 36rem;
+    border-radius: 2rem;
+    object-fit: cover;
+  }
+  
+  .featured-slide .featured-slide-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+  }
+  
+  .featured-slide-content .food-price {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    color: var(--white);
+  }
+  
+  .featured-slide-content .featured-slide-content-bottom {
+    position: absolute;
+    bottom: 2rem;
+    left: 2rem;
+    color: var(--white);
+  }
+  
+  .swiper-slide-shadow-left,
+  .swiper-slide-shadow-right {
+    display: none;
+  }
+  
+  
+  
+  @media (max-width:990px) {
+    .featured-slider-control .swiper-button-next {
+      left: 70% !important;
+      transform: translateX(-70%) !important;
+    }
+  }
+  
+  @media (max-width:450px) {
+    .featured-slider-control .swiper-button-next {
+      left: 80% !important;
+      transform: translateX(-80%) !important;
+    }
+  }
+  
+  @media (max-width:990px) {
+    .featured-slider-control .swiper-button-prev {
+      left: 30% !important;
+      transform: translateX(-30%) !important;
+    }
+  }
+  
+  @media (max-width:450px) {
+    .featured-slider-control .swiper-button-prev {
+      left: 20% !important;
+      transform: translateX(-20%) !important;
+    }
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  #featured .container {
+    padding: 0;
+  }
+  
+  #featured {
+    margin: 0;
+  }
+  
+  #featured h2 {
+    padding: 1.5%;
+    color: #242565;
+  }
+  
+  #featured .card {
+    width: 40rem;
+    height: 30rem;
+  }
+  
+  .private .card-body, .search .card-body {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+  }
+  
+  .button-containers {
+    display: flex;
+    justify-content: flex-start;
+  }
+  
+  .container h2 {
+    color: #242565;
+  }
+  
+  /* search bar and filter dropdown */
+  .search-bar .form-control,
+  .sort-dropdown .form-select { /* Changed .form-control to .form-select for dropdown */
+      border-radius: 100px; /* Adjust the radius as needed */
+  }
+  
+  .search-icon-img {
+    width: 16px; /* Adjust the width as needed */
+    height: 16px; /* Adjust the height as needed */
+    display: block;
+  }
+  
+  .input-group {
+    overflow: hidden; /* Ensures the icon doesn't cut off the border */
+    border-radius: 15px; /* Match the border radius */
+  }
+  
+  .input-group-text { /* No need for .input-group-prepend in Bootstrap 5 */
+    background-color: #fff; /* Match the background color of the input */
+    border: 1px solid #ced4da; /* Ensure border color matches the input */
+    border-right: none; /* Blend seamlessly with the input */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px; /* Add padding for spacing */
+    border-top-left-radius: 15px; /* Match the border radius */
+    border-bottom-left-radius: 15px; /* Match the border radius */
+  }
+  
+  .input-group .form-control { /* The form control still exists in input groups */
+    border: 1px solid #ced4da; /* Add border color to match */
+    border-left: none; /* Remove left border of the input to blend with the icon */
+    border-top-right-radius: 15px; /* Match the border radius */
+    border-bottom-right-radius: 15px; /* Match the border radius */
+    padding-left: 0; /* Remove extra padding to align with icon */
+  }
+  
+  .button-containers button {
+    border-radius: 100px; /* Adjust the radius as needed */
+  }
+  
+  .search-filter {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 1rem; /* Adjust the gap size as needed */
+  }
+  
+  body {
+    background-color: #f8f9fa;
+  }
+  
+  .navbar-nav .nav-link {
+    color: #6c757d;
+    font-weight: 500;
+    font-size: 18px;
+  }
+  
+  .navbar-nav .nav-link.active {
+    font-weight: 700;
+    color: #000;
+  }
+  
+  .navbar {
+    padding: 10px 0;
+  }
+  
+  .nav-item {
+    margin-right: 25px;
+  }
+  
+  .card-container {
+    padding: 20px 0;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+  }
+  
+  .course-card {
+    position: relative;
+    width: 350px;
+    height: 230px;
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .course-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .course-content {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    color: white;
+    z-index: 2;
+  }
+  
+  .course-content h5 {
+    margin-bottom: 10px;
+  }
+  
+  .course-content p {
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  
+  .btn-learn-more {
+    background-color: #00b894;
+    color: white;
+    border-radius: 5px;
+    padding: 5px 15px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .btn-learn-more:hover {
+    background-color: #019374;
+  }
+  
+  .popup-card {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px;
+    border-radius: 10px;
+    z-index: 3;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .popup-card h6 {
+    font-size: 14px;
+    margin: 0;
+  }
+  
+  .popup-card small {
+    color: #6c757d;
+  }
+  .container {
+    max-width: 1200px; /* Set a maximum width */
+    width: 90%; /* Allow container to expand to 90% of viewport width */
+    margin: 0 auto; /* Center the container */
+  }
+  
+  .events-section {
+    padding: 40px 0; /* Reduce top and bottom padding */
+    background-color: #f7f7f7; /* Light background color */
+  }
+  
+  .section-title {
+    font-size: 36px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .events-grid {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 100px;
+  }
+  
+  .event-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-width: 300px;
+    text-align: left;
+  }
+  
+  .event-card img {
+    width: 100%;
+    height: auto;
+  }
+  
+  .event-details {
+    padding: 20px;
+  }
+  
+  .event-date {
+    font-size: 14px;
+    color: #777;
+  }
+  
+  .event-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 10px 0;
+  }
+  
+  .event-description {
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  
+  .button-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+  }
+  
+  .btn-show-more, .btn-view-all {
+    background-color: #FFC107;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 0 10px;
+  }
+  
+  .btn-show-more:hover, .btn-view-all:hover {
+    background-color: #FFA000;
+  }
+  
+  .cta-section {
+    background-color: #2c3e50;
+    padding: 40px 0; /* Reduce padding for more compact layout */
+    text-align: center;
+    color: white;
+  }
+  
+  .cta-title {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  .cta-button {
+    background-color: #FFC107;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 16px;
+  }
+  
+  .cta-button:hover {
+    background-color: #FFA000;
+  }
