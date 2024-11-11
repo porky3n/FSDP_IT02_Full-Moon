@@ -7,14 +7,8 @@ async function getProgramsData(endpoint = "/api/programme") {
       ProgrammeID: program.programmeID,
       ProgrammeName: program.programmeName,
       Description: program.description,
-      StartDate: program.startDate,
-      EndDate: program.endDate,
       Category: program.category,
-      Location: program.location,
-      Fee: program.fee,
-      MaxSlots: program.maxSlots,
-      ProgrammeLevel: program.programmeLevel,
-      Image: program.image || 'https://via.placeholder.com/400x200' // Assuming "image" is part of the response or set to a default
+      ProgrammePicture: program.programmePicture || 'https://via.placeholder.com/400x200'
     }));
   } catch (error) {
     console.error("Error fetching program data:", error);
@@ -47,6 +41,17 @@ function initFeaturedSlider() {
   });
 }
 
+// Helper function to get the common card content
+function getCardContent(program) {
+  return `
+    <img src="${program.ProgrammePicture}" class="card-img-top" alt="${program.ProgrammeName}">
+    <div class="card-body">
+      <h5 class="card-title">${program.ProgrammeName}</h5>
+      <p class="card-text">${program.Description}</p>
+    </div>
+  `;
+}
+
 // Populate the featured programs section
 async function populateFeaturedPrograms() {
   const programs = await getProgramsData("/api/programme/featured");
@@ -57,11 +62,7 @@ async function populateFeaturedPrograms() {
     slide.classList.add('swiper-slide', 'featured-slide');
     slide.innerHTML = `
       <div class="card" onclick="location.href='userProgrammeInfoPage.html?programmeId=${encodeURIComponent(program.ProgrammeID)}'">
-        <img src="${program.Image}" class="card-img-top" alt="${program.ProgrammeName}">
-        <div class="card-body">
-          <h5 class="card-title">${program.ProgrammeName}</h5>
-          <p class="card-text">${program.Description}</p>
-        </div>
+        ${getCardContent(program)}
       </div>
     `;
     featuredSliderContainer.appendChild(slide);
@@ -70,18 +71,9 @@ async function populateFeaturedPrograms() {
   initFeaturedSlider(); // Initialize the slider after adding slides
 }
 
-
-// Helper function to get the first schedule for a specific programme
-async function getFirstSchedule(programmeID) {
-  const response = await fetch(`/api/programmeSchedule/${programmeID}/first-schedule`);
-  if (!response.ok) throw new Error(`Failed to fetch schedule for programme ID: ${programmeID}`);
-  const schedule = await response.json();
-  return schedule;
-}
-
 // Populate the private coaching section
 async function populatePrivateCoaching() {
-  const programs = await getProgramsData("/api/programme/category/Art");
+  const programs = await getProgramsData("/api/programme/category/Workshop");
   const privateCoachingContainer = document.querySelector('.private .row.mt-4');
   privateCoachingContainer.innerHTML = ''; // Clear existing content if needed
 
@@ -90,19 +82,10 @@ async function populatePrivateCoaching() {
     const col = document.createElement('div');
     col.classList.add('col-md-4');
 
-    // Fetch the first schedule date for the program
-    const firstSchedule = await getFirstSchedule(program.ProgrammeID);
-    const startDate = new Date(firstSchedule.startDateTime); // Use first schedule's StartDateTime
-
-    // Format month and day from the start date
-    const startMonth = startDate.toLocaleString('default', { month: 'short' });
-    const startDay = startDate.getDate();
-
     col.innerHTML = `
       <div class="card" onclick="location.href='userProgrammeInfoPage.html?programmeId=${encodeURIComponent(program.ProgrammeID)}'">
-        <img src="${program.Image}" class="card-img-top" alt="${program.ProgrammeName}">
+        <img src="${program.ProgrammePicture}" class="card-img-top" alt="${program.ProgrammeName}">
         <div class="card-body">
-          <h6>${startMonth} ${startDay}</h6>
           <div>
             <h5 class="card-title">${program.ProgrammeName}</h5>
             <p class="card-text">${program.Description}</p>
@@ -122,7 +105,7 @@ async function populateSearchResults(keyword) {
 
   let row;
 
-  // Loop through programs and get the first schedule date for each
+  // Loop through programs and add them in a row structure
   for (const [index, program] of programs.entries()) {
     // Create a new row for every 3 programs
     if (index % 3 === 0) {
@@ -134,19 +117,10 @@ async function populateSearchResults(keyword) {
     const col = document.createElement('div');
     col.classList.add('col-md-4');
 
-    // Fetch the first schedule date for the program
-    const firstSchedule = await getFirstSchedule(program.ProgrammeID);
-    const startDate = new Date(firstSchedule.startDateTime); // Use first schedule's StartDateTime
-
-    // Format month and day from the start date
-    const startMonth = startDate.toLocaleString('default', { month: 'short' });
-    const startDay = startDate.getDate();
-
     col.innerHTML = `
       <div class="card" onclick="location.href='userProgrammeInfoPage.html?programmeId=${encodeURIComponent(program.ProgrammeID)}'">
-        <img src="${program.Image}" class="card-img-top" alt="${program.ProgrammeName}">
+        <img src="${program.ProgrammePicture}" class="card-img-top" alt="${program.ProgrammeName}">
         <div class="card-body">
-          <h6>${startMonth} ${startDay}</h6>
           <div>
             <h5 class="card-title">${program.ProgrammeName}</h5>
             <p class="card-text">${program.Description}</p>
@@ -158,7 +132,6 @@ async function populateSearchResults(keyword) {
   }
 }
 
-
 // Initialize the page with dynamic content
 async function initPage() {
   await populateFeaturedPrograms();
@@ -167,5 +140,3 @@ async function initPage() {
 }
 
 document.addEventListener("DOMContentLoaded", initPage);
-
-

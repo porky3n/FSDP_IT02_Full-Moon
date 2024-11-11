@@ -190,11 +190,11 @@
 const pool = require("../dbConfig");
 
 class Programme {
-    constructor(programmeID, programmeName, category, programmePictureURL, description) {
+    constructor(programmeID, programmeName, category, programmePicture, description) {
         this.programmeID = programmeID;
         this.programmeName = programmeName;
         this.category = category;
-        this.programmePictureURL = programmePictureURL;
+        this.programmePicture = programmePicture;
         this.description = description;
     }
 
@@ -206,25 +206,47 @@ class Programme {
             row.ProgrammeID,
             row.ProgrammeName,
             row.Category,
-            row.ProgrammePictureURL,
+            row.ProgrammePicture,
             row.Description
         ));
     }
 
-    // Get programme by ID
+    // Get programme by ID with additional images
     static async getProgrammeByID(programmeID) {
-        const sqlQuery = `SELECT * FROM Programme WHERE ProgrammeID = ?`;
+        const sqlQuery = `
+            SELECT 
+                p.ProgrammeID, 
+                p.ProgrammeName, 
+                p.Category, 
+                p.ProgrammePicture, 
+                p.Description,
+                pi.Image AS AdditionalImage
+            FROM Programme p
+            LEFT JOIN ProgrammeImages pi 
+                ON p.ProgrammeID = pi.ProgrammeID
+            WHERE p.ProgrammeID = ?
+        `;
+        
         const [rows] = await pool.query(sqlQuery, [programmeID]);
 
         if (rows.length === 0) return null;
-        const row = rows[0];
-        return new Programme(
-            row.ProgrammeID,
-            row.ProgrammeName,
-            row.Category,
-            row.ProgrammePictureURL,
-            row.Description
+
+        // Extract primary programme data from the first row
+        const primaryData = rows[0];
+        const programme = new Programme(
+            primaryData.ProgrammeID,
+            primaryData.ProgrammeName,
+            primaryData.Category,
+            primaryData.ProgrammePicture,
+            primaryData.Description
         );
+
+        // Collect all additional images
+        programme.images = rows
+            .filter(row => row.AdditionalImage)
+            .map(row => row.AdditionalImage);
+
+        return programme;
     }
 
     // Get featured programmes (customize selection criteria as needed)
@@ -239,14 +261,18 @@ class Programme {
             row.ProgrammeID,
             row.ProgrammeName,
             row.Category,
-            row.ProgrammePictureURL,
+            row.ProgrammePicture,
             row.Description
         ));
     }
 
     // Get programmes by category with optional exclusion and limit
     static async getProgrammesByCategory(category, excludeProgrammeID = null, limit = null) {
-        let sqlQuery = `SELECT * FROM Programme WHERE Category = ?`;
+        let sqlQuery = `
+            SELECT * 
+            FROM Programme 
+            WHERE Category = ?
+        `;
         const params = [category];
 
         if (excludeProgrammeID) {
@@ -266,7 +292,7 @@ class Programme {
             row.ProgrammeID,
             row.ProgrammeName,
             row.Category,
-            row.ProgrammePictureURL,
+            row.ProgrammePicture,
             row.Description
         ));
     }
@@ -282,7 +308,7 @@ class Programme {
             row.ProgrammeID,
             row.ProgrammeName,
             row.Category,
-            row.ProgrammePictureURL,
+            row.ProgrammePicture,
             row.Description
         ));
     }

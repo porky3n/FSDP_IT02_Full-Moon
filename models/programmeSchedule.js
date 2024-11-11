@@ -85,7 +85,7 @@ class ProgrammeSchedule {
             ps.StartDateTime,
             ps.EndDateTime,
             pc.ProgrammeLevel,
-            COALESCE(s.SlotsTaken, 0) AS slotsTaken
+            pc.MaxSlots - COALESCE(s.SlotsTaken, 0) AS slotsRemaining
         FROM ProgrammeSchedule ps
         JOIN ProgrammeClassBatch pcb 
             ON ps.InstanceID = pcb.InstanceID
@@ -118,7 +118,7 @@ class ProgrammeSchedule {
             const schedulesByInstance = {};
             
             rows.forEach(schedule => {
-                const { InstanceID, ProgrammeClassID, ProgrammeID, StartDateTime, EndDateTime, ProgrammeLevel, slotsTaken } = schedule;
+                const { InstanceID, ProgrammeClassID, ProgrammeID, StartDateTime, EndDateTime, ProgrammeLevel, slotsRemaining } = schedule;
                 
                 // If the instanceID doesn't exist in the object, initialize it
                 if (!schedulesByInstance[InstanceID]) {
@@ -127,7 +127,7 @@ class ProgrammeSchedule {
                         programmeClassID: ProgrammeClassID,
                         programmeID: ProgrammeID,
                         programmeLevel: ProgrammeLevel,
-                        slotsTaken: slotsTaken,
+                        slotsRemaining: slotsRemaining,
                         startDateTime: StartDateTime,
                         endDateTime: EndDateTime,  // Initialize with the first EndDateTime
                         dates: []

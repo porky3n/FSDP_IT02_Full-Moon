@@ -7,7 +7,6 @@ function getProgrammeIdFromUrl() {
 }
 
 // Function to fetch and display programme details
-// Function to fetch and display programme details
 async function getProgrammeDetails(programmeId) {
     try {
         const response = await fetch(`/api/programme/${programmeId}`, {
@@ -21,23 +20,37 @@ async function getProgrammeDetails(programmeId) {
 
         const data = await response.json();
 
-        // Ensure the HTML IDs match the elements you want to populate
+        // Populate the main programme details
         document.querySelector(".header-text h1").textContent = data.programmeName || "N/A";
         document.querySelector(".header-text p").textContent = data.description || "N/A";
-        document.querySelector(".badge.bg-info span").textContent = `${data.maxSlots || "0"} Students`;
-        document.querySelector(".badge.bg-primary span").textContent = `${data.maxSlots || "0"} Participated`;
-        // document.getElementById("category").textContent = data.category || "N/A";
-        // document.getElementById("location").textContent = data.location || "N/A";
-        // document.getElementById("startDate").textContent = formatDate(data.startDate);
-        // document.getElementById("endDate").textContent = formatDate(data.endDate);
-        // document.getElementById("fee").textContent = data.fee ? `$${data.fee}` : "Free";
-        // document.getElementById("programmeLevel").textContent = data.programmeLevel || "N/A";
 
-        // Store the category to use for related webinars
+
+        console.log("data.picture: " + data.programmePicture);
+        // Populate the main image (ProgrammePicture) as a Base64-encoded image
+        const headerImage = document.querySelector(".header-image img");
+        if (data.programmePicture) {
+            headerImage.src = `data:image/jpeg;base64,${data.programmePicture}`;
+        } else {
+            headerImage.src = "/images/default-image.png";
+        }
+        headerImage.alt = `${data.programmeName} Image`;
+
+        // Populate additional images in the about section
+        const aboutImageContainer = document.querySelector(".about-section .col-md-4 img");
+        if (data.images && data.images.length > 0) {
+            // Display the first additional image as an example, using Base64 format
+            aboutImageContainer.src = `data:image/jpeg;base64,${data.images[0]}`;
+            aboutImageContainer.alt = `${data.programmeName} Additional Image`;
+        } else {
+            aboutImageContainer.src = "/images/default-image.png";
+            aboutImageContainer.alt = "Default Image";
+        }
+
+        // Store the category to use for related programmes
         const category = data.category;
 
-        // Now call getRelatedWebinars with the category and programme ID
-        getRelatedWebinars(category, programmeId);
+        // Call getRelatedProgrammes with the category and programme ID
+        getRelatedProgrammes(category, programmeId);
 
     } catch (error) {
         console.error("Error retrieving programme details:", error);
@@ -92,11 +105,11 @@ async function getProgrammeSchedules(programmeId) {
                             ${dateItemsHTML}
                         </div>
                         <span class="badge bg-warning text-dark mt-2">
-                            ${schedule.slotsTaken > 0 ? `Slots: ${schedule.slotsTaken}` : 'Limited Slots Available!'}
+                            ${schedule.slotsRemaining > 0 ? `${schedule.slotsRemaining} SLOTS LEFT!` : 'Full'}
                         </span>
                     </div>
                 </div>
-                <button class="btn btn-outline-primary mt-3 mt-md-0" onclick="applyForProgramme('${schedule.programmeClassID}', ${JSON.stringify(schedule).replace(/"/g, '&quot;')})">Apply</button>
+                <button class="btn btn-outline-primary mt-3 mt-md-0" onclick="location.href='userSelectSchedule.html?programmeId=${encodeURIComponent(programmeId)}'">Apply</button>
             `;
 
             scheduleList.appendChild(scheduleElement);
@@ -125,32 +138,15 @@ function generateDateItems(dates) {
 }
 
 // Function to handle storing schedule data in sessionStorage and navigating to payment page
-function applyForProgramme(programmeClassID, scheduleData) {
-    // Store the schedule data in sessionStorage
-    sessionStorage.setItem("selectedSchedule", JSON.stringify(scheduleData));
+// function applyForProgramme(programmeClassID, scheduleData) {
+//     // Store the schedule data in sessionStorage
+//     sessionStorage.setItem("selectedSchedule", JSON.stringify(scheduleData));
     
-    // Navigate to the payment page with the programmeClassID as a URL parameter
-    // location.href = `payment-page.html?programmeClassId=${encodeURIComponent(programmeClassID)}`;
-    location.href = `payment-page.html?`;
-}
-
-// function formatDay(dateString) {
-//     const date = new Date(dateString);
-//     return date.toLocaleDateString('en-GB', { weekday: 'short' });
+//     // Navigate to the payment page with the programmeClassID as a URL parameter
+//     // location.href = `payment-page.html?programmeClassId=${encodeURIComponent(programmeClassID)}`;
+//     location.href = `payment-page.html?`;
 // }
 
-// schedules = [
-//     {
-//         Level: "Beginner",
-//         StartDate: "2024-11-28",
-//         EndDate: "2024-12-01",
-//         StartTime: "17:00",
-//         EndTime: "20:00",
-//         Dates: ["2024-11-28", "2024-11-29", "2024-11-30", "2024-12-01"],
-//         MaxSlots: 4
-//     },
-//     // Additional schedules...
-// ];
 
 async function getProgrammeFees(programmeId) {
     try {
@@ -179,7 +175,7 @@ async function getProgrammeFees(programmeId) {
                         <h3>$${fee.fee}*</h3>
                         <p><b>${fee.programmeLevel}</b></p>
                         <p>${fee.shortDescription}</p> <!-- Display short description -->
-                        <button class="btn btn-light" onclick="scrollToSection('upcoming-schedule')">Get started</button>
+                        <button class="btn btn-light" onclick="location.href='userSelectSchedule.html?programmeId=${encodeURIComponent(programmeId)}'">Get started</button>
                         <ul class="list-unstyled">
                             <li><img src="/images/check-circle-outline.png" alt="Check icon" class="check-icon"> Max Slots: ${fee.maxSlots}</li>
                             ${remarksList.map(remark => `<li><img src="/images/check-circle-outline.png" alt="Check icon" class="check-icon"> ${remark}</li>`).join("")}
@@ -206,7 +202,7 @@ async function getProgrammeFees(programmeId) {
 
 
 // Function to fetch and display related webinars by category
-async function getRelatedWebinars(category, excludeProgrammeID = null, limit = 3) {
+async function getRelatedProgrammes(category, excludeProgrammeID = null, limit = 3) {
     try {
         const url = `/api/programme/category/${encodeURIComponent(category)}?excludeProgrammeID=${excludeProgrammeID}&limit=${limit}`;
         const response = await fetch(url);
@@ -275,15 +271,15 @@ if (programmeId) {
     alert("Invalid programme ID. Please check the URL.");
 }
 
-function scrollToSection(target) {
-    const element = document.getElementsByClassName(target)[0];
-    if (element) {
-        element.scrollIntoView({
-            behavior: "smooth", // Enables smooth scrolling
-            block: "start"      // Aligns the element to the top of the view
-        });
-    } else {
-        console.error("Target section not found:", target);
-    }
-}
+// function scrollToSection(target) {
+//     const element = document.getElementsByClassName(target)[0];
+//     if (element) {
+//         element.scrollIntoView({
+//             behavior: "smooth", // Enables smooth scrolling
+//             block: "start"      // Aligns the element to the top of the view
+//         });
+//     } else {
+//         console.error("Target section not found:", target);
+//     }
+// }
 
