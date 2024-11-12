@@ -40,6 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
+
   // Store initial form values
   const form = document.getElementById("profileForm");
   let initialFormData = {};
@@ -50,7 +51,6 @@ document.addEventListener("DOMContentLoaded", function () {
       firstName: document.getElementById("firstName").value,
       lastName: document.getElementById("lastName").value,
       email: document.getElementById("email").value,
-      biography: document.getElementById("biography").value,
       profilePicture: document.getElementById("profilePreview").src,
     };
   }
@@ -59,6 +59,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (form) {
     initialFormData = getCurrentFormData();
   }
+
   // Function to check if form has changes
   function hasFormChanges() {
     const currentData = getCurrentFormData();
@@ -112,8 +113,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (addChildBtn) {
     addChildBtn.addEventListener("click", function (e) {
       e.preventDefault();
-      console.log("clicked");
-      window.location.href = "../add-child.html";
+      window.location.href = "./add-child.html"; // Adjust path as needed
     });
   }
 
@@ -139,6 +139,4 @@ document.addEventListener("DOMContentLoaded", function () {
       this.classList.remove("is-invalid");
     });
   });
-
-  // Form submission logic and validation would follow here
 });

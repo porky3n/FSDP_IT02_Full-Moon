@@ -26,6 +26,7 @@
 }
 
 /* Form Section Alignment */
+/* Form Section Alignment */
 .programme-form-section label {
     display: block;
     font-weight: bold;
@@ -49,9 +50,27 @@
 }
 
 .accordion-body {
+/* Accordion Styles */
+.accordion-item {
+    position: relative;
+}
+
+.accordion-button {
+    display: inline-block;
+    width: calc(100% - 30px);
+}
+
+.accordion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.accordion-body {
     padding: 20px;
 }
 
+.accordion-button:not(.collapsed) {
 .accordion-button:not(.collapsed) {
     background-color: #ffc107;
     color: white;
@@ -64,6 +83,16 @@
     color: #dc3545;
     font-size: 1.2em;
     cursor: pointer;
+    float: right;
+}
+
+/* Classes and Fees Containers */
+.classes-container, .fees-container {
+    width: 60%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
     float: right;
 }
 
@@ -89,6 +118,7 @@
     max-width: 80%;
 }
 
+.additional-info .btn-delete-info {
 .additional-info .btn-delete-info {
     padding: 5px;
     background: none;
@@ -125,6 +155,16 @@
     margin: 30px auto 0;
 }
 
+/* Delete Buttons */
+.btn-delete-day, .btn-delete-info {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+}
+
+/* Accordion-Specific Buttons */
+.btn-add-day, .btn-add-info {
 /* Delete Buttons */
 .btn-delete-day, .btn-delete-info {
     background: none;

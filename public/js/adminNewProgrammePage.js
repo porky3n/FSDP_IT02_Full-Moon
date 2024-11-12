@@ -134,6 +134,8 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
         `;
         classesAccordion.appendChild(classItem);
+        `;
+        classesAccordion.appendChild(classItem);
         addDynamicEventListeners(classItem);
     }
 
