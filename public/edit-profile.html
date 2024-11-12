@@ -14,119 +14,174 @@
   </head>
   <body>
     <div class="container-fluid px-0">
-      <!-- Navbar Section -->
       <header>
         <div id="navbar-container"></div>
       </header>
 
-      <!-- Edit Profile Section -->
       <div class="container my-5">
-        <h2 class="edit-profile-title">Edit Profile</h2>
+        <div class="edit-profile-container">
+          <h2 class="profile-header">Edit Own Profile</h2>
 
-        <div class="profile-edit-container">
-          <div class="row">
-            <div class="col-md-3">
-              <div class="profile-picture-container">
-                <img
-                  src="images/profilePicture.png"
-                  alt="Profile"
-                  class="profile-picture"
-                  id="profilePreview"
-                />
-                <input
-                  type="file"
-                  id="profilePictureInput"
-                  accept="image/*"
-                  style="display: none"
-                />
-                <button class="btn btn-warning btn-upload" id="uploadButton">
-                  Upload Profile Picture
-                </button>
+          <div class="content-wrapper">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="profile-picture-section">
+                  <div class="profile-image-container">
+                    <img
+                      src="images/profilePicture.png"
+                      alt="Profile"
+                      class="profile-image"
+                      id="profilePreview"
+                    />
+                  </div>
+                  <input
+                    type="file"
+                    id="profilePictureInput"
+                    accept="image/*"
+                    style="display: none"
+                  />
+                  <button class="upload-btn" id="uploadButton">
+                    Upload Profile Picture
+                  </button>
+                </div>
+              </div>
+
+              <div class="col-md-9">
+                <form id="profileForm" class="edit-profile-form">
+                  <div class="row form-row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">FIRST NAME</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="firstName"
+                        required
+                      />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">LAST NAME</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="lastName"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div class="row form-row">
+                    <div class="col-12 mb-3">
+                      <label class="form-label">PHONE NUMBER</label>
+                      <div class="input-group">
+                        <select
+                          class="form-select country-code"
+                          id="countryCode"
+                          required
+                        >
+                        <option value="+65">+65 (Singapore)</option>
+                        <option value="+1">+1 (USA)</option>
+                        <option value="+44">+44 (UK)</option>
+                        <option value="+61">+61 (Australia)</option>
+                        <option value="+91">+91 (India)</option>
+                        <option value="+86">+86 (China)</option>
+                        </select>
+                        <input
+                          type="tel"
+                          class="form-control"
+                          id="phoneNumber"
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row form-row">
+                    <div class="col-12 mb-3">
+                      <label class="form-label">EMAIL</label>
+                      <input
+                        type="email"
+                        class="form-control"
+                        id="email"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div class="row form-row">
+                    <div class="col-12 mb-3">
+                      <label class="form-label">DIETARY PREFERENCES</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="dietary"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div class="button-group">
+                    <button
+                      type="button"
+                      class="btn btn-primary"
+                      id="addChildBtn"
+                    >
+                      Add Child
+                    </button>
+                    <button type="submit" class="btn btn-warning" id="saveBtn">
+                      Save Changes
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
-            <div class="col-md-9">
-              <form class="profile-form" id="profileForm">
-                <h4 class="mb-4">BASIC INFO</h4>
-                <div class="row mb-3">
-                  <div class="col-md-6">
-                    <input
-                      type="text"
-                      class="form-control"
-                      placeholder="FIRST NAME"
-                      id="firstName"
-                      required
-                    />
-                    <div class="invalid-feedback">First name is required</div>
-                  </div>
-                  <div class="col-md-6">
-                    <input
-                      type="text"
-                      class="form-control"
-                      placeholder="LAST NAME"
-                      id="lastName"
-                      required
-                    />
-                    <div class="invalid-feedback">Last name is required</div>
-                  </div>
+          </div>
+
+
+
+          <!-- Sign In Modal -->
+          <div class="modal-overlay" id="signInModal">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <h3 class="modal-title">Sign In Required</h3>
+                <p class="modal-message" id="signInMessage">Please sign in to add a child.</p>
+                <div class="modal-buttons">
+                  <button class="btn btn-primary" id="goToSignIn">Sign In</button>
+                  <button class="btn btn-secondary" id="closeSignInModal">Cancel</button>
                 </div>
-                <div class="mb-3">
-                  <input
-                    type="text"
-                    class="form-control"
-                    placeholder="Phone Number"
-                    id="phoneNumber"
-                    required
-                  />
-                  <div class="invalid-feedback">Phone number is required</div>
-                </div>
-                <div class="mb-3">
-                  <input
-                    type="email"
-                    class="form-control"
-                    placeholder="EMAIL"
-                    id="email"
-                    required
-                  />
-                  <div class="invalid-feedback">Email is required</div>
-                </div>
-                <div class="mb-3">
-                  <input
-                    type="text"
-                    class="form-control"
-                    placeholder="Dietary Preferences"
-                    id="dietary"
-                    required
-                  />
-                  <div class="invalid-feedback">
-                    Dietary preference is required
-                  </div>
-                </div>
-                <div class="text-end">
-                  <button
-                    type="submit"
-                    class="btn btn-warning"
-                    id="addChildBtn"
-                  >
-                    Add Child
-                  </button>
-                  <button type="submit" class="btn btn-secondary" id="saveBtn">
-                    Save
-                  </button>
-                </div>
-              </form>
+              </div>
             </div>
           </div>
+
+          <div class="modal-overlay" id="signInModal">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <h3 class="modal-title">Sign In Required</h3>
+                <p class="modal-message">Please sign in to view and edit your profile information.</p>
+                <div class="modal-buttons">
+                  <button class="btn btn-primary" id="goToSignIn">Sign In</button>
+                  <button class="btn btn-secondary" id="closeSignInModal">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-overlay" id="confirmationModal">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <h3 class="modal-title">Save Changes?</h3>
+                <p class="modal-message">Are you sure you want to save these changes to your profile?</p>
+                <div class="modal-buttons">
+                  <button class="btn btn-success" id="confirmSave">Yes, Save Changes</button>
+                  <button class="btn btn-danger" id="cancelSave">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
         </div>
       </div>
 
-      <!-- Footer Section -->
-      <footer class="bg-dark text-white mt-5">
-        <div id="footer-container"></div>
-      </footer>
-    </div>
-
-    <!-- Bootstrap JS and other dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="./js/edit-profile.js"></script>
     <script>
