@@ -85,48 +85,7 @@
                     </tr>
                 </thead>
                 <tbody id="user-list">
-                    <tr data-member="member" data-has-children="true">
-                        <td>John Son</td>
-                        <td>12/05/1985</td>
-                        <td>john@gmail.com</td>
-                        <td>+65 91234567</td>
-                        <td>20/05/2024</td>
-                        <td>Member</td>
-                        <td>Vegetarian</td>
-                        <td class="text-end">
-                            <button class="btn expand-btn btn-footer-color">Expand</button> <!-- Expand button -->
-                            <div class="dropdown-content">
-                                <div class="child-info-container">
-                                    <div class="child-info-box">
-                                        <p><strong>Child 1:</strong></p>
-                                        <p><strong>Name:</strong> Alex Son</p>
-                                        <p><strong>DOB:</strong> 15/08/2010</p>
-                                        <p><strong>School:</strong> Sunshine School</p>
-                                        <p><strong>Level:</strong> Primary 4</p>
-                                        <p><strong>Dietary:</strong> Vegetarian</p>
-                                    </div>
-                                    <div class="child-info-box">
-                                        <p><strong>Child 2:</strong></p>
-                                        <p><strong>Name:</strong> Jenny Son</p>
-                                        <p><strong>DOB:</strong> 25/03/2015</p>
-                                        <p><strong>School:</strong> Sunny Meadows School</p>
-                                        <p><strong>Level:</strong> Primary 1</p>
-                                        <p><strong>Dietary:</strong> Non-Vegetarian</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr data-member="non-member" data-has-children="false">
-                        <td>Jane Doe</td>
-                        <td>25/09/1990</td>
-                        <td>jane@gmail.com</td>
-                        <td>+65 98765432</td>
-                        <td>15/07/2023</td>
-                        <td>Non-Member</td>
-                        <td>Non-Vegetarian</td>
-                        <td class="text-end"></td>
-                    </tr>
+                    <!-- Dynamic data will be injected here -->
                 </tbody>
             </table>
 
@@ -134,7 +93,8 @@
             <nav aria-label="Page navigation" class="mt-4">
                 <ul class="pagination justify-content-center">
                     <li class="page-item disabled">
-                        <a class="page-link" href="#" tabindex="-1">Previous</a></li>
+                        <a class="page-link" href="#" tabindex="-1">Previous</a>
+                    </li>
                     <li class="page-item"><a class="page-link" href="#">1</a></li>
                     <li class="page-item"><a class="page-link" href="#">2</a></li>
                     <li class="page-item"><a class="page-link" href="#">3</a></li>
@@ -143,6 +103,88 @@
             </nav>
         </div>
     </main>
+
+    <!-- Edit Parent Modal -->
+    <div class="modal fade" id="editParentModal" tabindex="-1" aria-labelledby="editParentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="editParentForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editParentModalLabel">Edit Parent</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="editParentID" name="parentID">
+                        <div class="mb-3">
+                            <label for="editFirstName" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="editFirstName" name="firstName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editLastName" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="editLastName" name="lastName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editDOB" class="form-label">Date of Birth</label>
+                            <input type="date" class="form-control" id="editDOB" name="dob" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editContactNumber" class="form-label">Contact Number</label>
+                            <input type="text" class="form-control" id="editContactNumber" name="contactNumber" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editDietary" class="form-label">Dietary</label>
+                            <input type="text" class="form-control" id="editDietary" name="dietary">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Child Modal -->
+    <div class="modal fade" id="editChildModal" tabindex="-1" aria-labelledby="editChildModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="editChildForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editChildModalLabel">Edit Child</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="editChildID" name="childID">
+                        <div class="mb-3">
+                            <label for="editChildFirstName" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="editChildFirstName" name="firstName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editChildLastName" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="editChildLastName" name="lastName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editChildDOB" class="form-label">Date of Birth</label>
+                            <input type="date" class="form-control" id="editChildDOB" name="dob" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editChildSchool" class="form-label">School</label>
+                            <input type="text" class="form-control" id="editChildSchool" name="school">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editChildDietary" class="form-label">Dietary</label>
+                            <input type="text" class="form-control" id="editChildDietary" name="dietary">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer Section -->
     <footer class="bg-dark text-white mt-5">
@@ -159,8 +201,7 @@
     <!-- Load external navbar and footer -->
     <script>
         $(document).ready(function() {
-            $("#navbar-container").load("navbar.html");
-            $("#footer-container").load("footer.html");
+            $("#navbar-container").load("adminNavbar.html");
         });
     </script>
 </body>

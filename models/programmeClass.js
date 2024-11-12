@@ -12,6 +12,39 @@ class ProgrammeClass {
         this.remarks = remarks;
     }
 
+    // Get all programme classes
+    static async getAllProgrammeClasses() {
+        const sqlQuery = `
+            SELECT 
+                ProgrammeClassID, 
+                ProgrammeID, 
+                ShortDescription,
+                Location, 
+                Fee, 
+                MaxSlots, 
+                ProgrammeLevel, 
+                Remarks
+            FROM ProgrammeClass
+        `;
+
+        try {
+            const [rows] = await pool.query(sqlQuery);
+            return rows.map(row => new ProgrammeClass(
+                row.ProgrammeClassID,
+                row.ProgrammeID,
+                row.ShortDescription,
+                row.Location,
+                row.Fee,
+                row.MaxSlots,
+                row.ProgrammeLevel,
+                row.Remarks || ''
+            ));
+        } catch (error) {
+            console.error("Error fetching all programme classes:", error);
+            throw error;
+        }
+    }
+
     // Get classes for a specific programme with additional details
     static async getProgrammeClasses(programmeID) {
         const sqlQuery = `
@@ -96,7 +129,30 @@ class ProgrammeClass {
         }
     }
     
+    // Create a new programme class entry
+    static async createProgrammeClass({ programmeID, shortDescription, location, fee, maxSlots, level, remarks }) {
+        const sqlQuery = `
+            INSERT INTO ProgrammeClass 
+            (ProgrammeID, ShortDescription, Location, Fee, MaxSlots, ProgrammeLevel, Remarks)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `;
     
+        try {
+            const [result] = await pool.query(sqlQuery, [
+                programmeID,
+                shortDescription,
+                location,
+                fee,
+                maxSlots,
+                level,
+                remarks
+            ]);
+            return result.insertId; // Returns the ID of the new programme class
+        } catch (error) {
+            console.error("Error creating programme class:", error);
+            throw error;
+        }
+    }
     // Get fee information for a specific programme class
     // static async getSpecificProgrammeClass(programmeID, programmeClassID) {
     //     const sqlQuery = `

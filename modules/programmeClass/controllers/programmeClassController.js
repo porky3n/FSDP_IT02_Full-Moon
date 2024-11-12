@@ -33,6 +33,27 @@ const getProgrammeCartDetails = async (req, res) => {
         res.status(500).json({ message: "Failed to retrieve programme cart details." });
     }
 }
+
+// Create a new programme class
+const createProgrammeClass = async (req, res) => {
+    const { programmeID, shortDescription, location, fee, maxSlots, programmeLevel, remarks } = req.body;
+
+    try {
+        const programmeClassID = await ProgrammeClass.createProgrammeClass({
+            programmeID,
+            shortDescription,
+            location,
+            fee,
+            maxSlots,
+            programmeLevel,
+            remarks
+        });
+        res.status(201).json({ message: "Programme class created successfully", programmeClassID });
+    } catch (error) {
+        console.error("Error creating programme class:", error);
+        res.status(500).json({ message: "Error creating programme class", error });
+    }
+};
 // Get fee information for a specific programme class
 // const getSpecificProgrammeClass = async (req, res) => {
 //     const { programmeID, programmeClassID } = req.params;
@@ -46,6 +67,7 @@ const getProgrammeCartDetails = async (req, res) => {
 
 module.exports = {
     getProgrammeClasses,
-    getProgrammeCartDetails
+    getProgrammeCartDetails,
+    createProgrammeClass
     // getSpecificProgrammeClass
 };

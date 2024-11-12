@@ -157,7 +157,39 @@ class ProgrammeSchedule {
         }
     }
     
-    
+    // Create a new programme class entry
+    static async createSchedule({ instanceID, startDateTime, endDateTime }) {
+        const sqlQuery = `
+            INSERT INTO ProgrammeSchedule (InstanceID, StartDateTime, EndDateTime)
+            VALUES (?, ?, ?)
+        `;
+        await pool.query(sqlQuery, [instanceID, startDateTime, endDateTime]);
+    }
+
+    static async getAllSchedules() {
+        const sqlQuery = `
+            SELECT 
+                ScheduleID, 
+                InstanceID, 
+                StartDateTime, 
+                EndDateTime
+            FROM ProgrammeSchedule
+        `;
+
+        try {
+            const [rows] = await pool.query(sqlQuery);
+            // Ensure mapping does not refer to ProgrammeSchedule within itself
+            return rows.map(row => ({
+                scheduleID: row.ScheduleID,
+                instanceID: row.InstanceID,
+                startDateTime: row.StartDateTime,
+                endDateTime: row.EndDateTime
+            }));
+        } catch (error) {
+            console.error("Error fetching all schedules:", error);
+            throw error;
+        }
+    }
     
 
 }
