@@ -108,37 +108,49 @@ class Programme {
         ));
     }
 
-    // Search programmes by keyword with pagination and total count
-    static async searchProgrammes(keyword, page = 1, limit = 6) {
-        const offset = (page - 1) * limit;
-        
-        // Main query for fetching results with pagination
-        const sqlQuery = `
-            SELECT * FROM Programme
-            WHERE ProgrammeName LIKE ? OR Description LIKE ?
-            LIMIT ? OFFSET ?
-        `;
-        
-        // Separate query to count the total matching records (without pagination)
-        const countQuery = `
-            SELECT COUNT(*) AS total FROM Programme
-            WHERE ProgrammeName LIKE ? OR Description LIKE ?
-        `;
-        
-        const [rows] = await pool.query(sqlQuery, [`%${keyword}%`, `%${keyword}%`, limit, offset]);
-        const [[{ total }]] = await pool.query(countQuery, [`%${keyword}%`, `%${keyword}%`]);
-        
-        return {
-            programmes: rows.map(row => new Programme(
-                row.ProgrammeID,
-                row.ProgrammeName,
-                row.Category,
-                row.ProgrammePicture,
-                row.Description
-            )),
-            total
-        };
+    // Search programmes by keyword with pagination, category filter, and total count
+static async searchProgrammes(keyword, category = "All", page = 1, limit = 6) {
+    const offset = (page - 1) * limit;
+
+    // Start building the query with the necessary filters
+    let sqlQuery = `
+        SELECT * FROM Programme
+        WHERE (ProgrammeName LIKE ? OR Description LIKE ?)
+    `;
+    
+    let countQuery = `
+        SELECT COUNT(*) AS total FROM Programme
+        WHERE (ProgrammeName LIKE ? OR Description LIKE ?)
+    `;
+    
+    const params = [`%${keyword}%`, `%${keyword}%`];
+    
+    // Add category filter if a specific category is selected
+    if (category !== "All") {
+        sqlQuery += ` AND Category = ?`;
+        countQuery += ` AND Category = ?`;
+        params.push(category);
     }
+    
+    sqlQuery += ` LIMIT ? OFFSET ?`;
+    params.push(limit, offset);
+
+    // Execute the main query and count query
+    const [rows] = await pool.query(sqlQuery, params);
+    const [[{ total }]] = await pool.query(countQuery, params.slice(0, params.length - 2)); // Use parameters without limit and offset for count query
+    
+    return {
+        programmes: rows.map(row => new Programme(
+            row.ProgrammeID,
+            row.ProgrammeName,
+            row.Category,
+            row.ProgrammePicture,
+            row.Description
+        )),
+        total
+    };
+}
+
 
     // Add a new programme
     static async createProgramme({ title, category, picture, description }) {

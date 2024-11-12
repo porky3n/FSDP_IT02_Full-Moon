@@ -59,10 +59,10 @@ const getProgrammesByCategory = async (req, res) => {
 
 // Controller to search programmes
 const searchProgrammes = async (req, res) => {
-    const { keyword = '', page = 1, limit = 6 } = req.query;
+    const { keyword = '', category = '', page = 1, limit = 6 } = req.query;
     
     try {
-        const { programmes, total } = await Programme.searchProgrammes(keyword, parseInt(page), parseInt(limit));
+        const { programmes, total } = await Programme.searchProgrammes(keyword, category, parseInt(page), parseInt(limit));
         const programmesWithBase64Images = programmes.map(convertToBase64);
         
         res.json({

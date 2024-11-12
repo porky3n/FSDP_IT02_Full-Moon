@@ -71,7 +71,7 @@ async function getProgrammeSchedules(programmeId) {
         scheduleSection.innerHTML = "<h2>Upcoming Schedules</h2>";
 
         let rowElement = document.createElement("div");
-        rowElement.classList.add("row");
+        // rowElement.classList.add("row");
 
         schedules.forEach((schedule, index) => {
             const scheduleList = document.createElement("div");
@@ -282,4 +282,3 @@ if (programmeId) {
 //         console.error("Target section not found:", target);
 //     }
 // }
-

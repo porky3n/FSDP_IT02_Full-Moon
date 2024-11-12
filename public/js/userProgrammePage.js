@@ -2,12 +2,15 @@ document.addEventListener("DOMContentLoaded", () => {
   initPage(); // Initialize featured, private coaching, and initial search results
 
   // Search input listener
-  const searchInput = document.querySelector(".search-bar input");
+  const searchInput = document.querySelector(".search-bar .input");
   searchInput.addEventListener("keypress", function (event) {
     if (event.key === "Enter") {
       const keyword = searchInput.value.trim();
+      const category = getSelectedCategory(); // Get selected category from dropdown
       if (keyword) {
-        populateSearchResults(keyword, 1); // Call the search function with page 1
+        populateSearchResults(keyword, 1, 6, category); // Call search with category
+      } else {
+        populateSearchResults("", 1, 6, category); // Call default results with category if input is empty
       }
     }
   });
@@ -16,8 +19,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const sortDropdown = document.querySelector(".sort-dropdown select");
   sortDropdown.addEventListener("change", function () {
     const keyword = searchInput.value.trim();
-    const sortOption = sortDropdown.value;
-    populateSearchResults(keyword, 1, 6, sortOption); // Pass sort option to search
+    const category = getSelectedCategory(); // Get selected category from dropdown
+    populateSearchResults(keyword, 1, 6, category); // Pass category to search
   });
 
   // Reset button listener
@@ -25,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
   resetButton.addEventListener("click", () => {
     searchInput.value = ""; // Clear the search input
     sortDropdown.selectedIndex = 0; // Reset the dropdown to the default option
-    populateSearchResults("", 1); // Call the search function with no keyword to reset
+    populateSearchResults("", 1); // Call search function with no keyword to reset
   });
 });
 
@@ -50,7 +53,7 @@ function initFeaturedSlider() {
     slidesPerView: 'auto',
     coverflowEffect: {
       rotate: 0,
-      stretch: 0,
+      stretch: -100,
       depth: 100,
       modifier: 2.5,
     },
@@ -146,10 +149,16 @@ async function populatePrivateCoaching() {
   }
 }
 
-// Populate the search results section (no caching for search)
-async function populateSearchResults(keyword, page = 1, limit = 6, sortOption = "Sort By Date") {
+// Helper function to get selected category
+function getSelectedCategory() {
+  const sortDropdown = document.querySelector(".sort-dropdown select");
+  return sortDropdown.value;
+}
+
+// Populate the search results section
+async function populateSearchResults(keyword, page = 1, limit = 6, category = "All") {
   try {
-    const response = await fetch(`/api/programme/search?keyword=${encodeURIComponent(keyword)}&page=${page}&limit=${limit}`);
+    const response = await fetch(`/api/programme/search?keyword=${encodeURIComponent(keyword)}&page=${page}&limit=${limit}&category=${encodeURIComponent(category)}`);
     const { programmes, total, totalPages } = await response.json();
 
     const cardGridContainer = document.querySelector('.card-grid'); // Select the card grid container
@@ -184,14 +193,14 @@ async function populateSearchResults(keyword, page = 1, limit = 6, sortOption = 
     });
 
     // Render pagination controls with the current page, total pages, and keyword
-    renderPaginationControls(page, totalPages, keyword);
+    renderPaginationControls(page, totalPages, keyword, category);
   } catch (error) {
     console.error("Error populating search results:", error);
   }
 }
 
 // Render pagination controls
-function renderPaginationControls(currentPage, totalPages, keyword, sortOption) {
+function renderPaginationControls(currentPage, totalPages, keyword, category) {
   const paginationContainer = document.querySelector('.pagination-container');
   paginationContainer.innerHTML = ''; // Clear existing pagination controls
 
@@ -202,7 +211,7 @@ function renderPaginationControls(currentPage, totalPages, keyword, sortOption) 
     button.disabled = page === currentPage;
 
     button.addEventListener("click", () => {
-      populateSearchResults(keyword, page, 6, sortOption); // Fetch selected page with sort option
+      populateSearchResults(keyword, page, 6, category); // Fetch selected page with category
     });
 
     paginationContainer.appendChild(button);

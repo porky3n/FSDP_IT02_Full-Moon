@@ -127,6 +127,25 @@ margin-left: 0; /* Remove row margin */
 margin-right: 0; /* Remove row margin */
 }
 
+#featured .card {
+  height: 400px; /* Define the total height of the card */
+  overflow: hidden; /* Hide any overflow */
+  display: flex;
+  flex-direction: column;
+}
+
+#featured .card img {
+  width: 100%; /* Make image take full width of card */
+  height: 80%; /* Make image take 80% of card height */
+  object-fit: cover; /* Cover the card without distortion */
+}
+
+#featured .card .card-body {
+  flex-grow: 1; /* Take remaining 20% of height */
+  padding: 1rem; /* Adjust padding as needed */
+  text-align: center;
+}
+
 ::-webkit-scrollbar-thumb:hover {
 background: #222224;
 }
@@ -334,55 +353,105 @@ justify-content: flex-start;
 color: #242565;
 }
 
-/* search bar and filter dropdown */
-.search-bar .form-control,
-.sort-dropdown .form-select { /* Changed .form-control to .form-select for dropdown */
-  border-radius: 100px; /* Adjust the radius as needed */
-}
+  /* search bar and filter dropdown */
+  /* .search-bar .form-control,
+  .sort-dropdown .form-select { 
+    border-radius: 100px; 
+  } */
+/* 
+  .search-icon-img {
+  width: 16px; 
+  height: 16px; 
+  display: block;
+  }
 
-.search-icon-img {
-width: 16px; /* Adjust the width as needed */
-height: 16px; /* Adjust the height as needed */
-display: block;
-}
+  .search-input:focus {
+    outline: none;
+    box-shadow: none;
+  }
 
-.search-input:focus {
+  .input-group {
+  overflow: hidden; 
+  border-radius: 15px; 
+  } */
+
+  /* .input-group-text {
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    border-right: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px;
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+  } */
+  
+  .input-group .form-control {
+    border: 1px solid #ced4da;
+    border-left: none;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+    padding-left: 0;
+    gap: 1rem;
+  }
+  
+  /* .button-containers button {
+    border-radius: 100px;
+  } */
+  
+  .search-filter {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+
+.group {
+  display: flex;
+  line-height: 28px;
+  align-items: center;
+  position: relative;
+  max-width: 190px;
+ }
+ 
+ .input {
+  width: 100%;
+  height: 40px;
+  line-height: 28px;
+  padding: 0 1rem;
+  padding-left: 2.5rem;
+  border: 2px solid transparent;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
   outline: none;
-  box-shadow: none;
-}
-
-.input-group {
-overflow: hidden; /* Ensures the icon doesn't cut off the border */
-border-radius: 15px; /* Match the border radius */
-}
-
-.input-group-text { /* No need for .input-group-prepend in Bootstrap 5 */
-background-color: #fff; /* Match the background color of the input */
-border: 1px solid #ced4da; /* Ensure border color matches the input */
-border-right: none; /* Blend seamlessly with the input */
-display: flex;
-align-items: center;
-justify-content: center;
-padding: 0 10px; /* Add padding for spacing */
-border-top-left-radius: 15px; /* Match the border radius */
-border-bottom-left-radius: 15px; /* Match the border radius */
-}
-
-.input-group .form-control { /* The form control still exists in input groups */
-border: 1px solid #ced4da; /* Add border color to match */
-border-left: none; /* Remove left border of the input to blend with the icon */
-border-top-right-radius: 15px; /* Match the border radius */
-border-bottom-right-radius: 15px; /* Match the border radius */
-padding-left: 0; /* Remove extra padding to align with icon */
-}
-
-.button-containers button {
-border-radius: 100px; /* Adjust the radius as needed */
-}
-
-.search-filter {
-display: flex;
-justify-content: flex-start;
-align-items: center;
-gap: 1rem; /* Adjust the gap size as needed */
-}
+  background-color: #f3f3f4;
+  color: #0d0c22;
+  transition: .3s ease;
+ }
+ 
+ .input::placeholder {
+  color: #9e9ea7;
+ }
+ 
+ /* .input:focus, input:hover {
+  outline: none;
+  border-color: rgba(234,76,137,0.4);
+  background-color: #fff;
+  box-shadow: 0 0 0 4px rgb(234 76 137 / 10%);
+ } */
+ 
+ .icon {
+  position: absolute;
+  left: 1rem;
+  fill: #9e9ea7;
+  width: 1rem;
+  height: 1rem;
+ }
+ 
+ 
+ 
+ 
+ /* dropdown */
+ 
