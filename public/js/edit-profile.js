@@ -54,12 +54,12 @@ document.addEventListener("DOMContentLoaded", function () {
         profileData.ContactNumber || "";
       document.getElementById("dietary").value = profileData.Dietary || "";
 
-      // Set profile picture
-      if (profileData.ProfilePicture) {
-        profilePreview.src = profileData.ProfilePicture;
-      } else {
-        profilePreview.src = "/api/placeholder/400/320";
-      }
+      // // Set profile picture
+      // if (profileData.ProfilePicture) {
+      //   profilePreview.src = profileData.ProfilePicture;
+      // } else {
+      //   profilePreview.src = "/api/placeholder/400/320";
+      // }
 
       // Store initial data
       initialFormData = {
@@ -78,30 +78,72 @@ document.addEventListener("DOMContentLoaded", function () {
   // Handle profile picture upload
   const profilePictureInput = document.getElementById("profilePictureInput");
   const profilePreview = document.getElementById("profilePreview");
-
   const uploadButton = document.getElementById("uploadButton");
+
+  async function handleProfilePictureUpload(file) {
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      alert("Please upload a valid image file");
+      profilePictureInput.value = ""; // Clear the input
+      return;
+    }
+
+    // Validate file size (10MB = 10 * 1024 * 1024 bytes)
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      showFileSizeError();
+      profilePictureInput.value = ""; // Clear the input
+      return;
+    }
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async function (e) {
+        try {
+          // Update preview immediately
+          profilePreview.src = e.target.result;
+
+          // Attempt to upload
+          const response = await fetch("/auth/profile/picture", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            credentials: "include",
+            body: JSON.stringify({ profilePicture: e.target.result }),
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+
+          await response.json();
+          resolve();
+        } catch (error) {
+          console.error("Error updating profile picture:", error);
+          alert("Failed to update profile picture. Please try again later.");
+          // Revert preview on error
+          profilePreview.src =
+            initialFormData.profilePicture || "/api/placeholder/400/320";
+          reject(error);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
   if (uploadButton) {
-    uploadButton.addEventListener("click", function (e) {
+    uploadButton.addEventListener("click", (e) => {
       e.preventDefault();
       profilePictureInput.click();
     });
   }
 
-  if (uploadButton) {
-    uploadButton.addEventListener("click", () => {
-      profilePictureInput.click();
-    });
-
-    profilePictureInput.addEventListener("change", function (e) {
+  if (profilePictureInput) {
+    profilePictureInput.addEventListener("change", async function (e) {
       if (e.target.files && e.target.files[0]) {
-        const file = e.target.files[0];
-        // Validate file type
-        if (!file.type.startsWith("image/")) {
-          alert("Please upload a valid image file");
-          return;
-        }
-
-        updateProfilePicture();
+        await handleProfilePictureUpload(e.target.files[0]);
       }
     });
   }
@@ -266,29 +308,29 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   });
 
-  async function updateProfilePicture(base64Image) {
-    try {
-      const response = await fetch("/auth/profile/picture", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        credentials: "include",
-        body: JSON.stringify({ profilePicture: base64Image }),
-      });
+  // async function updateProfilePicture(base64Image) {
+  //   try {
+  //     const response = await fetch("/auth/profile/picture", {
+  //       method: "PUT",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //       },
+  //       credentials: "include",
+  //       body: JSON.stringify({ profilePicture: base64Image }),
+  //     });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
+  //     if (!response.ok) {
+  //       throw new Error(`HTTP error! Status: ${response.status}`);
+  //     }
 
-      const result = await response.json();
-      alert("Profile picture updated successfullsssy");
-    } catch (error) {
-      console.error("Error updating profile picture:", error);
-      alert("Failed to update profile picture. Please try again later.");
-    }
-  }
+  //     const result = await response.json();
+  //     alert("Profile picture updated successfully");
+  //   } catch (error) {
+  //     console.error("Error updating profile picture:", error);
+  //     alert("Failed to update profile picture. Please try again later.");
+  //   }
+  // }
 
   if (profilePictureInput) {
     profilePictureInput.addEventListener("change", async function (e) {
