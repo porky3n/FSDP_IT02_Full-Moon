@@ -31,52 +31,71 @@ programme_2_base64 = image_to_base64(programme_2_path)
 programme_1_content_1_base64 = image_to_base64(programme_1_content_1_path)
 programme_2_content_1_base64 = image_to_base64(programme_2_content_1_path)
 
-# Read the SQL file
-with open('SQL Scripts/dummyData.sql', 'r') as file:
-    sql_data = file.read()
 
-# Replace placeholders with base64 images
-sql_data = sql_data.replace('PLACEHOLDER_PAYMENT_1', payment_1_base64)
-sql_data = sql_data.replace('PLACEHOLDER_PAYMENT_2', payment_2_base64)
-sql_data = sql_data.replace('PLACEHOLDER_PROFILE_USER_1', profile_user_1_base64)
-sql_data = sql_data.replace('PLACEHOLDER_PROFILE_USER_2', profile_user_2_base64)
-sql_data = sql_data.replace('PLACEHOLDER_PROFILE_CHILD_1', profile_child_1_base64)
-sql_data = sql_data.replace('PLACEHOLDER_PROFILE_CHILD_2', profile_child_2_base64)
-sql_data = sql_data.replace('PLACEHOLDER_PROGRAMME_1', programme_1_base64)
-sql_data = sql_data.replace('PLACEHOLDER_PROGRAMME_2', programme_2_base64)
-sql_data = sql_data.replace('PLACEHOLDER_PROGRAMME_1_CONTENT_1', programme_1_content_1_base64)
-sql_data = sql_data.replace('PLACEHOLDER_PROGRAMME_2_CONTENT_1', programme_2_content_1_base64)
+# # Generate SQL UPDATE statements
+# sql_update_statements = f"""
+# -- Update image for ProgrammeID = 1
+# UPDATE Programme SET ProgrammePicture = '{programme_1_base64}' WHERE ProgrammeID = 1;
+# """
 
-# Write the updated SQL back to the file
-with open('SQL Scripts/dummyData.sql', 'w') as file:
-    file.write(sql_data)
+# # Write the SQL to a file (optional)
+# with open('SQL Scripts/updateImages.sql', 'w') as file:
+#     file.write(sql_update_statements)
 
-# # !!! This is to convert the base64 strings back to placeholders in the SQL file !!!
+# print('SQL UPDATE statements generated!')
 
-# # Define the placeholders and their corresponding base64 strings
-# placeholders = {
-#     'PLACEHOLDER_PAYMENT_1': payment_1_base64,
-#     'PLACEHOLDER_PAYMENT_2': payment_2_base64,
-#     'PLACEHOLDER_PROFILE_USER_1': profile_user_1_base64,
-#     'PLACEHOLDER_PROFILE_USER_2': profile_user_2_base64,
-#     'PLACEHOLDER_PROFILE_CHILD_1': profile_child_1_path,
-#     'PLACEHOLDER_PROFILE_CHILD_2': profile_child_2_base64,
-#     'PLACEHOLDER_PROGRAMME_1': programme_1_base64,
-#     'PLACEHOLDER_PROGRAMME_2': programme_2_base64,
-#     'PLACEHOLDER_PROGRAMME_1_CONTENT_1': programme_1_content_1_base64,
-#     'PLACEHOLDER_PROGRAMME_2_CONTENT_1': programme_2_content_1_base64 
-# }
+
+# # !!! This is to convert the images to base64 strings in the SQL file !!!
 
 # # Read the SQL file
 # with open('SQL Scripts/dummyData.sql', 'r') as file:
 #     sql_data = file.read()
 
-# # Replace base64 strings with placeholders
-# for placeholder, base64_string in placeholders.items():
-#     sql_data = re.sub(re.escape(base64_string), placeholder, sql_data)
+# # Replace placeholders with base64 images
+# sql_data = sql_data.replace('PLACEHOLDER_PAYMENT_1', payment_1_base64)
+# sql_data = sql_data.replace('PLACEHOLDER_PAYMENT_2', payment_2_base64)
+# sql_data = sql_data.replace('PLACEHOLDER_PROFILE_USER_1', profile_user_1_base64)
+# sql_data = sql_data.replace('PLACEHOLDER_PROFILE_USER_2', profile_user_2_base64)
+# sql_data = sql_data.replace('PLACEHOLDER_PROFILE_CHILD_1', profile_child_1_base64)
+# sql_data = sql_data.replace('PLACEHOLDER_PROFILE_CHILD_2', profile_child_2_base64)
+# sql_data = sql_data.replace('PLACEHOLDER_PROGRAMME_1', programme_1_base64)
+# sql_data = sql_data.replace('PLACEHOLDER_PROGRAMME_2', programme_2_base64)
+# sql_data = sql_data.replace('PLACEHOLDER_PROGRAMME_1_CONTENT_1', programme_1_content_1_base64)
+# sql_data = sql_data.replace('PLACEHOLDER_PROGRAMME_2_CONTENT_1', programme_2_content_1_base64)
 
 # # Write the updated SQL back to the file
 # with open('SQL Scripts/dummyData.sql', 'w') as file:
 #     file.write(sql_data)
+
+
+
+
+# !!! This is to convert the base64 strings back to placeholders in the SQL file !!!
+
+# Define the placeholders and their corresponding base64 strings
+placeholders = {
+    'PLACEHOLDER_PAYMENT_1': payment_1_base64,
+    'PLACEHOLDER_PAYMENT_2': payment_2_base64,
+    'PLACEHOLDER_PROFILE_USER_1': profile_user_1_base64,
+    'PLACEHOLDER_PROFILE_USER_2': profile_user_2_base64,
+    'PLACEHOLDER_PROFILE_CHILD_1': profile_child_1_base64,
+    'PLACEHOLDER_PROFILE_CHILD_2': profile_child_2_base64,
+    'PLACEHOLDER_PROGRAMME_1': programme_1_base64,
+    'PLACEHOLDER_PROGRAMME_2': programme_2_base64,
+    'PLACEHOLDER_PROGRAMME_1_CONTENT_1': programme_1_content_1_base64,
+    'PLACEHOLDER_PROGRAMME_2_CONTENT_1': programme_2_content_1_base64 
+}
+
+# Read the SQL file
+with open('SQL Scripts/dummyData.sql', 'r') as file:
+    sql_data = file.read()
+
+# Replace base64 strings with placeholders
+for placeholder, base64_string in placeholders.items():
+    sql_data = re.sub(re.escape(base64_string), placeholder, sql_data)
+
+# Write the updated SQL back to the file
+with open('SQL Scripts/dummyData.sql', 'w') as file:
+    file.write(sql_data)
 
 print('Done!')
