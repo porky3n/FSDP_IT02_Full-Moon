@@ -4,6 +4,7 @@ const path = require('path');
 const session = require('express-session');
 const authRoutes = require('./modules/auth/authRoutes'); // Import auth routes
 const ensureAdminAuthenticated = require('./middlewares/auth');
+const programmeRoutes = require('./routes/programmeRoutes');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -35,6 +36,12 @@ app.get('/', (req, res) => {
 app.get('/adminHomePage.html', ensureAdminAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'adminHomePage.html'));
 });
+
+// // Route for the chat page
+// app.post('/send-message', ChatController.sendMessageToChatbot);
+
+// Routes
+app.use('/programmes', programmeRoutes);
 
 // Start the server
 app.listen(port, () => {
