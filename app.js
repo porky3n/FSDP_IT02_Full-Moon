@@ -10,9 +10,9 @@ const userProfileRoutes = require("./modules/auth/userProfileRoutes");
 const childRoutes = require("./modules/auth/addChildRoutes");
 const ensureAdminAuthenticated = require("./middlewares/auth");
 
-const programmeRoutes = require("./modules/programme/programmeRoutes"); // Import programme routes
-const programmeClassRoutes = require("./modules/programmeClass/programmeClassRoutes"); // Import programme class routes
-const programmeScheduleRoutes = require("./modules/programmeSchedule/programmeScheduleRoutes"); // Import programme schedule routes
+// const programmeRoutes = require("./modules/programme/programmeRoutes"); // Import programme routes
+// const programmeClassRoutes = require("./modules/programmeClass/programmeClassRoutes"); // Import programme class routes
+// const programmeScheduleRoutes = require("./modules/programmeSchedule/programmeScheduleRoutes"); // Import programme schedule routes
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -67,9 +67,9 @@ app.use("/auth/profile", profileRoutes); // Mount profile routes
 app.use("/api/children", childRoutes); // Mount child routes
 
 // Mount programme-related routes
-app.use("/api/programmes", programmeRoutes); // Programme routes
-app.use("/api/programme-classes", programmeClassRoutes); // Programme class routes
-app.use("/api/programme-schedules", programmeScheduleRoutes); // Programme schedule routes
+// app.use("/api/programmes", programmeRoutes); // Programme routes
+// app.use("/api/programme-classes", programmeClassRoutes); // Programme class routes
+// app.use("/api/programme-schedules", programmeScheduleRoutes); // Programme schedule routes
 
 // Middleware to parse JSON bodies
 app.use(express.json({ limit: '50mb' }));

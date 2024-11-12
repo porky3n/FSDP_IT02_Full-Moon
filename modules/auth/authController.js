@@ -109,7 +109,12 @@ exports.login = async (req, res) => {
     if (!match) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
-
+    // Fetch the first name from the Parent table
+    const [parentData] = await pool.query(
+      "SELECT FirstName FROM Parent WHERE AccountID = ?",
+      [account.AccountID]
+    );
+    const firstName = parentData[0]?.FirstName;
     // Generate JWT (JSON Web Token)
     const token = jwt.sign(
       { accountId: account.AccountID, accountType: account.AccountType },
