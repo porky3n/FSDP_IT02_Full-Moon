@@ -2,7 +2,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("childProfileForm");
   const profilePictureInput = document.getElementById("profilePictureInput");
   const profilePreview = document.getElementById("profilePreview");
+  const uploadButton = document.getElementById("uploadButton");
   let currentProfilePicture = null;
+  //let selectedProfilePicture = null;
+  let profPicture = null;
 
   // Load existing children
   async function loadExistingChildren() {
@@ -152,30 +155,39 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  if (uploadButton) {
+    uploadButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      profilePictureInput.click();
+    });
+  }
+
   // Update the profile picture change handler
   if (profilePictureInput) {
     profilePictureInput.addEventListener("change", async function (e) {
       if (e.target.files && e.target.files[0]) {
-        const file = e.target.files[0];
-        if (!file.type.startsWith("image/")) {
-          alert("Please upload an image file");
-          return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = async function (e) {
-          try {
-            // Compress the image before setting it
-            const compressedImage = await compressImage(e.target.result);
-            profilePreview.src = compressedImage;
-            currentProfilePicture = compressedImage;
-          } catch (error) {
-            console.error("Error processing image:", error);
-            alert("Error processing image. Please try a different image.");
-          }
-        };
-        reader.readAsDataURL(file);
+        profPicture = e.target.files[0];
+        await handleProfilePictureSelection(e.target.files[0]);
       }
+      //   if (!file.type.startsWith("image/")) {
+      //     alert("Please upload an image file");
+      //     return;
+      //   }
+
+      //   const reader = new FileReader();
+      //   reader.onload = async function (e) {
+      //     try {
+      //       // Compress the image before setting it
+      //       const compressedImage = await compressImage(e.target.result);
+      //       profilePreview.src = compressedImage;
+      //       currentProfilePicture = compressedImage;
+      //     } catch (error) {
+      //       console.error("Error processing image:", error);
+      //       alert("Error processing image. Please try a different image.");
+      //     }
+      //   };
+      //   reader.readAsDataURL(file);
+      // }
     });
   }
 
@@ -188,7 +200,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const childId = form.dataset.childId;
 
       try {
-        // Create form data
+        // Create form data object
         const formData = {
           firstName: document.getElementById("firstName").value,
           lastName: document.getElementById("lastName").value,
@@ -198,7 +210,6 @@ document.addEventListener("DOMContentLoaded", function () {
           emergencyContactNumber:
             document.getElementById("emergencyContact").value,
           dietary: document.getElementById("dietary").value,
-          profilePicture: currentProfilePicture,
         };
 
         let url = "/api/children";
@@ -207,6 +218,15 @@ document.addEventListener("DOMContentLoaded", function () {
         if (isUpdate && childId) {
           url = `/api/children/${childId}`;
           method = "PUT";
+        }
+
+        // Conditionally add profile picture to formData
+        if (!isUpdate) {
+          // If creating, include profile picture directly in formData
+          formData.profilePicture = currentProfilePicture;
+        } else if (isUpdate && currentProfilePicture) {
+          // If updating and profile picture is provided, append it
+          formData.profilePicture = currentProfilePicture;
         }
 
         const response = await fetch(url, {
@@ -320,44 +340,80 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   // Update child function
-  async function updateChild(childId) {
-    const formData = {
-      firstName: document.getElementById("firstName").value,
-      lastName: document.getElementById("lastName").value,
-      dob: document.getElementById("dob").value,
-      gender: document.getElementById("gender").value,
-      school: document.getElementById("school").value,
-      emergencyContactNumber: document.getElementById("emergencyContact").value,
-      dietary: document.getElementById("dietary").value,
-      profilePicture: currentProfilePicture,
-    };
+  // async function updateChild(childId) {
+  //   const formData = {
+  //     firstName: document.getElementById("firstName").value,
+  //     lastName: document.getElementById("lastName").value,
+  //     dob: document.getElementById("dob").value,
+  //     gender: document.getElementById("gender").value,
+  //     school: document.getElementById("school").value,
+  //     emergencyContactNumber: document.getElementById("emergencyContact").value,
+  //     dietary: document.getElementById("dietary").value,
+  //     profilePicture: currentProfilePicture,
+  //   };
 
-    try {
-      const response = await fetch(`/api/children/${childId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify(formData),
-      });
+  //   try {
+  //     const response = await fetch(`/api/children/${childId}`, {
+  //       method: "PUT",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       credentials: "include",
+  //       body: JSON.stringify(formData),
+  //     });
 
-      if (!response.ok) throw new Error("Failed to update child");
+  //     if (!response.ok) throw new Error("Failed to update child");
 
-      alert("Child updated successfully!");
-      form.reset();
-      profilePreview.src = "images/profilePicture.png";
-      currentProfilePicture = null;
+  //     alert("Child updated successfully!");
+  //     form.reset();
+  //     profilePreview.src = "images/profilePicture.png";
+  //     currentProfilePicture = null;
 
-      const submitBtn = document.getElementById("submitBtn");
-      submitBtn.textContent = "Add Child";
-      submitBtn.onclick = null;
+  //     const submitBtn = document.getElementById("submitBtn");
+  //     submitBtn.textContent = "Add Child";
+  //     submitBtn.onclick = null;
 
-      loadExistingChildren();
-    } catch (error) {
-      console.error("Error updating child:", error);
-      alert("Error updating child. Please try again.");
+  //     loadExistingChildren();
+  //   } catch (error) {
+  //     console.error("Error updating child:", error);
+  //     alert("Error updating child. Please try again.");
+  //   }
+  // }
+
+  async function handleProfilePictureSelection(file) {
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      alert("Please upload a valid image file");
+      profilePictureInput.value = ""; // Clear the input
+      return;
     }
+
+    // Validate file size (10MB = 10 * 1024 * 1024 bytes)
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      showFileSizeError();
+      profilePictureInput.value = ""; // Clear the input
+      return;
+    }
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          // Update preview immediately
+          profilePreview.src = e.target.result;
+          // Store the base64 string for later use
+          currentProfilePicture = e.target.result;
+          resolve();
+        } catch (error) {
+          console.error("Error processing profile picture:", error);
+          profilePreview.src =
+            initialFormData.profilePicture || "/api/placeholder/400/320";
+          reject(error);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
   }
 
   // Export the loadExistingChildren function
