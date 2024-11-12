@@ -80,7 +80,7 @@ exports.sendAnnouncement = async (programme) => {
 *Location*: ${programme.Location}
 *Fee*: $${fee.toFixed(2)}
 *Level*: ${programme.ProgrammeLevel}
-*Schedule*: ${new Date(programme.StartDateTime).toLocaleString()} to ${new Date(programme.EndDateTime).toLocaleString()}
+*Schedule*: ${new Date(programme.EarliestStartDateTime).toLocaleString()} to ${new Date(programme.LatestEndDateTime).toLocaleString()}
 *Remarks*: ${programme.Remarks.replace(/~/g, ', ')}
     `;
 

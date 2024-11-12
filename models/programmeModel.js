@@ -20,13 +20,29 @@ db.connect((err) => {
 exports.getUpcomingProgrammes = () => {
   return new Promise((resolve, reject) => {
     const query = `
-      SELECT p.ProgrammeName, p.Description, pc.Location, pc.Fee, pc.ProgrammeLevel,
-             ps.StartDateTime, ps.EndDateTime, pc.Remarks, p.ProgrammePicture
+      SELECT 
+        p.ProgrammeName, 
+        p.Description, 
+        pc.Location, 
+        pc.Fee, 
+        pc.ProgrammeLevel,
+        MIN(ps.StartDateTime) AS EarliestStartDateTime, 
+        MAX(ps.EndDateTime) AS LatestEndDateTime, 
+        pc.Remarks, 
+        p.ProgrammePicture
       FROM Programme p
       JOIN ProgrammeClass pc ON p.ProgrammeID = pc.ProgrammeID
       JOIN ProgrammeSchedule ps ON pc.ProgrammeClassID = ps.InstanceID
       WHERE ps.StartDateTime > NOW()
-      ORDER BY ps.StartDateTime ASC;
+      GROUP BY 
+        p.ProgrammeName, 
+        p.Description, 
+        pc.Location, 
+        pc.Fee, 
+        pc.ProgrammeLevel, 
+        pc.Remarks, 
+        p.ProgrammePicture
+      ORDER BY EarliestStartDateTime ASC;
     `;
     db.query(query, (err, results) => {
       if (err) {
