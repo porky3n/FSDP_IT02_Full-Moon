@@ -127,45 +127,44 @@ exports.login = async (req, res) => {
 
 exports.getUsers = async (req, res) => {
   try {
-      const [parentData] = await pool.query(`
-          SELECT 
-              Parent.ParentID,
-              Parent.FirstName,
-              Parent.LastName,
-              Parent.DateOfBirth,
-              Parent.ContactNumber,
-              Account.Email,
-              Parent.Membership,
-              Parent.MembershipExpirationDate,
-              Parent.Dietary,
-              Parent.ProfilePictureURL,
-              Account.CreatedAt AS DateJoined,
-              IF(COUNT(Child.ChildID) > 0, 'true', 'false') AS HasChildren
-          FROM Parent
-          JOIN Account ON Parent.AccountID = Account.AccountID
-          LEFT JOIN Child ON Parent.ParentID = Child.ParentID
-          GROUP BY Parent.ParentID;
-      `);
+    const [parentData] = await pool.query(`
+      SELECT 
+          Parent.ParentID,
+          Parent.FirstName,
+          Parent.LastName,
+          Parent.DateOfBirth,
+          Parent.ContactNumber,
+          Account.Email,
+          Parent.Membership,
+          Parent.MembershipExpirationDate,
+          Parent.Dietary,
+          Account.CreatedAt AS DateJoined,
+          IF(COUNT(Child.ChildID) > 0, 'true', 'false') AS HasChildren
+      FROM Parent
+      JOIN Account ON Parent.AccountID = Account.AccountID
+      LEFT JOIN Child ON Parent.ParentID = Child.ParentID
+      GROUP BY Parent.ParentID;
+    `);
 
-      const [childData] = await pool.query(`
-          SELECT 
-              Child.ChildID,
-              Child.ParentID,
-              Child.FirstName,
-              Child.LastName,
-              Child.DateOfBirth,
-              Child.School,
-              Child.Dietary,
-              Child.ProfilePictureURL
-          FROM Child;
-      `);
+    const [childData] = await pool.query(`
+      SELECT 
+          Child.ChildID,
+          Child.ParentID,
+          Child.FirstName,
+          Child.LastName,
+          Child.DateOfBirth,
+          Child.School,
+          Child.Dietary
+      FROM Child;
+    `);
 
-      res.json({ parentData, childData });
+    res.json({ parentData, childData });
   } catch (error) {
-      console.error('Error fetching user data:', error);
-      res.status(500).json({ message: 'Internal server error', error: error.message });
+    console.error('Error fetching user data:', error);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
+
 
 exports.deleteParent = async (req, res) => {
   const { parentId } = req.body;

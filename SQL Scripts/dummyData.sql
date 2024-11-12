@@ -1,4 +1,5 @@
 -- Insert data into Account table
+-- Insert data into Account table
 INSERT INTO Account (Email, PasswordHashed, AccountType, CreatedAt) 
 VALUES 
 ('parent1@example.com', '$2a$10$.dscA5Fja5puF70mD0n2mua.Psz1pmIEsiZ9ugFFVycFnFARr9WpC', 'P', NOW()),
