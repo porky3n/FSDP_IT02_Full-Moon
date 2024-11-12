@@ -27,20 +27,25 @@ const ProgrammeSchedule = require("../../../models/programmeSchedule");
 // };
 
 
-// Controller to get the first schedule for a specific programme
-const getFirstSchedule = async (req, res) => {
-    const programmeID = req.params.id;
+// Controller to get the first and last schedule dates for a specific programme
+const getStartEndDate = async (req, res) => {
+    const instanceID = req.params.id;
+
     try {
-        const firstSchedule = await ProgrammeSchedule.getFirstSchedule(programmeID);
-        if (!firstSchedule) {
+        // Fetch the start and end date for the specified programme, class, and instance
+        const scheduleDates = await ProgrammeSchedule.getStartEndDate(instanceID);
+
+        if (!scheduleDates) {
             return res.status(404).json({ message: "No schedules found for this programme." });
         }
-        res.status(200).json(firstSchedule);
+
+        res.status(200).json(scheduleDates);
     } catch (error) {
-        console.error("Error fetching first schedule:", error);
-        res.status(500).json({ message: "Server error while fetching first schedule." });
+        console.error("Error fetching schedule dates:", error);
+        res.status(500).json({ message: "Server error while fetching schedule dates." });
     }
 };
+
 
 // Controller to get upcoming schedules for a specific programme
 // const getProgrammeSchedules = async (req, res) => {
@@ -99,6 +104,6 @@ const getProgrammeSchedules = async (req, res) => {
 };
 
 module.exports = {
-    getFirstSchedule,
+    getStartEndDate,
     getProgrammeSchedules
 };

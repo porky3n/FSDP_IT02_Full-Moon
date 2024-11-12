@@ -10,17 +10,23 @@ class ProgrammeSchedule {
 
     // Get start date and time for the first schedule of a specifc programme
     // Get the first schedule's start date and time for a specific programme
-    static async getFirstSchedule(programmeID) {
+    static async getStartEndDate(instanceID) {
         const sqlQuery = `
-            SELECT * FROM ProgrammeSchedule 
-            WHERE ProgrammeID = ? 
-            ORDER BY StartDateTime ASC 
-            LIMIT 1
+            SELECT 
+                MIN(StartDateTime) AS FirstStartDate,
+                MAX(EndDateTime) AS LastEndDate
+            FROM ProgrammeSchedule 
+            WHERE InstanceID = ? 
+            ORDER BY StartDateTime ASC;
         `;
-        const [rows] = await pool.query(sqlQuery, [programmeID]);
-        if (rows.length === 0) return null;
-        const row = rows[0];
-        return new ProgrammeSchedule(row.ScheduleID, row.instanceID, row.StartDateTime, row.EndDateTime);
+    
+        const [rows] = await pool.query(sqlQuery, [instanceID]);
+        if (rows.length === 0 || !rows[0].FirstStartDate || !rows[0].LastEndDate) return null;
+    
+        return {
+            firstStartDate: rows[0].FirstStartDate,
+            lastEndDate: rows[0].LastEndDate,
+        };
     }
 
     // Get upcoming schedules grouped by instance for a specific programme

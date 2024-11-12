@@ -46,7 +46,7 @@ const getAllPayments = async (req, res) => {
             paymentID: payment.paymentID,
             slotID: payment.slotID,
             promotionID: payment.promotionID,
-            paymentAmount: payment.paymentAmount,
+            paymentAmount: payment.paymentAmount, 
             paymentDate: payment.paymentDate,
             paymentMethod: payment.paymentMethod,
             paymentImage: payment.paymentImage

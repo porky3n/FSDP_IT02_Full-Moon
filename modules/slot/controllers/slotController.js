@@ -1,4 +1,5 @@
 const Slot = require("../../../models/slot");
+const { sendPaymentConfirmationEmail } = require("../../../models/email");
 
 // Get slots for a specific programme
 const getSlotsByProgramme = async (req, res) => {
@@ -62,7 +63,11 @@ const createSlotAndPayment = async (req, res) => {
         paymentAmount, 
         paymentMethod, 
         paymentImage, // Expecting an array of binary data here
-        promotionID 
+        promotionID,
+        userEmail,
+        programmeName,
+        startDate,
+        endDate 
     } = req.body;
 
     try {
@@ -80,7 +85,18 @@ const createSlotAndPayment = async (req, res) => {
             paymentMethod,
             paymentImageBuffer,
             promotionID
+             // Include user email
         );
+
+        // Send a payment confirmation email
+        await sendPaymentConfirmationEmail({
+            userEmail: userEmail, // Ensure this is correctly passed
+            programmeName: programmeName,
+            startDate: startDate,
+            endDate: endDate,
+            paymentAmount: paymentAmount,
+            paymentMethod: paymentMethod
+          });
 
         res.status(201).json({ message: "Slot created successfully", slotID, paymentID });
     } catch (error) {

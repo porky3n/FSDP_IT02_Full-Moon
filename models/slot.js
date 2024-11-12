@@ -74,11 +74,17 @@ class Slot {
                 `
                 SELECT COUNT(*) AS duplicateCount
                 FROM Slot
-                WHERE ProgrammeClassID = ? AND ProgrammeID = ? AND InstanceID = ? AND ParentID = ? AND ChildID <=> ?
+                WHERE ProgrammeClassID = ? AND ProgrammeID = ? AND InstanceID = ? AND 
+                    (ParentID = ? OR (ParentID IS NULL AND ? IS NULL)) AND ChildID = ?
                 `,
-                [programmeClassID, programmeID, instanceID, parentID, childID]
+                [programmeClassID, programmeID, instanceID, parentID, parentID, childID]
+
             );
     
+            // Log the duplicate count for visibility
+            console.log("Duplicate count:", duplicateRows);
+            console.log("Duplicate count:", duplicateRows[0].duplicateCount);
+
             if (duplicateRows[0].duplicateCount > 0) {
                 throw new Error("Duplicate booking found. This slot has already been booked.");
             }

@@ -18,7 +18,7 @@ const programmeScheduleRoutes = express.Router();
 // ========== Routes ==========
 
 
-programmeScheduleRoutes.get('/:id/first-schedule', programmeScheduleController.getFirstSchedule);
+programmeScheduleRoutes.get('/:id/startenddates', programmeScheduleController.getStartEndDate);
 
 // Get all programme schedules
 programmeScheduleRoutes.get("/:id/schedules", programmeScheduleController.getProgrammeSchedules);
