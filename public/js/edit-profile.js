@@ -12,6 +12,22 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("footer-container").innerHTML = data;
     });
 
+  const modalHTML = `
+    <div id="fileSizeModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4);">
+      <div class="modal-content" style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 5px;">
+        <h2>File Too Large</h2>
+        <p>The selected image must be smaller than 10MB. Please choose a smaller file.</p>
+        <button onclick="document.getElementById('fileSizeModal').style.display='none'" class="btn btn-primary">OK</button>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+  // Function to show file size error modal
+  function showFileSizeError() {
+    document.getElementById("fileSizeModal").style.display = "block";
+  }
+
   // Fetch initial profile data
   async function fetchProfileData() {
     try {
@@ -38,7 +54,14 @@ document.addEventListener("DOMContentLoaded", function () {
         profileData.ContactNumber || "";
       document.getElementById("dietary").value = profileData.Dietary || "";
 
-      // Store initial data for change detection
+      // Set profile picture
+      if (profileData.ProfilePicture) {
+        profilePreview.src = profileData.ProfilePicture;
+      } else {
+        profilePreview.src = "/api/placeholder/400/320";
+      }
+
+      // Store initial data
       initialFormData = {
         firstName: profileData.FirstName || "",
         lastName: profileData.LastName || "",
@@ -52,15 +75,19 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Call fetchProfileData when the page loads
-  fetchProfileData();
-
   // Handle profile picture upload
-  const uploadButton = document.getElementById("uploadButton");
   const profilePictureInput = document.getElementById("profilePictureInput");
   const profilePreview = document.getElementById("profilePreview");
 
-  if (uploadButton && profilePictureInput) {
+  const uploadButton = document.getElementById("uploadButton");
+  if (uploadButton) {
+    uploadButton.addEventListener("click", function (e) {
+      e.preventDefault();
+      profilePictureInput.click();
+    });
+  }
+
+  if (uploadButton) {
     uploadButton.addEventListener("click", () => {
       profilePictureInput.click();
     });
@@ -68,18 +95,13 @@ document.addEventListener("DOMContentLoaded", function () {
     profilePictureInput.addEventListener("change", function (e) {
       if (e.target.files && e.target.files[0]) {
         const file = e.target.files[0];
-
         // Validate file type
         if (!file.type.startsWith("image/")) {
           alert("Please upload a valid image file");
           return;
         }
 
-        const reader = new FileReader();
-        reader.onload = function (event) {
-          profilePreview.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
+        updateProfilePicture();
       }
     });
   }
@@ -102,7 +124,45 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Store initial values once the form is loaded
   if (form) {
-    initialFormData = getCurrentFormData();
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      if (!validateForm()) {
+        alert("Please fill in all required fields correctly.");
+        return;
+      }
+
+      try {
+        const formData = {
+          firstName: document.getElementById("firstName").value,
+          lastName: document.getElementById("lastName").value,
+          email: document.getElementById("email").value,
+          contactNumber: document.getElementById("phoneNumber").value,
+          dietary: document.getElementById("dietary").value,
+        };
+
+        const response = await fetch("/auth/profile", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          credentials: "include",
+          body: JSON.stringify(formData),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        await response.json();
+        alert("Profile updated successfully");
+        window.location.href = "./user-profile.html";
+      } catch (error) {
+        console.error("Error updating profile:", error);
+        alert("Failed to update profile. Please try again later.");
+      }
+    });
   }
 
   // Function to check if form has changes
@@ -144,66 +204,146 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Handle form submission
-  if (form) {
-    form.addEventListener("submit", async function (e) {
-      e.preventDefault();
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
 
-      // Check if all required fields are filled
-      if (!validateForm()) {
-        alert("Please fill in all required fields.");
-        return;
-      }
+    // Check if all required fields are filled
+    if (!validateForm()) {
+      alert("Please fill in all required fields.");
+      return;
+    }
 
-      // Check if any changes were made
-      if (!hasFormChanges()) {
-        alert("No changes have been made to the profile.");
-        return;
-      }
+    // Check if any changes were made
+    if (!hasFormChanges()) {
+      alert("No changes have been made to the profile.");
+      return;
+    }
 
-      // Show custom modal instead of confirm()
-      const modal = document.getElementById("confirmationModal");
-      modal.style.display = "flex";
+    // Show custom modal instead of confirm()
+    const modal = document.getElementById("confirmationModal");
+    modal.style.display = "flex";
 
-      // Handle confirm button click
-      document.getElementById("confirmSave").onclick = async function () {
-        modal.style.display = "none";
+    // Handle confirm button click
+    document.getElementById("confirmSave").onclick = async function () {
+      modal.style.display = "none";
 
-        try {
-          const formData = {
-            firstName: document.getElementById("firstName").value,
-            lastName: document.getElementById("lastName").value,
-            email: document.getElementById("email").value,
-            contactNumber: document.getElementById("phoneNumber").value,
-            dietary: document.getElementById("dietary").value,
-          };
+      try {
+        const formData = {
+          firstName: document.getElementById("firstName").value,
+          lastName: document.getElementById("lastName").value,
+          email: document.getElementById("email").value,
+          contactNumber: document.getElementById("phoneNumber").value,
+          dietary: document.getElementById("dietary").value,
+          profilePicture: document.getElementById("profilePreview").src,
+        };
 
-          const response = await fetch("/auth/profile", {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-            credentials: "include",
-            body: JSON.stringify(formData),
-          });
+        const response = await fetch("/auth/profile", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          credentials: "include",
+          body: JSON.stringify(formData),
+        });
 
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-
-          const result = await response.json();
-          initialFormData = getCurrentFormData();
-          window.location.href = "./user-profile.html";
-        } catch (error) {
-          console.error("Error updating profile:", error);
-          alert("Failed to update profile. Please try again later.");
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
         }
-      };
 
-      // Handle cancel button click
-      document.getElementById("cancelSave").onclick = function () {
-        modal.style.display = "none";
-      };
+        const result = await response.json();
+        initialFormData = getCurrentFormData();
+        window.location.href = "./user-profile.html";
+      } catch (error) {
+        console.error("Error updating profile:", error);
+        alert("Failed to update profile. Please try again later.");
+      }
+    };
+
+    // Handle cancel button click
+    document.getElementById("cancelSave").onclick = function () {
+      modal.style.display = "none";
+    };
+  });
+
+  async function updateProfilePicture(base64Image) {
+    try {
+      const response = await fetch("/auth/profile/picture", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        credentials: "include",
+        body: JSON.stringify({ profilePicture: base64Image }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      alert("Profile picture updated successfullsssy");
+    } catch (error) {
+      console.error("Error updating profile picture:", error);
+      alert("Failed to update profile picture. Please try again later.");
+    }
+  }
+
+  if (profilePictureInput) {
+    profilePictureInput.addEventListener("change", async function (e) {
+      if (e.target.files && e.target.files[0]) {
+        const file = e.target.files[0];
+
+        // Validate file type
+        if (!file.type.startsWith("image/")) {
+          alert("Please upload a valid image file");
+          profilePictureInput.value = ""; // Clear the input
+          return;
+        }
+
+        // Validate file size (10MB = 10 * 1024 * 1024 bytes)
+        const maxSize = 10 * 1024 * 1024;
+        if (file.size > maxSize) {
+          showFileSizeError();
+          profilePictureInput.value = ""; // Clear the input
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async function (e) {
+          try {
+            // Update preview immediately
+            profilePreview.src = e.target.result;
+
+            // Attempt to upload
+            const response = await fetch("/auth/profile/picture", {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+              credentials: "include",
+              body: JSON.stringify({ profilePicture: e.target.result }),
+            });
+
+            if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            await response.json();
+            // Success message
+            alert("Profile picture updated successfully");
+          } catch (error) {
+            console.error("Error updating profile picture:", error);
+            alert("Failed to update profile picture. Please try again later.");
+            // Revert preview on error
+            profilePreview.src =
+              initialFormData.profilePicture || "/api/placeholder/400/320";
+          }
+        };
+        reader.readAsDataURL(file);
+      }
     });
   }
 
@@ -238,4 +378,6 @@ document.addEventListener("DOMContentLoaded", function () {
       this.classList.remove("is-invalid");
     });
   });
+  // Call fetchProfileData when the page loads
+  fetchProfileData();
 });
