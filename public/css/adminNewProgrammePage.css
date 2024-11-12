@@ -9,11 +9,6 @@
     font-weight: bold;
 }
 
-/* Form Controls */
-.form-control, .form-select {
-    border-radius: 10px;
-}
-
 /* Custom Input Styles */
 .custom-input, .class-input, .fee-input {
     width: 100%;
@@ -21,7 +16,6 @@
     padding: 8px;
     border-radius: 5px;
     border: 1px solid #ced4da;
-    margin-bottom: 15px;
 }
 
 .custom-input textarea {
@@ -31,69 +25,84 @@
     border: 1px solid #ced4da;
 }
 
-/* Input Groups */
-.class-inputs-group, .fee-inputs-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 15px;
-    flex-direction: column;
-}
-
-/* Align form sections */
+/* Form Section Alignment */
+/* Form Section Alignment */
 .programme-form-section label {
     display: block;
     font-weight: bold;
     margin-bottom: 5px;
 }
 
-/* Classes and Fees Container */
-.classes-container, .fees-container {
-    width: 60%;
-    padding: 10px;
-    margin-bottom: 20px; /* Add spacing between containers */
-    border: 1px solid #ced4da; /* Optional: Add a border for better visual separation */
-    border-radius: 5px; /* Optional: Rounded corners for a consistent look */
+/* Accordion Styles */
+.accordion-item {
+    position: relative;
 }
 
-/* Upload Section Styling */
-.upload-section {
+.accordion-button {
+    display: inline-block;
+    width: calc(100% - 30px);
+}
+
+.accordion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.accordion-body {
+/* Accordion Styles */
+.accordion-item {
+    position: relative;
+}
+
+.accordion-button {
+    display: inline-block;
+    width: calc(100% - 30px);
+}
+
+.accordion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.accordion-body {
     padding: 20px;
-    background: #e9ecef;
-    text-align: center;
-    border-radius: 10px;
-    cursor: pointer;
-    border: 2px dashed #ced4da;
 }
 
-/* Buttons Styling */
-.btn-add, .btn-add-class, .btn-add-fee, .btn-add-day, .btn-add-info {
+.accordion-button:not(.collapsed) {
+.accordion-button:not(.collapsed) {
     background-color: #ffc107;
-    color: #fff;
-    border: none;
-    border-radius: 30px;
-    font-weight: bold;
-    padding: 10px 20px;
-    cursor: pointer;
+    color: white;
 }
 
-.btn-delete {
+/* Delete Buttons within Accordion Headers */
+.btn-delete-class, .btn-delete-fee {
     background: none;
     border: none;
     color: #dc3545;
     font-size: 1.2em;
     cursor: pointer;
+    float: right;
 }
 
-.btn-programme {
-    background-color: #ffc107;
-    color: #fff;
-    border: none;
-    font-weight: bold;
-    padding: 10px 30px;
-    border-radius: 50px;
-    display: block;
-    margin: 30px auto 0;
+/* Classes and Fees Containers */
+.classes-container, .fees-container {
+    width: 60%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    float: right;
+}
+
+/* Classes and Fees Containers */
+.classes-container, .fees-container {
+    width: 60%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
 }
 
 /* Additional Info Group */
@@ -109,7 +118,8 @@
     max-width: 80%;
 }
 
-.additional-info .btn-delete {
+.additional-info .btn-delete-info {
+.additional-info .btn-delete-info {
     padding: 5px;
     background: none;
     border: none;
@@ -123,22 +133,71 @@
     width: 100%;
 }
 
-/* Input Specific to Fee Items */
-.fee-item .form-control {
-    width: auto;
+/* Button Styling */
+.btn-add, .btn-add-class, .btn-add-fee, .btn-add-day, .btn-add-info, .btn-add-image {
+    background-color: #ffc107;
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    font-weight: bold;
+    padding: 10px 20px;
+    cursor: pointer;
 }
 
-/* Margin Bottom Adjustments */
-.mb-4 {
-    margin-bottom: 1.5rem !important;
+.btn-programme {
+    background-color: #ffc107;
+    color: #fff;
+    border: none;
+    font-weight: bold;
+    padding: 10px 30px;
+    border-radius: 50px;
+    display: block;
+    margin: 30px auto 0;
 }
 
-/* Button Styling Enhancements */
-.btn-add-info {
+/* Delete Buttons */
+.btn-delete-day, .btn-delete-info {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+}
+
+/* Accordion-Specific Buttons */
+.btn-add-day, .btn-add-info {
+/* Delete Buttons */
+.btn-delete-day, .btn-delete-info {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+}
+
+/* Accordion-Specific Buttons */
+.btn-add-day, .btn-add-info {
     background-color: #ffc107;
     border: none;
     border-radius: 30px;
     font-weight: bold;
     padding: 5px 10px;
     cursor: pointer;
+}
+
+/* General Styles */
+h1, h2 {
+    color: #343a40;
+    font-weight: bold;
+}
+
+/* Form Styling */
+.form-control {
+    max-width: 600px;
+}
+
+#programmeClasses .class-item {
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 10px;
+    background-color: #f8f9fa;
 }

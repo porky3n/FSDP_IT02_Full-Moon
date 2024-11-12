@@ -5,7 +5,8 @@ require("dotenv").config(); // Load environment variables from .env
 
 async function executeSQL() {
   try {
-    // Create MySQL connection
+    // Create MySQL connection pool
+    // Use the public TCP proxy details to connect
     const connection = await mysql.createConnection({
       host: process.env.MYSQL_HOST,
       user: process.env.MYSQL_USER,

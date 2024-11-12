@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>View All Programmes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <!-- Navbar Section -->
+    <header>
+        <div id="navbar-container"></div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container my-5">
+        <h2>Programmes Management</h2>
+
+        <!-- Programme Table -->
+        <section class="mb-5">
+            <h3>Programmes</h3>
+            <table class="table table-striped" id="programmeTable">
+                <thead>
+                    <tr>
+                        <th>Programme ID</th>
+                        <th>Programme Name</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <!-- Programme Class Table -->
+        <section class="mb-5">
+            <h3>Programme Classes</h3>
+            <table class="table table-striped" id="programmeClassTable">
+                <thead>
+                    <tr>
+                        <th>Class ID</th>
+                        <th>Programme ID</th>
+                        <th>Short Description</th>
+                        <th>Location</th>
+                        <th>Fee</th>
+                        <th>Max Slots</th>
+                        <th>Level</th>
+                        <th>Remarks</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <!-- Programme Class Batch Table -->
+        <section class="mb-5">
+            <h3>Programme Class Batches</h3>
+            <table class="table table-striped" id="programmeClassBatchTable">
+                <thead>
+                    <tr>
+                        <th>Instance ID</th>
+                        <th>Class ID</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <!-- Programme Schedule Table -->
+        <section class="mb-5">
+            <h3>Programme Schedules</h3>
+            <table class="table table-striped" id="programmeScheduleTable">
+                <thead>
+                    <tr>
+                        <th>Schedule ID</th>
+                        <th>Instance ID</th>
+                        <th>Start Date & Time</th>
+                        <th>End Date & Time</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <!-- Programme Images Table -->
+        <section class="mb-5">
+            <h3>Programme Images</h3>
+            <table class="table table-striped" id="programmeImagesTable">
+                <thead>
+                    <tr>
+                        <th>Image ID</th>
+                        <th>Programme ID</th>
+                        <th>Image</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+    </main>
+
+    <!-- Edit Programme Modal -->
+    <div class="modal fade" id="editProgrammeModal" tabindex="-1" aria-labelledby="editProgrammeModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProgrammeModalLabel">Edit Programme</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editProgrammeForm">
+                        <div class="mb-3">
+                            <label for="editProgrammeName" class="form-label">Programme Name</label>
+                            <input type="text" class="form-control" id="editProgrammeName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editProgrammeCategory" class="form-label">Category</label>
+                            <input type="text" class="form-control" id="editProgrammeCategory" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editProgrammeDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="editProgrammeDescription" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Programme Class Modal -->
+    <div class="modal fade" id="editProgrammeClassModal" tabindex="-1" aria-labelledby="editProgrammeClassModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProgrammeClassModalLabel">Edit Programme Class</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editProgrammeClassForm">
+                        <div class="mb-3">
+                            <label for="editClassDescription" class="form-label">Short Description</label>
+                            <input type="text" class="form-control" id="editClassDescription" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editClassLocation" class="form-label">Location</label>
+                            <input type="text" class="form-control" id="editClassLocation" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editClassFee" class="form-label">Fee</label>
+                            <input type="number" class="form-control" id="editClassFee" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Programme Class Batch Modal -->
+    <div class="modal fade" id="editProgrammeBatchModal" tabindex="-1" aria-labelledby="editProgrammeBatchModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProgrammeBatchModalLabel">Edit Programme Class Batch</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editProgrammeBatchForm">
+                        <div class="mb-3">
+                            <label for="editBatchClassID" class="form-label">Class ID</label>
+                            <input type="number" class="form-control" id="editBatchClassID" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Programme Schedule Modal -->
+    <div class="modal fade" id="editProgrammeScheduleModal" tabindex="-1" aria-labelledby="editProgrammeScheduleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProgrammeScheduleModalLabel">Edit Programme Schedule</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editProgrammeScheduleForm">
+                        <div class="mb-3">
+                            <label for="editScheduleStart" class="form-label">Start Date & Time</label>
+                            <input type="datetime-local" class="form-control" id="editScheduleStart" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editScheduleEnd" class="form-label">End Date & Time</label>
+                            <input type="datetime-local" class="form-control" id="editScheduleEnd" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Programme Image Modal -->
+    <div class="modal fade" id="editProgrammeImageModal" tabindex="-1" aria-labelledby="editProgrammeImageModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProgrammeImageModalLabel">Edit Programme Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editProgrammeImageForm">
+                        <div class="mb-3">
+                            <label for="editImage" class="form-label">Upload New Image</label>
+                            <input type="file" class="form-control" id="editImage" accept="image/*" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteProgrammeModal" tabindex="-1" aria-labelledby="deleteProgrammeModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteProgrammeModalLabel">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this programme? This will also delete all related classes, schedules, and batches.</p>
+                    <button id="confirmDeleteButton" class="btn btn-danger">Confirm Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap and jQuery -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="./js/adminViewAllProgrammes.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $("#navbar-container").load("adminNavbar.html");
+        });
+    </script>
+</body>
+</html>

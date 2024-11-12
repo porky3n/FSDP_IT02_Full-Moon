@@ -50,3 +50,11 @@
     border-radius: 30px;
     padding: 10px 20px;
 }
+
+.welcome-message {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333; /* Customize color as needed */
+    margin-top: 20px;
+}
+
