@@ -32,6 +32,7 @@ exports.getUpcomingProgrammes = () => {
       if (err) {
         reject(err);
       } else {
+        console.log(`Upcoming programmes: ${JSON.stringify(results)}`);
         resolve(results);
       }
     });
