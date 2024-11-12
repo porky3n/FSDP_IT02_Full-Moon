@@ -12,21 +12,32 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("footer-container").innerHTML = data;
     });
 
+  let selectedProfilePicture = null;
+  let initialFormData = {};
+
+  // Create and append modal for file size error
   const modalHTML = `
-    <div id="fileSizeModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4);">
-      <div class="modal-content" style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 5px;">
-        <h2>File Too Large</h2>
-        <p>The selected image must be smaller than 10MB. Please choose a smaller file.</p>
-        <button onclick="document.getElementById('fileSizeModal').style.display='none'" class="btn btn-primary">OK</button>
+      <div id="fileSizeModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4);">
+        <div class="modal-content" style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 5px;">
+          <h2>File Too Large</h2>
+          <p>The selected image must be smaller than 10MB. Please choose a smaller file.</p>
+          <button onclick="document.getElementById('fileSizeModal').style.display='none'" class="btn btn-primary">OK</button>
+        </div>
       </div>
-    </div>
-  `;
+    `;
   document.body.insertAdjacentHTML("beforeend", modalHTML);
 
   // Function to show file size error modal
   function showFileSizeError() {
     document.getElementById("fileSizeModal").style.display = "block";
   }
+
+  // Get DOM elements
+  const form = document.getElementById("profileForm");
+  const profilePictureInput = document.getElementById("profilePictureInput");
+  const profilePreview = document.getElementById("profilePreview");
+  const uploadButton = document.getElementById("uploadButton");
+  let profPicture;
 
   // Fetch initial profile data
   async function fetchProfileData() {
@@ -54,12 +65,12 @@ document.addEventListener("DOMContentLoaded", function () {
         profileData.ContactNumber || "";
       document.getElementById("dietary").value = profileData.Dietary || "";
 
-      // // Set profile picture
-      // if (profileData.ProfilePicture) {
-      //   profilePreview.src = profileData.ProfilePicture;
-      // } else {
-      //   profilePreview.src = "/api/placeholder/400/320";
-      // }
+      // Set profile picture
+      if (profileData.ProfilePicture) {
+        profilePreview.src = profileData.ProfilePicture;
+      } else {
+        profilePreview.src = "/api/placeholder/400/320";
+      }
 
       // Store initial data
       initialFormData = {
@@ -68,6 +79,8 @@ document.addEventListener("DOMContentLoaded", function () {
         email: profileData.Email || "",
         contactNumber: profileData.ContactNumber || "",
         dietary: profileData.Dietary || "",
+        profilePicture:
+          profileData.ProfilePicture || "/api/placeholder/400/320",
       };
     } catch (error) {
       console.error("Error fetching profile data:", error);
@@ -75,12 +88,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Handle profile picture upload
-  const profilePictureInput = document.getElementById("profilePictureInput");
-  const profilePreview = document.getElementById("profilePreview");
-  const uploadButton = document.getElementById("uploadButton");
-
   async function handleProfilePictureUpload(file) {
+    console.log(selectedProfilePicture);
     // Validate file type
     if (!file.type.startsWith("image/")) {
       alert("Please upload a valid image file");
@@ -143,14 +152,12 @@ document.addEventListener("DOMContentLoaded", function () {
   if (profilePictureInput) {
     profilePictureInput.addEventListener("change", async function (e) {
       if (e.target.files && e.target.files[0]) {
-        await handleProfilePictureUpload(e.target.files[0]);
+        profPicture = e.target.files[0];
+        console.log(profPicture);
+        await handleProfilePictureSelection(e.target.files[0]);
       }
     });
   }
-
-  // Store initial form values
-  const form = document.getElementById("profileForm");
-  let initialFormData = {};
 
   // Function to get current form data
   function getCurrentFormData() {
@@ -160,7 +167,8 @@ document.addEventListener("DOMContentLoaded", function () {
       email: document.getElementById("email").value,
       contactNumber: document.getElementById("phoneNumber").value,
       dietary: document.getElementById("dietary").value,
-      profilePicture: document.getElementById("profilePreview").src,
+      profilePicture:
+        selectedProfilePicture || document.getElementById("profilePreview").src,
     };
   }
 
@@ -174,36 +182,57 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      try {
-        const formData = {
-          firstName: document.getElementById("firstName").value,
-          lastName: document.getElementById("lastName").value,
-          email: document.getElementById("email").value,
-          contactNumber: document.getElementById("phoneNumber").value,
-          dietary: document.getElementById("dietary").value,
-        };
+      const modal = document.getElementById("confirmationModal");
+      modal.style.display = "flex";
 
-        const response = await fetch("/auth/profile", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          credentials: "include",
-          body: JSON.stringify(formData),
-        });
+      document.getElementById("confirmSave").onclick = async function () {
+        modal.style.display = "none";
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+        try {
+          // First update the profile data
+          const formData = {
+            firstName: document.getElementById("firstName").value,
+            lastName: document.getElementById("lastName").value,
+            email: document.getElementById("email").value,
+            contactNumber: document.getElementById("phoneNumber").value,
+            dietary: document.getElementById("dietary").value,
+          };
+
+          console.log("Hello1");
+          const profileResponse = await fetch("/auth/profile", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            credentials: "include",
+            body: JSON.stringify(formData),
+          });
+
+          if (!profileResponse.ok) {
+            throw new Error(`HTTP error! Status: ${profileResponse.status}`);
+          }
+
+          console.log("Hello2");
+
+          // If there's a new profile picture, update it
+          if (selectedProfilePicture) {
+            console.log("Hello3");
+
+            await handleProfilePictureUpload(e.target.files[0]);
+          }
+
+          alert("Profile updated successfully");
+          // window.location.href = "./user-profile.html";
+        } catch (error) {
+          console.error("Error updating profile:", error);
+          alert("Failed to update profile. Please try again later.");
         }
+      };
 
-        await response.json();
-        alert("Profile updated successfully");
-        window.location.href = "./user-profile.html";
-      } catch (error) {
-        console.error("Error updating profile:", error);
-        alert("Failed to update profile. Please try again later.");
-      }
+      document.getElementById("cancelSave").onclick = function () {
+        modal.style.display = "none";
+      };
     });
   }
 
@@ -293,9 +322,15 @@ document.addEventListener("DOMContentLoaded", function () {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
+        if (selectedProfilePicture) {
+          console.log("Hello3");
+
+          await handleProfilePictureUpload(profPicture);
+        }
+
         const result = await response.json();
         initialFormData = getCurrentFormData();
-        window.location.href = "./user-profile.html";
+        // window.location.href = "./user-profile.html";
       } catch (error) {
         console.error("Error updating profile:", error);
         alert("Failed to update profile. Please try again later.");
@@ -308,84 +343,39 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   });
 
-  // async function updateProfilePicture(base64Image) {
-  //   try {
-  //     const response = await fetch("/auth/profile/picture", {
-  //       method: "PUT",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: `Bearer ${localStorage.getItem("token")}`,
-  //       },
-  //       credentials: "include",
-  //       body: JSON.stringify({ profilePicture: base64Image }),
-  //     });
+  async function handleProfilePictureSelection(file) {
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      alert("Please upload a valid image file");
+      profilePictureInput.value = ""; // Clear the input
+      return;
+    }
 
-  //     if (!response.ok) {
-  //       throw new Error(`HTTP error! Status: ${response.status}`);
-  //     }
+    // Validate file size (10MB = 10 * 1024 * 1024 bytes)
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      showFileSizeError();
+      profilePictureInput.value = ""; // Clear the input
+      return;
+    }
 
-  //     const result = await response.json();
-  //     alert("Profile picture updated successfully");
-  //   } catch (error) {
-  //     console.error("Error updating profile picture:", error);
-  //     alert("Failed to update profile picture. Please try again later.");
-  //   }
-  // }
-
-  if (profilePictureInput) {
-    profilePictureInput.addEventListener("change", async function (e) {
-      if (e.target.files && e.target.files[0]) {
-        const file = e.target.files[0];
-
-        // Validate file type
-        if (!file.type.startsWith("image/")) {
-          alert("Please upload a valid image file");
-          profilePictureInput.value = ""; // Clear the input
-          return;
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          // Update preview immediately
+          profilePreview.src = e.target.result;
+          // Store the base64 string for later use
+          selectedProfilePicture = e.target.result;
+          resolve();
+        } catch (error) {
+          console.error("Error processing profile picture:", error);
+          profilePreview.src =
+            initialFormData.profilePicture || "/api/placeholder/400/320";
+          reject(error);
         }
-
-        // Validate file size (10MB = 10 * 1024 * 1024 bytes)
-        const maxSize = 10 * 1024 * 1024;
-        if (file.size > maxSize) {
-          showFileSizeError();
-          profilePictureInput.value = ""; // Clear the input
-          return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = async function (e) {
-          try {
-            // Update preview immediately
-            profilePreview.src = e.target.result;
-
-            // Attempt to upload
-            const response = await fetch("/auth/profile/picture", {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-              },
-              credentials: "include",
-              body: JSON.stringify({ profilePicture: e.target.result }),
-            });
-
-            if (!response.ok) {
-              throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-
-            await response.json();
-            // Success message
-            alert("Profile picture updated successfully");
-          } catch (error) {
-            console.error("Error updating profile picture:", error);
-            alert("Failed to update profile picture. Please try again later.");
-            // Revert preview on error
-            profilePreview.src =
-              initialFormData.profilePicture || "/api/placeholder/400/320";
-          }
-        };
-        reader.readAsDataURL(file);
-      }
+      };
+      reader.readAsDataURL(file);
     });
   }
 
