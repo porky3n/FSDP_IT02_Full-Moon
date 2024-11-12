@@ -1,7 +1,8 @@
 const programmeModel = require('../models/programmeModel');
 const axios = require('axios');
-const sharp = require('sharp');
 const fs = require('fs');
+const FormData = require('form-data');
+const Jimp = require('jimp');
 
 exports.announceProgrammes = async (req, res) => {
   try {
@@ -26,45 +27,61 @@ exports.announceProgrammes = async (req, res) => {
       `;
 
       if (programme.ProgrammePicture) {
+        console.log('abc');
 
-        // Detect the image format using sharp
-        const imageBuffer = programme.ProgrammePicture;
-        const imageMetadata = await sharp(imageBuffer).metadata();
-
-        // Check if the format is supported
-        if (!['jpeg', 'png', 'webp'].includes(imageMetadata.format)) {
-          // Convert the image to JPEG format
-          const jpegBuffer = await sharp(imageBuffer).jpeg().toBuffer();
-          programme.ProgrammePicture = jpegBuffer;
+        let imageBuffer;
+        if (typeof programme.ProgrammePicture === 'string') {
+          console.log('ProgrammePicture is a string');
+          // Remove any base64 header if present
+          const base64Data = programme.ProgrammePicture.replace(/^data:image\/\w+;base64,/, '');
+          // Decode base64 to a Buffer
+          imageBuffer = Buffer.from(base64Data, 'base64');
+        } else if (Buffer.isBuffer(programme.ProgrammePicture)) {
+          console.log('ProgrammePicture is a Buffer');
+          // Assume it's already a buffer
+          imageBuffer = programme.ProgrammePicture;
+        } else {
+          console.log('ProgrammePicture is of unknown type:', typeof programme.ProgrammePicture);
+          throw new Error('Unsupported ProgrammePicture type');
         }
+        console.log('def');
 
-        // Create a temporary file to store the image
-        const imagePath = `./temp_${Date.now()}.jpg`;
-        fs.writeFileSync(imagePath, programme.ProgrammePicture);
+        try {
+          // Load the image using Jimp
+          const image = await Jimp.read(imageBuffer);
+          console.log('Image loaded with Jimp');
 
-        await sharp(programme.ProgrammePicture)
-        .resize({ width: 1280 }) // Resize to a reasonable width if needed
-        .jpeg({ quality: 80 }) // Convert to JPEG format and compress
-        .toFile(imagePath);
-
-        // Send the image with the message
-        const formData = {
-          chat_id: process.env.CHANNEL_ID,
-          caption: message,
-          parse_mode: 'Markdown',
-          photo: fs.createReadStream(imagePath)
-        };
-
-        await axios.post(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendPhoto`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
+          // Convert the image to JPEG format if necessary
+          if (image.getMIME() !== Jimp.MIME_JPEG) {
+            imageBuffer = await image.getBufferAsync(Jimp.MIME_JPEG);
+          } else {
+            imageBuffer = await image.getBufferAsync(image.getMIME());
           }
-        });
 
-        // Delete the temporary file after sending
-        fs.unlinkSync(imagePath);
+          // Ensure the image size is within the MEDIUMBLOB limit (16 MB)
+          if (imageBuffer.length > 16 * 1024 * 1024) {
+            throw new Error('Image size exceeds the MEDIUMBLOB limit of 16 MB');
+          }
+
+          // Save the image to a file (optional)
+          const imagePath = `./images/${programme.ProgrammeName}.jpg`;
+          await image.writeAsync(imagePath);
+
+          // Create form data
+          const formData = new FormData();
+          formData.append('photo', fs.createReadStream(imagePath));
+          formData.append('caption', message);
+
+          // Include the image in the message (optional)
+          await axios.post(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendPhoto?chat_id=${process.env.CHANNEL_ID}`, formData, {
+            headers: formData.getHeaders()
+          });
+
+          console.log('Image sent successfully with caption!');
+        } catch (error) {
+          console.error('Error processing image:', error);
+        }
       } else {
-        // Send only the text if no image is available
         await axios.post(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
           chat_id: process.env.CHANNEL_ID,
           text: message,
@@ -75,6 +92,6 @@ exports.announceProgrammes = async (req, res) => {
     res.send('Programmes announced successfully!');
   } catch (error) {
     console.error('Error announcing programmes:', error);
-    res.status(500).send('Error announcing programmes.');
+    res.status(500).send('An error occurred while announcing programmes.');
   }
 };
