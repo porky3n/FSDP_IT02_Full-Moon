@@ -9,6 +9,46 @@ class Programme {
         this.description = description;
     }
 
+    // Gets programmes that are 3 days away, sent to Telegram Channel
+    static async getProgrammesThreeDaysAway() {
+        const sqlQuery = `
+            SELECT 
+                p.ProgrammeName, 
+                p.Description, 
+                pc.Location, 
+                pc.Fee, 
+                pc.ProgrammeLevel,
+                MIN(ps.StartDateTime) AS EarliestStartDateTime, 
+                MAX(ps.EndDateTime) AS LatestEndDateTime, 
+                pc.Remarks, 
+                p.ProgrammePicture,
+                (pc.MaxSlots - COUNT(s.SlotID)) AS SlotsLeft  -- Calculate SlotsLeft
+            FROM Programme p
+            JOIN ProgrammeClass pc ON p.ProgrammeID = pc.ProgrammeID
+            JOIN ProgrammeClassBatch pcb ON pc.ProgrammeClassID = pcb.ProgrammeClassID
+            JOIN ProgrammeSchedule ps ON pcb.InstanceID = ps.InstanceID
+            LEFT JOIN Slot s ON pcb.InstanceID = s.InstanceID
+            WHERE DATE(ps.StartDateTime) = DATE_ADD(CURDATE(), INTERVAL 3 DAY)
+            GROUP BY 
+                p.ProgrammeName, 
+                p.Description, 
+                pc.Location, 
+                pc.Fee, 
+                pc.ProgrammeLevel, 
+                pc.Remarks, 
+                p.ProgrammePicture,
+                pc.MaxSlots
+            ORDER BY EarliestStartDateTime ASC;
+        `;
+        const [rows] = await pool.query(sqlQuery);
+        return rows;
+    }
+
+    static async getProfilePicture(ParentID) {
+        const sqlQuery = `SELECT ProgrammePicture FROM Programme WHERE ProgrammeID = ?`;
+        const [rows] = await pool.query(sqlQuery, [programmeID]);
+        return rows[0].ProgrammePicture
+    }
     // Get all programmes
     static async getAllProgrammes() {
         const sqlQuery = `SELECT * FROM Programme`;
