@@ -24,7 +24,7 @@
 
 .custom-btn:hover {
     color: white; /* White text on hover */
-    background-color: #2f3e50;
+    background-color: #ffffff;
 }
 
 /* Bottom Section */
@@ -38,7 +38,6 @@
 }
 
 .footer a:hover {
-    text-decoration: underline;
     color: #3d5b7a;
 }
 
@@ -79,4 +78,8 @@
 
 .mb-3 {
     margin-bottom: 1rem !important;
+}
+
+.custom-color {
+    color: #252525; /* Replace with desired color */
 }

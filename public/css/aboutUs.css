@@ -1,0 +1,44 @@
+/* Custom style for the Our Story section */
+.our-story-section {
+    background-color: #243342; /* Dark blue footer color */
+    color: white;
+    padding: 50px 20px;
+    margin: 0;
+    width: 100%;
+}
+
+
+/* General page background color */
+body {
+    background-color: #b5b5b5; /* Light gray background for the whole page */
+}
+
+/* Center-align About section headings and make founder image slightly smaller */
+.about-section h1,
+.about-section h2 {
+    text-align: center;
+}
+.about-section img.founder-image {
+    width: 80%; /* Slightly smaller size */
+    max-width: 500px; /* Ensure it doesn’t get too large on wide screens */
+    border-radius: 8px;
+    border: 3px solid #ddd; /* Light gray border for subtlety */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional shadow for depth */
+}
+
+/* Learning Approach logo smaller */
+.learning-approach-logo {
+    width: 50%;
+    max-width: 300px; /* Control the max width for a smaller image */
+    margin: 20px auto;
+}
+
+/* Left-align the founder bios */
+.founder-bio {
+    text-align: left;
+}
+
+/* Center-align About header and subheading */
+.about-header {
+    text-align: center;
+}

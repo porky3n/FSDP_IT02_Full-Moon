@@ -88,6 +88,7 @@ exports.signup = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
+  console.log(req.body);
   const { email, password } = req.body;
 
   try {
@@ -115,6 +116,7 @@ exports.login = async (req, res) => {
       [account.AccountID]
     );
     const firstName = parentData[0]?.FirstName;
+
     // Generate JWT (JSON Web Token)
     const token = jwt.sign(
       { accountId: account.AccountID, accountType: account.AccountType },
@@ -140,39 +142,40 @@ exports.login = async (req, res) => {
 exports.getUsers = async (req, res) => {
   try {
     const [parentData] = await pool.query(`
-          SELECT 
-              Parent.ParentID,
-              Parent.FirstName,
-              Parent.LastName,
-              Parent.DateOfBirth,
-              Parent.ContactNumber,
-              Account.Email,
-              Parent.Membership,
-              Parent.MembershipExpirationDate,
-              Parent.Dietary,
-              Parent.ProfilePictureURL,
-              Account.CreatedAt AS DateJoined,
-              IF(COUNT(Child.ChildID) > 0, 'true', 'false') AS HasChildren
-          FROM Parent
-          JOIN Account ON Parent.AccountID = Account.AccountID
-          LEFT JOIN Child ON Parent.ParentID = Child.ParentID
-          GROUP BY Parent.ParentID;
-      `);
+      SELECT 
+          Parent.ParentID,
+          Parent.FirstName,
+          Parent.LastName,
+          Parent.DateOfBirth,
+          Parent.Gender,
+          Parent.ContactNumber,
+          Account.Email,
+          Parent.Membership,
+          Parent.MembershipExpirationDate,
+          Parent.Dietary,
+          Account.CreatedAt AS DateJoined,
+          IF(COUNT(Child.ChildID) > 0, 'true', 'false') AS HasChildren
+      FROM Parent
+      JOIN Account ON Parent.AccountID = Account.AccountID
+      LEFT JOIN Child ON Parent.ParentID = Child.ParentID
+      GROUP BY Parent.ParentID;
+    `);
 
     const [childData] = await pool.query(`
-          SELECT 
-              Child.ChildID,
-              Child.ParentID,
-              Child.FirstName,
-              Child.LastName,
-              Child.DateOfBirth,
-              Child.School,
-              Child.Dietary,
-              Child.ProfilePictureURL
-          FROM Child;
-      `);
+      SELECT 
+          Child.ChildID,
+          Child.ParentID,
+          Child.FirstName,
+          Child.LastName,
+          Child.DateOfBirth,
+          Child.School,
+          Child.Dietary,
+          Child.Relationship,
+          Child.SpecialNeeds,
+          Child.Gender
+      FROM Child;
+    `);
 
-    res.json({ parentData, childData });
     res.json({ parentData, childData });
   } catch (error) {
     console.error("Error fetching user data:", error);
@@ -218,11 +221,9 @@ exports.deleteParent = async (req, res) => {
 
       // Commit the transaction
       await connection.commit();
-      res
-        .status(200)
-        .json({
-          message: "Parent and associated account deleted successfully",
-        });
+      res.status(200).json({
+        message: "Parent and associated account deleted successfully",
+      });
     } catch (error) {
       // Rollback the transaction in case of error
       await connection.rollback();
@@ -249,12 +250,12 @@ exports.deleteChild = async (req, res) => {
 
 exports.updateParent = async (req, res) => {
   const { id } = req.params;
-  const { firstName, lastName, dob, contactNumber, dietary } = req.body;
+  const { firstName, lastName, dob, contactNumber, dietary, gender } = req.body; // Include gender in destructuring
 
   try {
     const result = await pool.query(
-      `UPDATE Parent SET FirstName = ?, LastName = ?, DateOfBirth = ?, ContactNumber = ?, Dietary = ? WHERE ParentID = ?`,
-      [firstName, lastName, dob, contactNumber, dietary, id]
+      `UPDATE Parent SET FirstName = ?, LastName = ?, DateOfBirth = ?, ContactNumber = ?, Dietary = ?, Gender = ? WHERE ParentID = ?`, // Update query to include Gender
+      [firstName, lastName, dob, contactNumber, dietary, gender, id] // Pass gender in parameters
     );
 
     if (result.affectedRows === 0) {
@@ -268,14 +269,18 @@ exports.updateParent = async (req, res) => {
   }
 };
 
+
+
 exports.updateChild = async (req, res) => {
   const { id } = req.params;
-  const { firstName, lastName, dob, school, dietary } = req.body;
+  const { firstName, lastName, dob, school, dietary, relationship, specialNeeds, gender } = req.body;
 
   try {
     const result = await pool.query(
-      `UPDATE Child SET FirstName = ?, LastName = ?, DateOfBirth = ?, School = ?, Dietary = ? WHERE ChildID = ?`,
-      [firstName, lastName, dob, school, dietary, id]
+      `UPDATE Child 
+       SET FirstName = ?, LastName = ?, DateOfBirth = ?, School = ?, Dietary = ?, Relationship = ?, SpecialNeeds = ?, Gender = ?
+       WHERE ChildID = ?`,
+      [firstName, lastName, dob, school, dietary, relationship, specialNeeds, gender, id]
     );
 
     if (result.affectedRows === 0) {
@@ -288,6 +293,7 @@ exports.updateChild = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 exports.getParentById = async (req, res) => {
   const { id } = req.params;
