@@ -67,12 +67,12 @@ This project leverages various technologies to provide a comprehensive, secure, 
 - Telegram Chatbot API for programme announcements
 
 ## Others:
-- JWT Token
+- JWT Token for user account authentication
 - Email services for booking and payment confirmation
 
 # Future Enhancements (TBC)
-- Singpass Login
-- Google Login
-- Multiple Language Support
-- Automated Feedback and Survey Forms
-- Lottie Animations
+- Singpass Login: Enable secure login using Singapore’s national authentication system.
+- Google Login: Provide convenient login via Google accounts.
+- Multiple Language Support: Make the platform accessible to users in various languages.
+- Automated Feedback and Survey Forms: Collect user feedback and insights automatically after sessions.
+- Lottie Animations: Enhance user engagement with visually appealing animations.
