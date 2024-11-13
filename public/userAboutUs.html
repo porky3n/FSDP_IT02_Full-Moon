@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    
+    <!-- Custom CSS for Navbar, Footer, and Page Content -->
+    <link rel="stylesheet" href="./css/navbar.css" />
+    <link rel="stylesheet" href="./css/footer.css" />
+    <link rel="stylesheet" href="./css/aboutUs.css" />
+
+    <title>Mindsphere - About Us</title>
+
+</head>
+<body>
+    <!-- Navbar Section -->
+    <header>
+        <div id="navbar-container"></div>
+    </header>
+
+    <!-- Our Story Section with Full-Width Dark Blue Background -->
+    <section class="our-story-section mb-5">
+        <div class="container">
+            <h1 class="mb-4 text-center">Our Story</h1>
+            <p>With technology advancing at a rapid rate, skills relevant to competency evolve continuously. As seasoned professionals in training and coaching, Simon and Christine face the challenge of innovating and tailoring their curriculum and methodologies to the needs of different generations.</p>
+            <p>After a spontaneous sharing of their vision, Simon and Christine’s common goals led to the birth of Mindsphere Singapore.</p>
+            <p>A purpose driven by passion, Mindsphere is the union of their compassion, dedication, and expertise in training and coaching.</p>
+            <p>The founding partners developed the Learning Sphere, which is incorporated into all programmes, and the Curriculum Pyramid, which guides curriculum development. Backed by an impressive training record, they have meticulously designed the curriculum of our signature programmes from scratch.</p>
+            <p>At Mindsphere, we constantly seek new methods and ideas to deliver effective teaching with workforce relevance. Regardless of how you define success, we believe every learner deserves a chance at it. We uphold the highest standards of integrity and ethics. More than a learning hub, we are a community committed to fostering growth, inspiring confidence, and nurturing future leaders.</p>
+            <p>We welcome you aboard our journey to shape the future, one mind at a time.</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container mt-5">
+            <!-- Our Learning Approach Section -->
+            <section class="text-center mb-5">
+                <h1 class="mb-4">Our Learning Approach</h1>
+                <p>Inspiring our avid learners</p>
+                <img src="./images/learningApproachLogo.png" alt="Learning Approach Logo" class="img-fluid learning-approach-logo">
+            </section>
+
+            <!-- About Section with Centered Headings and Image -->
+            <section class="about-section mb-5">
+                <h1 class="mb-4">About</h1>
+                <p class="text-center">Introducing the leadership team and their journey.</p>
+                <div class="text-center mb-4">
+                    <img src="./images/foundersPicture.jpg" alt="Founders" class="img-fluid founder-image">
+                </div>
+
+                <!-- Simon's Bio Left-Aligned -->
+                <div class="founder-bio mb-5">
+                    <h2>Simon, Founder</h2>
+                    <p>Simon has over 32 years of experience in real estate and international partnerships. He holds a Bachelor of Arts in Business Management from Kingston University and has pursued:</p>
+                    <ul>
+                        <li>Cambridge International Diploma in Teaching and Training from the University of Cambridge</li>
+                        <li>Certified Professional Coach by the International Coaches Federation</li>
+                        <li>ACTA Certified Trainer by Singapore Workforce Skills Qualifications</li>
+                    </ul>
+                    <p>Simon spent over a decade at OrangeTee & Tie Pte Ltd (OTT), one of Singapore’s top real estate agencies. Rising to Board of Director and Chief Operating Officer, he trained thousands of real estate agents and team leaders. Simon spearheaded integration efforts during OTT's merger, successfully integrating over 95% of the salesforce, which exceeded 1,000 people.</p>
+                    <p>Simon later became Managing Director at Singapore's first geospatial technology company, Mogul.sg, where he secured a public-private partnership with the Ministry of National Development. This pioneering initiative set a new standard for industry-government cooperation, advancing sustainable urban development.</p>
+                    <p>Currently, Simon serves as a consultant and advisor to multiple organizations in Singapore and is involved in entrepreneurship, driven by his mission to give back to society.</p>
+                </div>
+
+                <!-- Christine's Bio Left-Aligned -->
+                <div class="founder-bio">
+                    <h2>Christine, Co-Founder</h2>
+                    <p>Christine graduated with a Bachelor in Business Management from the Royal Melbourne Institute of Technology. A multi-talented professional, she started teaching at the young age of 17. Patience as her strongest virtue, Christine advocates inclusive education for both neurotypical and special needs children.</p>
+                    <p>With close to 20 years of experience as an educator, she has helped struggling students excel academically. At 35, she became an Adjunct Lecturer at Ngee Ann Polytechnic's School of Business and Accountancy, where she extended her impact to adult education.</p>
+                    <p>In parallel, Christine hones her people skills in the Banking and Finance sector. Currently, as a Talent Development Lead with the Singapore FinTech Association, she is committed to nurturing local talent to meet the sector's hiring needs. Her expertise in both education and talent development enables her to serve as a bridge between employers and the future pillars of our economy.</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="bg-dark text-white mt-5">
+        <div id="footer-container"></div>
+    </footer>
+
+    <!-- Bootstrap JS and other dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#navbar-container").load("navbar.html");
+            $("#footer-container").load("footer.html");
+        });
+    </script>
+</body>
+</html>

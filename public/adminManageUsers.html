@@ -75,6 +75,7 @@
                 <thead>
                     <tr class="table-header">
                         <th scope="col">Name</th>
+                        <th scope="col">Gender</th>
                         <th scope="col">DOB</th>
                         <th scope="col">Email</th>
                         <th scope="col">Phone Number</th>
@@ -135,6 +136,13 @@
                             <label for="editDietary" class="form-label">Dietary</label>
                             <input type="text" class="form-control" id="editDietary" name="dietary">
                         </div>
+                        <div class="mb-3">
+                            <label for="editGender" class="form-label">Gender</label>
+                            <select class="form-control" id="editGender" name="gender" required>
+                                <option value="M">Male</option>
+                                <option value="F">Female</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -175,6 +183,21 @@
                         <div class="mb-3">
                             <label for="editChildDietary" class="form-label">Dietary</label>
                             <input type="text" class="form-control" id="editChildDietary" name="dietary">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editChildRelationship" class="form-label">Relationship</label>
+                            <input type="text" class="form-control" id="editChildRelationship" name="relationship">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editChildSpecialNeeds" class="form-label">Special Needs</label>
+                            <input type="text" class="form-control" id="editChildSpecialNeeds" name="specialNeeds">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editChildGender" class="form-label">Gender</label>
+                            <select class="form-control" id="editChildGender" name="gender">
+                                <option value="M">Male</option>
+                                <option value="F">Female</option>
+                            </select>
                         </div>
                     </div>
                     <div class="modal-footer">

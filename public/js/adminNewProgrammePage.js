@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const additionalImagesBinary = [];
 
     // Load Navbar
-    fetch("navbar.html")
+    fetch("adminNavbar.html")
         .then(response => response.text())
         .then(data => document.getElementById("navbar-container").innerHTML = data);
 
