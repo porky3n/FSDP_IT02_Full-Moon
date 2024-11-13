@@ -1,49 +1,265 @@
-// user-profile.js
 document.addEventListener("DOMContentLoaded", function () {
-  // Handle edit button click with correct class
+  // UI Elements
   const editBtn = document.querySelector(".btn-edit");
-  console.log(editBtn);
-  if (editBtn) {
-    editBtn.addEventListener("click", function () {
-      window.location.href = "./edit-profile.html";
-    });
-  }
+  const signInBtn = document.querySelector(".btn-signin");
+  const logoutBtn = document.querySelector(".btn-logout");
+  const profileContent = document.getElementById("profileContent");
+  const guestContent = document.getElementById("guestContent");
+  const logoutModal = new bootstrap.Modal(
+    document.getElementById("logoutModal")
+  );
 
-  // Load navbar
-  fetch("navbar.html")
-    .then((response) => response.text())
-    .then((data) => {
-      document.getElementById("navbar-placeholder").innerHTML = data;
-    });
+  // Function to check if user is authenticated
+  const isAuthenticated = async () => {
+    try {
+      const response = await fetch("/auth/profile", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
 
-  // Load footer
-  fetch("footer.html")
-    .then((response) => response.text())
-    .then((data) => {
-      document.getElementById("footer-placeholder").innerHTML = data;
-    });
+      if (!response.ok) {
+        await clearAllStorageAndCache();
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error("Auth check error:", error);
+      await clearAllStorageAndCache();
+      return false;
+    }
+  };
 
-  // Handle profile picture click/hover effects
-  const profilePic = document.querySelector(".profile-picture");
-  if (profilePic) {
-    profilePic.addEventListener("mouseenter", function () {
-      this.style.opacity = "0.8";
-    });
-    profilePic.addEventListener("mouseleave", function () {
-      this.style.opacity = "1";
-    });
-  }
+  // Function to clear all storage and cache
+  const clearAllStorageAndCache = async () => {
+    // Clear all local storage
+    localStorage.clear();
 
-  // Handle programme card hover effects
-  const programmeCards = document.querySelectorAll(".programme-card");
-  programmeCards.forEach((card) => {
-    card.addEventListener("mouseenter", function () {
-      this.style.transform = "translateY(-5px)";
-      this.style.boxShadow = "0 4px 15px rgba(0,0,0,0.1)";
-    });
-    card.addEventListener("mouseleave", function () {
-      this.style.transform = "translateY(0)";
-      this.style.boxShadow = "0 2px 10px rgba(0,0,0,0.1)";
-    });
-  });
+    // Clear all session storage
+    sessionStorage.clear();
+
+    // Clear specific items if they exist
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
+
+    // Clear cookies (except httpOnly cookies which can only be cleared by the server)
+    const cookies = document.cookie.split(";");
+    for (let cookie of cookies) {
+      const eqPos = cookie.indexOf("=");
+      const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+      document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+    }
+
+    // If you're using any other storage mechanisms, clear them here
+    try {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((key) => caches.delete(key)));
+    } catch (e) {
+      console.error("Cache clear error:", e);
+    }
+  };
+
+  // Function to handle logout
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("/auth/logout", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Logout failed");
+      }
+
+      // Clear all storage and cookies
+      await clearAllStorageAndCache();
+
+      // Hide the modal
+      const logoutModal = document.getElementById("logoutModal");
+      if (logoutModal) {
+        const bsModal = bootstrap.Modal.getInstance(logoutModal);
+        if (bsModal) bsModal.hide();
+      }
+
+      // Add a small delay to ensure everything is cleared
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 100);
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Show user-friendly error message
+      alert("Error during logout. Please try again.");
+    }
+  };
+
+  // Function to update UI based on authentication status
+  const updateUIBasedOnAuth = async () => {
+    const authenticated = await isAuthenticated();
+
+    if (authenticated) {
+      if (editBtn) editBtn.style.display = "inline-block";
+      if (logoutBtn) logoutBtn.style.display = "inline-block";
+      if (signInBtn) signInBtn.style.display = "none";
+    } else {
+      if (editBtn) editBtn.style.display = "none";
+      if (logoutBtn) logoutBtn.style.display = "none";
+      if (signInBtn) signInBtn.style.display = "inline-block";
+      showGuestProfile();
+    }
+  };
+
+  // Function to show guest profile
+  const showGuestProfile = () => {
+    const userName = document.getElementById("userName");
+    const userEmail = document.getElementById("userEmail");
+    const profilePic = document.querySelector(".profile-picture");
+    const profileContent = document.getElementById("profileContent");
+    const guestContent = document.getElementById("guestContent");
+
+    if (userName) userName.textContent = "Guest";
+    if (userEmail)
+      userEmail.textContent = "Please sign in to view your profile";
+    if (profilePic) profilePic.src = "../images/profilePicture.png";
+    if (profileContent) profileContent.style.display = "none";
+    if (guestContent) guestContent.style.display = "block";
+  };
+
+  // Function to fetch and display user profile data
+  const loadUserProfile = async () => {
+    try {
+      const response = await fetch("/auth/profile", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (response.status === 401) {
+        if (profileContent) profileContent.style.display = "none";
+        if (guestContent) guestContent.style.display = "block";
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const profileData = await response.json();
+
+      // Show profile content and hide guest content
+      if (profileContent) profileContent.style.display = "block";
+      if (guestContent) guestContent.style.display = "none";
+
+      // Format the date
+      const formatDate = (dateStr) => {
+        if (!dateStr) return "Not provided";
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return "Not provided";
+        return date.toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+      };
+
+      // Format membership status based on the Membership column value
+      const formatMembership = (status) => {
+        if (!status) return "Not a Member";
+        return status === "Non-Member" ? "Not a Member" : "Member";
+      };
+
+      // Update profile fields
+      const profileFields = {
+        userName: `${profileData.FirstName} ${profileData.LastName}`,
+        userEmail: profileData.Email,
+        userDOB: formatDate(profileData.DateOfBirth),
+        userContact: profileData.ContactNumber || "Not provided",
+        userMembership: formatMembership(profileData.Membership),
+
+        userDietary: profileData.Dietary || "Not provided",
+      };
+      console.log(profileData.Membership);
+
+      Object.entries(profileFields).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.textContent = value;
+        }
+      });
+
+      // Update profile picture with error handling
+      const profilePic = document.querySelector(".profile-picture");
+      if (profilePic) {
+        try {
+          await fetch(
+            profileData.ProfilePicture || "../images/profilePicture.png"
+          );
+          profilePic.src =
+            profileData.ProfilePicture || "../images/profilePicture.png";
+        } catch {
+          profilePic.src = "../images/profilePicture.png";
+        }
+      }
+    } catch (error) {
+      console.error("Error loading profile:", error);
+      // Show guest content on error
+      if (profileContent) profileContent.style.display = "none";
+      if (guestContent) guestContent.style.display = "block";
+    }
+  };
+
+  const initializeProgrammeCards = async () => {
+    // This function can be implemented later for programme cards
+    console.log("Programme cards initialization will be implemented later");
+  };
+
+  // Initialize event listeners
+  const initializeEventListeners = () => {
+    if (editBtn) {
+      editBtn.addEventListener("click", () => {
+        window.location.href = "./edit-profile.html";
+      });
+    }
+
+    if (signInBtn) {
+      signInBtn.addEventListener("click", () => {
+        window.location.href = "./userSignIn.html";
+      });
+    }
+
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", () => {
+        logoutModal.show();
+      });
+    }
+
+    // Confirm logout button in modal
+    const confirmLogoutBtn = document.getElementById("confirmLogout");
+    if (confirmLogoutBtn) {
+      confirmLogoutBtn.addEventListener("click", handleLogout);
+    }
+  };
+
+  // Initialize all functionality
+  const initialize = async () => {
+    await updateUIBasedOnAuth();
+    await loadUserProfile();
+    initializeEventListeners();
+    initializeProgrammeCards();
+  };
+
+  // Start initialization
+  initialize();
 });

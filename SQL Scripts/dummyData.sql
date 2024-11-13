@@ -13,10 +13,10 @@ VALUES
 (2, 'Jane', 'Smith', '1985-03-22', 'F', '0987654321', 'Non-Member', NULL, 'Vegetarian', 'PLACEHOLDER_PROFILE_USER_2');
 
 -- Insert data into Child table
-INSERT INTO Child (FirstName, LastName, EmergencyContactNumber, School, DateOfBirth, Gender, Dietary, ParentID, ProfilePicture)
+INSERT INTO Child (FirstName, LastName, SpecialNeeds, Relationship, EmergencyContactNumber, School, DateOfBirth, Gender, Dietary, ParentID, ProfilePicture)
 VALUES 
-('Jack', 'Doe', '1234567890', 'Greenwood School', '2010-09-15', 'M', 'None', 1, 'PLACEHOLDER_PROFILE_CHILD_1'),
-('Ella', 'Smith', '0987654321', 'Bluebell Academy', '2012-12-05', 'F', 'Dairy-Free', 2, 'PLACEHOLDER_PROFILE_CHILD_2');
+('Jack', 'Doe', 'Has mild autism', 'Son', '1234567890', 'Greenwood School', '2010-09-15', 'M', 'None', 1, 'PLACEHOLDER_PROFILE_CHILD_1'),
+('Ella', 'Smith', '', 'Daughter', '0987654321', 'Bluebell Academy', '2012-12-05', 'F', 'Dairy-Free', 2, 'PLACEHOLDER_PROFILE_CHILD_2');
 
 -- Insert data into Programme table
 INSERT INTO Programme (ProgrammeName, Category, ProgrammePicture, Description)
