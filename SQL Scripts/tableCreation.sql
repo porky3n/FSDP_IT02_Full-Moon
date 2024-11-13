@@ -43,6 +43,8 @@ CREATE TABLE Child (
     ChildID INT AUTO_INCREMENT PRIMARY KEY,
     FirstName VARCHAR(100) NOT NULL,
     LastName VARCHAR(100) NOT NULL,
+    SpecialNeeds VARCHAR(255) NULL,
+    Relationship VARCHAR(100) NOT NULL, -- Son, Daughter, Niece,etc
     EmergencyContactNumber VARCHAR(15) NOT NULL,
     School VARCHAR(100) NULL,
     DateOfBirth DATE NOT NULL,

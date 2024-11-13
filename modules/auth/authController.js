@@ -133,6 +133,7 @@ exports.getUsers = async (req, res) => {
           Parent.FirstName,
           Parent.LastName,
           Parent.DateOfBirth,
+          Parent.Gender,
           Parent.ContactNumber,
           Account.Email,
           Parent.Membership,
@@ -154,7 +155,10 @@ exports.getUsers = async (req, res) => {
           Child.LastName,
           Child.DateOfBirth,
           Child.School,
-          Child.Dietary
+          Child.Dietary,
+          Child.Relationship,
+          Child.SpecialNeeds,
+          Child.Gender
       FROM Child;
     `);
 
@@ -222,12 +226,12 @@ exports.deleteChild = async (req, res) => {
 
 exports.updateParent = async (req, res) => {
   const { id } = req.params;
-  const { firstName, lastName, dob, contactNumber, dietary } = req.body;
+  const { firstName, lastName, dob, contactNumber, dietary, gender } = req.body; // Include gender in destructuring
 
   try {
     const result = await pool.query(
-      `UPDATE Parent SET FirstName = ?, LastName = ?, DateOfBirth = ?, ContactNumber = ?, Dietary = ? WHERE ParentID = ?`,
-      [firstName, lastName, dob, contactNumber, dietary, id]
+      `UPDATE Parent SET FirstName = ?, LastName = ?, DateOfBirth = ?, ContactNumber = ?, Dietary = ?, Gender = ? WHERE ParentID = ?`, // Update query to include Gender
+      [firstName, lastName, dob, contactNumber, dietary, gender, id] // Pass gender in parameters
     );
 
     if (result.affectedRows === 0) {
@@ -242,14 +246,17 @@ exports.updateParent = async (req, res) => {
 };
 
 
+
 exports.updateChild = async (req, res) => {
   const { id } = req.params;
-  const { firstName, lastName, dob, school, dietary } = req.body;
+  const { firstName, lastName, dob, school, dietary, relationship, specialNeeds, gender } = req.body;
 
   try {
     const result = await pool.query(
-      `UPDATE Child SET FirstName = ?, LastName = ?, DateOfBirth = ?, School = ?, Dietary = ? WHERE ChildID = ?`,
-      [firstName, lastName, dob, school, dietary, id]
+      `UPDATE Child 
+       SET FirstName = ?, LastName = ?, DateOfBirth = ?, School = ?, Dietary = ?, Relationship = ?, SpecialNeeds = ?, Gender = ?
+       WHERE ChildID = ?`,
+      [firstName, lastName, dob, school, dietary, relationship, specialNeeds, gender, id]
     );
 
     if (result.affectedRows === 0) {
@@ -262,6 +269,7 @@ exports.updateChild = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 exports.getParentById = async (req, res) => {
   const { id } = req.params;

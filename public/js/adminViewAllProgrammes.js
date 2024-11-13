@@ -193,6 +193,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!response.ok) throw new Error("Failed to update programme");
 
             alert("Programme updated successfully");
+            bootstrap.Modal.getInstance(document.getElementById("editProgrammeModal")).hide();
             fetchProgrammes();
         } catch (error) {
             console.error("Error updating programme:", error);
@@ -207,6 +208,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!response.ok) throw new Error("Failed to delete programme");
 
             alert("Programme deleted successfully");
+            bootstrap.Modal.getInstance(document.getElementById("deleteProgrammeModal")).hide();
             fetchProgrammes();
         } catch (error) {
             console.error("Error deleting programme:", error);
