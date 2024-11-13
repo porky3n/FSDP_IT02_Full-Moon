@@ -88,6 +88,7 @@ exports.signup = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
+  console.log(req.body);
   const { email, password } = req.body;
 
   try {
@@ -109,6 +110,12 @@ exports.login = async (req, res) => {
     if (!match) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
+    // Fetch the first name from the Parent table
+    const [parentData] = await pool.query(
+      "SELECT FirstName FROM Parent WHERE AccountID = ?",
+      [account.AccountID]
+    );
+    const firstName = parentData[0]?.FirstName;
 
     // Generate JWT (JSON Web Token)
     const token = jwt.sign(
@@ -168,7 +175,6 @@ exports.getUsers = async (req, res) => {
       `);
 
     res.json({ parentData, childData });
-    res.json({ parentData, childData });
   } catch (error) {
     console.error("Error fetching user data:", error);
     res
@@ -213,11 +219,9 @@ exports.deleteParent = async (req, res) => {
 
       // Commit the transaction
       await connection.commit();
-      res
-        .status(200)
-        .json({
-          message: "Parent and associated account deleted successfully",
-        });
+      res.status(200).json({
+        message: "Parent and associated account deleted successfully",
+      });
     } catch (error) {
       // Rollback the transaction in case of error
       await connection.rollback();
