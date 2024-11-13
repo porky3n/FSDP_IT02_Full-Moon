@@ -17,6 +17,9 @@ const programmeRoutes = express.Router();
 
 // ========== Routes ==========
 
+// Route to get all programme details including classes, schedules, and batches
+programmeRoutes.get("/all", programmeController.getAllProgrammeDetails);
+
 // Get all programmes
 programmeRoutes.get("/", programmeController.getAllProgrammes);
 
@@ -37,6 +40,15 @@ programmeRoutes.get("/:id", programmeController.getProgrammeByID);
 
 // Get all programmes by category
 programmeRoutes.get("/category/:category", programmeController.getProgrammesByCategory);
+
+// Route to add a new programme (with associated classes and schedules)
+programmeRoutes.post("/new", programmeController.createProgramme);
+
+// Route to delete a specific programme by its ID
+programmeRoutes.delete("/:id", programmeController.deleteProgramme);
+
+// Route to update a specific programme by its ID
+programmeRoutes.put("/:id", programmeController.updateProgramme);
 
 // ========== Export Route ==========
 // Export the programme routes to be used in other parts of the application

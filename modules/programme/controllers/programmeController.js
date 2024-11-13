@@ -77,6 +77,21 @@ const searchProgrammes = async (req, res) => {
     }
 };
 
+// Controller to get all programme details (programmes, classes, schedules, and batches)
+const getAllProgrammeDetails = async (req, res) => {
+    try {
+        const programmes = await Programme.getAllProgrammes();
+        const programmeClasses = await ProgrammeClass.getAllProgrammeClasses();
+        const schedules = await ProgrammeSchedule.getAllSchedules();
+        const batches = await ProgrammeClassBatch.getAllBatches();
+
+        res.json({ programmes, programmeClasses, schedules, batches });
+    } catch (error) {
+        console.error("Error fetching all programme details:", error);
+        console.log("Fetching all programme details");
+        res.status(500).json({ message: "Error fetching all programme details" });
+    }
+};
 
 // Controller to get a programme by ID with Base64 image conversion
 const getProgrammeByID = async (req, res) => {
@@ -194,6 +209,7 @@ module.exports = {
     getFeaturedProgrammes,
     getProgrammesByCategory,
     searchProgrammes,
+    getAllProgrammeDetails,
     getProgrammeByID,
     createProgramme,
     deleteProgramme,
