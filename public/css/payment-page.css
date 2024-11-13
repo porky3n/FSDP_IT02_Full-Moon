@@ -75,3 +75,33 @@ body {
 .btn-warning:hover {
   background-color: #e1b70f;
 }
+
+/* Style for the uploaded confirmation message */
+.uploaded-message {
+  display: none; /* Hidden initially */
+  border: 2px solid #28a745; /* Green border */
+  color: #28a745; /* Green text */
+  padding: 8px;
+  text-align: center;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+/* Custom File Upload Button Style */
+.custom-file-upload label {
+  display: inline-block;
+  cursor: pointer;
+  padding: 10px 20px;
+  font-size: 1rem;
+  text-align: center;
+  color: #007bff; /* Bootstrap primary color */
+  border: 2px solid #007bff;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.custom-file-upload label:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+

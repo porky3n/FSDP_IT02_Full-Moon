@@ -28,36 +28,76 @@
                 <span class="payment-title">PAY</span>
                 <span class="payment-title-accent">NOW</span>
               </h2>
-
+    
               <p class="text-center mb-4">Scan the QR code to pay</p>
-
+    
               <div class="row">
                 <div class="col-md-6">
                   <div class="qr-container">
                     <div id="qrcode"></div>
                   </div>
                 </div>
-
+    
                 <div class="col-md-6">
                   <div class="summary-box">
                     <h5 class="summary-title">Summary</h5>
                     <div class="summary-item">
                       <span>Course</span>
-                      <span>Public Speaking</span>
+                      <span id="courseName">Public Speaking</span>
                     </div>
-                    <div class="summary-item">
+                    
+                    <!-- Start and End Date -->
+                    <div class="summary-item" id="StartEndDateSection">
+                      <span>Dates</span>
+                      <div>
+                        <span id="startDate" class="date-text">Start Date</span> - 
+                        <span id="endDate" class="date-text">End Date</span>
+                      </div>
+                    </div>
+
+                    <!-- Original Price -->
+                    <div class="summary-item" id="originalPriceSection">
                       <span>Price</span>
-                      <span>$120</span>
+                      <span id="originalPrice">$120</span>
                     </div>
-
+    
+                    <!-- Discount Section (Hidden by Default) -->
+                    <div class="summary-item d-none" id="discountSection">
+                      <span id="discountLabel">Discount</span>
+                      <span id="discountAmount">-$0.00</span>
+                    </div>
+    
+                    <!-- Total Section -->
                     <div class="total-section">
-                      <span>Subtotal (2 items)</span>
-                      <span>$ 120</span>
+                      <span>Total</span>
+                      <span id="totalPrice">$120</span>
                     </div>
-
+    
+                    <!-- File Upload and Buttons -->
+                    <div class="custom-file-upload mt-3">
+                      <label for="uploadImageButton" class="btn btn-outline-primary w-100">Upload Payment Confirmation</label>
+                      <input
+                        type="file"
+                        id="uploadImageButton"
+                        class="form-control d-none"
+                        accept="image/*"
+                        onchange="handleImageUpload(event)"
+                      />
+                    </div>
+    
+                    <div
+                      id="uploadedImageMessage"
+                      class="uploaded-message mt-3"
+                      onclick="openImageModal()"
+                      role="button"
+                    >
+                      Image has been uploaded
+                    </div>
+    
                     <button
-                      class="btn btn-warning w-100 mt-3"
+                      class="btn btn-secondary btn-print-receipt w-100 mt-3" 
                       onclick="printReceipt()"
+                      disabled
                     >
                       Print Receipt
                     </button>
@@ -69,7 +109,34 @@
         </div>
       </div>
     </div>
+    
 
+     <!-- Modal for Image Preview -->
+     <div
+     class="modal fade"
+     id="imagePreviewModal"
+     tabindex="-1"
+     aria-labelledby="imagePreviewModalLabel"
+     aria-hidden="true"
+   >
+     <div class="modal-dialog modal-dialog-centered">
+       <div class="modal-content">
+         <div class="modal-header">
+           <h5 class="modal-title" id="imagePreviewModalLabel">Preview Image</h5>
+           <button
+             type="button"
+             class="btn-close"
+             data-bs-dismiss="modal"
+             aria-label="Close"
+           ></button>
+         </div>
+         <div class="modal-body">
+           <img id="modalImagePreview" class="img-fluid" alt="Uploaded Image" />
+         </div>
+       </div>
+     </div>
+   </div>
+   
     <!-- Footer Section -->
     <footer class="bg-dark text-white mt-5">
       <div id="footer-container"></div>
@@ -88,6 +155,6 @@
       });
     </script>
 
-    <script src="js/payment-page.js"></script>
+    <script src="/js/payment-page.js"></script>
   </body>
 </html>
