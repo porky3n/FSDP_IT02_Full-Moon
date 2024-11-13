@@ -1,3 +1,11 @@
+/* Specific styling for the logos */
+.trusted-logos .tlogos1, 
+.trusted-logos .tlogos {
+    width: 200px; /* Adjust the width for desired size */
+    height: auto; /* Maintains aspect ratio */
+    margin: 15px; /* Adds space around the logos */
+}
+
 .hero-section {
     position: relative;
 }
@@ -44,11 +52,19 @@
     margin-top: 40px;
 }
 
-.cta-section button {
-    background-color: #FFC107;
-    color: black;
-    border-radius: 30px;
+.cta-section .btn {
+    background-color: #FFC107; /* Initial background color */
+    color: #2F3E50; /* Text color */
+    border: none; /* Remove default border */
     padding: 10px 20px;
+    border-radius: 20px; /* Optional: rounded corners */
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.cta-section .btn:hover {
+    background-color: #ffffff; /* Hover background color */
+    color: #2F3E50; /* Hover text color */
 }
 
 .welcome-message {
