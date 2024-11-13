@@ -1,11 +1,11 @@
 // ========== Packages ==========
 // Initializing express
 const express = require("express");
-const { slotEmitter } = require("../../models/slot");
+const { programmeScheduleEmitter } = require("../../models/programmeSchedule");
 
 // ========== Controllers ==========
 // Initializing programmeController
-const slotController = require("./controllers/slotController");
+const programmeScheduleController = require("./controllers/programmeScheduleController");
 
 // ========== Middleware ==========
 // Initializing authMiddleware
@@ -13,15 +13,17 @@ const slotController = require("./controllers/slotController");
 
 // ========== Set-up ==========
 // Initializing programmeRoutes
-const slotRoutes = express.Router();
+const programmeScheduleRoutes = express.Router();
 
 // ========== Routes ==========
 
 
-slotRoutes.post('/create', slotController.createSlotAndPayment);
+programmeScheduleRoutes.get('/:id/startenddates', programmeScheduleController.getStartEndDate);
 
+// Get all programme schedules
+programmeScheduleRoutes.get("/:id/schedules", programmeScheduleController.getProgrammeSchedules);
 
 // ========== Export Route ==========
 // Export the programme routes to be used in other parts of the application
-module.exports = slotRoutes;
+module.exports = programmeScheduleRoutes;
 

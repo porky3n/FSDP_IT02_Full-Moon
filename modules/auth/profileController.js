@@ -136,3 +136,63 @@ exports.updateProfilePicture = async (req, res) => {
     });
   }
 };
+
+exports.getProfilesByAccountId = async (req, res) => {
+  const accountId = req.params.id;
+
+  try {
+    // Query to get the parent profile by account ID
+    const [parentResult] = await pool.query(
+      `
+      SELECT ParentID AS ProfileID, FirstName, LastName, DateOfBirth, ContactNumber,
+             Gender, Dietary, ProfilePicture
+      FROM Parent
+      WHERE AccountID = ?
+      `,
+      [accountId]
+    );
+
+    // If no parent profile is found, return a 404 error
+    if (parentResult.length === 0) {
+      return res.status(404).json({ error: "Parent profile not found" });
+    }
+
+    // Get the parent profile object
+    const parentProfile = parentResult[0];
+
+    // Convert ProfilePicture buffer to base64 if it exists
+    if (parentProfile.ProfilePicture) {
+      parentProfile.ProfilePicture = `data:image/jpeg;base64,${parentProfile.ProfilePicture.toString(
+        "base64"
+      )}`;
+    }
+
+    // Query to get child profiles linked to the parent
+    const [childResults] = await pool.query(
+      `
+      SELECT ChildID AS ProfileID, FirstName, LastName, DateOfBirth, Gender,
+             EmergencyContactNumber, School, Dietary, ProfilePicture
+      FROM Child
+      WHERE ParentID = ?
+      `,
+      [parentProfile.ProfileID]
+    );
+
+    // Convert ProfilePicture buffer to base64 for each child profile if it exists
+    const childProfiles = childResults.map(child => {
+      if (child.ProfilePicture) {
+        child.ProfilePicture = `data:image/jpeg;base64,${child.ProfilePicture.toString("base64")}`;
+      }
+      return child;
+    });
+
+    // Respond with the parent and child profiles
+    res.json({
+      parentProfile,
+      childProfiles,
+    });
+  } catch (error) {
+    console.error("Error fetching profiles:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};

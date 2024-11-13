@@ -1,11 +1,11 @@
 const pool = require("../dbConfig");
 
 class Programme {
-    constructor(programmeID, programmeName, category, programmePictureURL, description) {
+    constructor(programmeID, programmeName, category, programmePicture, description) {
         this.programmeID = programmeID;
         this.programmeName = programmeName;
         this.category = category;
-        this.programmePictureURL = programmePictureURL;
+        this.programmePicture = programmePicture;
         this.description = description;
     }
 
@@ -17,28 +17,50 @@ class Programme {
             row.ProgrammeID,
             row.ProgrammeName,
             row.Category,
-            row.ProgrammePictureURL,
+            row.ProgrammePicture,
             row.Description
         ));
     }
 
-    // Get programme by ID
+    // Get programme by ID with additional images
     static async getProgrammeByID(programmeID) {
-        const sqlQuery = `SELECT * FROM Programme WHERE ProgrammeID = ?`;
+        const sqlQuery = `
+            SELECT 
+                p.ProgrammeID, 
+                p.ProgrammeName, 
+                p.Category, 
+                p.ProgrammePicture, 
+                p.Description,
+                pi.Image AS AdditionalImage
+            FROM Programme p
+            LEFT JOIN ProgrammeImages pi 
+                ON p.ProgrammeID = pi.ProgrammeID
+            WHERE p.ProgrammeID = ?
+        `;
+        
         const [rows] = await pool.query(sqlQuery, [programmeID]);
 
         if (rows.length === 0) return null;
-        const row = rows[0];
-        return new Programme(
-            row.ProgrammeID,
-            row.ProgrammeName,
-            row.Category,
-            row.ProgrammePictureURL,
-            row.Description
+
+        // Extract primary programme data from the first row
+        const primaryData = rows[0];
+        const programme = new Programme(
+            primaryData.ProgrammeID,
+            primaryData.ProgrammeName,
+            primaryData.Category,
+            primaryData.ProgrammePicture,
+            primaryData.Description
         );
+
+        // Collect all additional images
+        programme.images = rows
+            .filter(row => row.AdditionalImage)
+            .map(row => row.AdditionalImage);
+
+        return programme;
     }
 
-    // Get featured programmes
+    // Get featured programmes (customize selection criteria as needed)
     static async getFeaturedProgrammes() {
         const sqlQuery = `
             SELECT * FROM Programme
@@ -50,14 +72,18 @@ class Programme {
             row.ProgrammeID,
             row.ProgrammeName,
             row.Category,
-            row.ProgrammePictureURL,
+            row.ProgrammePicture,
             row.Description
         ));
     }
 
     // Get programmes by category with optional exclusion and limit
     static async getProgrammesByCategory(category, excludeProgrammeID = null, limit = null) {
-        let sqlQuery = `SELECT * FROM Programme WHERE Category = ?`;
+        let sqlQuery = `
+            SELECT * 
+            FROM Programme 
+            WHERE Category = ?
+        `;
         const params = [category];
 
         if (excludeProgrammeID) {
@@ -77,26 +103,54 @@ class Programme {
             row.ProgrammeID,
             row.ProgrammeName,
             row.Category,
-            row.ProgrammePictureURL,
+            row.ProgrammePicture,
             row.Description
         ));
     }
 
-    // Search programmes by keyword in ProgrammeName or Description
-    static async searchProgrammes(keyword) {
-        const sqlQuery = `
-            SELECT * FROM Programme
-            WHERE ProgrammeName LIKE ? OR Description LIKE ?
-        `;
-        const [rows] = await pool.query(sqlQuery, [`%${keyword}%`, `%${keyword}%`]);
-        return rows.map(row => new Programme(
+    // Search programmes by keyword with pagination, category filter, and total count
+static async searchProgrammes(keyword, category = "All", page = 1, limit = 6) {
+    const offset = (page - 1) * limit;
+
+    // Start building the query with the necessary filters
+    let sqlQuery = `
+        SELECT * FROM Programme
+        WHERE (ProgrammeName LIKE ? OR Description LIKE ?)
+    `;
+    
+    let countQuery = `
+        SELECT COUNT(*) AS total FROM Programme
+        WHERE (ProgrammeName LIKE ? OR Description LIKE ?)
+    `;
+    
+    const params = [`%${keyword}%`, `%${keyword}%`];
+    
+    // Add category filter if a specific category is selected
+    if (category !== "All") {
+        sqlQuery += ` AND Category = ?`;
+        countQuery += ` AND Category = ?`;
+        params.push(category);
+    }
+    
+    sqlQuery += ` LIMIT ? OFFSET ?`;
+    params.push(limit, offset);
+
+    // Execute the main query and count query
+    const [rows] = await pool.query(sqlQuery, params);
+    const [[{ total }]] = await pool.query(countQuery, params.slice(0, params.length - 2)); // Use parameters without limit and offset for count query
+    
+    return {
+        programmes: rows.map(row => new Programme(
             row.ProgrammeID,
             row.ProgrammeName,
             row.Category,
-            row.ProgrammePictureURL,
+            row.ProgrammePicture,
             row.Description
-        ));
-    }
+        )),
+        total
+    };
+}
+
 
     // Add a new programme
     static async createProgramme({ title, category, picture, description }) {
@@ -165,5 +219,3 @@ class Programme {
 }
 
 module.exports = Programme;
-
-

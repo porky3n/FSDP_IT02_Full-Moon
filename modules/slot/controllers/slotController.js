@@ -1,4 +1,5 @@
 const Slot = require("../../../models/slot");
+const { sendPaymentConfirmationEmail } = require("../../../models/email");
 
 // Get slots for a specific programme
 const getSlotsByProgramme = async (req, res) => {
@@ -49,16 +50,63 @@ const getChildSlots = async (req, res) => {
 };
 
 // Create a new slot
-const createSlot = async (req, res) => {
-    const { programmeClassID, programmeID, parentID, childID } = req.body;
+// Create a new slot
+const createSlotAndPayment = async (req, res) => {
+    console.log("Received data:", req.body); // Debugging line to inspect req.body
+
+    const { 
+        programmeClassID, 
+        programmeID, 
+        instanceID, 
+        parentID, 
+        childID, 
+        paymentAmount, 
+        paymentMethod, 
+        paymentImage, // Expecting an array of binary data here
+        promotionID,
+        userEmail,
+        programmeName,
+        startDate,
+        endDate 
+    } = req.body;
 
     try {
-        const slotID = await Slot.createSlot(programmeClassID, programmeID, parentID, childID);
-        res.status(201).json({ message: "Slot created successfully", slotID });
+        // Convert the paymentImage array back to binary for database storage
+        const paymentImageBuffer = Buffer.from(paymentImage);
+
+        // Create the slot with the additional payment details, passing arguments individually
+        const { slotID, paymentID } = await Slot.createSlotAndPayment(
+            programmeClassID,
+            programmeID,
+            instanceID,
+            parentID,
+            childID,
+            paymentAmount,
+            paymentMethod,
+            paymentImageBuffer,
+            promotionID
+             // Include user email
+        );
+
+        // Send a payment confirmation email
+        await sendPaymentConfirmationEmail({
+            userEmail: userEmail, // Ensure this is correctly passed
+            programmeName: programmeName,
+            startDate: startDate,
+            endDate: endDate,
+            paymentAmount: paymentAmount,
+            paymentMethod: paymentMethod
+          });
+
+        res.status(201).json({ message: "Slot created successfully", slotID, paymentID });
     } catch (error) {
-        res.status(500).json({ message: "Error creating slot", error });
+        console.error("Error creating slot:", error);
+        res.status(400).json({ message: error.message }); // Send the specific error message
     }
 };
+
+
+
 
 // Update an existing slot
 const updateSlot = async (req, res) => {
@@ -90,7 +138,7 @@ module.exports = {
     getSlotsByProgrammeClass,
     getParentSlots,
     getChildSlots,
-    createSlot,
+    createSlotAndPayment,
     updateSlot,
     deleteSlot,
 };

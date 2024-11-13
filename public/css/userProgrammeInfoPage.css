@@ -1,8 +1,14 @@
 /* Custom styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
 /* Header Section */
 .header-section {
     background-color: #EDF2F7;
-    padding: 60px 15px;
+    padding: 5% 5%;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -42,6 +48,14 @@
     object-fit: cover;
 }
 
+.header-section button {
+    background-color: #DCAF27;
+    border-color: #DCAF27;
+}
+
+.header-section button:hover {
+    background-color: #2F455B;
+}
 
 /* About-section */
 .about-section, .about-section-container {
@@ -58,13 +72,15 @@
 }
 
 .about-section img, .about-section-container img {
-    width: 80%;
+    width: 100%;
+    height: 100%;
+    max-width: 800px;
     border-radius: 15px;
 }
 
 /* Base styles */
 .about-section {
-    padding: 2rem;
+    padding: 3% 5%;
 }
 
 .about-section h2 {
@@ -73,6 +89,13 @@
 
 .about-section p {
     font-size: 1rem;
+}
+
+.about-section .content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 /* Image styling */
@@ -140,6 +163,7 @@
 /* Upcoming Schedule */
 /* General Layout */
 .upcoming-schedule {
+    padding: 3% 5%;
     max-width: 100%; /* Expanded width for larger screens */
 }
 
@@ -171,7 +195,8 @@
 .schedule-icon-text {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    width: 30%;
 }
 
 .schedule-icon-text i {
@@ -194,15 +219,42 @@
 .schedule-info {
     display: flex;  
     align-items: center;
+    font-size: 14px;
 }
 /* Date and Badge Styles */
 .schedule-dates {
-    width: 50%;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.schedule-dates span.not-full {
+    font-size: 0.9rem;
+    color: #666;
+    width: 40%;
+    margin-left: 6%;
+    background-color: rgba(241, 202, 84, 0.2); /* Set background color with opacity */
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    color: rgb(237, 182, 18);
+    border: 1px solid rgba(220, 175, 39, 1); /* Add thin border with same color */
+}
+
+.schedule-dates span.full {
+    font-size: 0.9rem;
+    color: #666;
+    width: 40%;
+    margin-left: 6%;
+    background-color: rgba(247, 60, 31, 0.2); /* Set background color with opacity */
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    color: rgb(237, 51, 18);
+    border: 1px solid rgb(255, 29, 12); /* Add thin border with same color */
 }
 
 .schedule-list {
     width: 50%;
-    padding: 0 15px;
+    /* padding: 0 15px; */
 }
 
 .schedule-item {
@@ -211,19 +263,22 @@
 }
 
 .date-list {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(65px, 1fr)); /* Creates equal-width columns */
+    gap: 5px;
+    padding-left: 5%;
+    padding-right: 5%;/* Optional: Adds a small gap between items */
 }
 
 .date-item {
+    flex-grow: 1; /* Allows items to grow and fill available space */
     font-size: 0.9rem;
     text-align: center;
-    min-width: 60px;
-    margin: 0 5px;
+    min-width: 65px; /* Ensures a minimum size for smaller screens */
     background: #f8f9fa;
     border-radius: 5px;
     padding: 5px;
+    margin: 0; /* Removes extra margin */
 }
 
 /* Button Styles */
@@ -237,6 +292,17 @@
     color: #fff;
 }
 
+
+/* extraaa */
+.schedule-item {
+    flex-direction: row;
+}
+
+.schedule-details-dates-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
 /* Responsive Styles */
 
 /* Large Desktops (max-width: 1200px) */
@@ -253,12 +319,38 @@
     }
 
     .schedule-item {
-        flex-direction: row;
-        align-items: center;
+        flex-direction: column;
     }
     
     .schedule-icon-text, .schedule-dates {
         text-align: left;
+    }
+
+    .schedule-details-dates-container {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .date-list {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+
+    .date-item {
+        font-size: 12px;
+        width: 15%;
+        min-width: 70px;
+        margin: 0 0px;
+        background: #f8f9fa;
+        border-radius: 5px;
+        padding: 5px;
+    }
+
+    .btn-outline-primary {
+        width: 100%;
     }
 }
 
@@ -293,9 +385,16 @@
         text-align: left; /* Ensures text aligns to the left */
     }
 
-    /* Optional: Center align elements for a more uniform look on smaller screens */
     .schedule-details {
-        text-align: center;
+        font-size: 12px;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Optional: Center align elements for a more uniform look on smaller screens */
+    .schedule-details-dates-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
     .btn-outline-primary {
@@ -308,26 +407,42 @@
 @media (max-width: 768px) {
     .upcoming-schedule {
         max-width: 100%;
-        margin: 0 auto;
     }
 
     /* Stacks items vertically */
     .schedule-list {
         width: 100%;
-        padding: 0;
     }
 
     .schedule-item {
         flex-direction: column;
-        align-items: center;
     }
 
     .schedule-details {
+        font-size: 14px;
+        width: 100%;
+    }
+
+    .schedule-dates {
+        width: 100%;
+    }
+
+    /* .schedule-details {
         text-align: center;
+    } */
+
+    .schedule-details-dates-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
     }
 
     .schedule-icon-text, .schedule-dates {
-        text-align: center;
+        text-align: left;
+    }
+
+    .schedule-icon-text {
+        width: 35%;
     }
 
     .btn-outline-primary {
@@ -338,12 +453,23 @@
 /* Small Mobile Devices (max-width: 576px) */
 @media (max-width: 576px) {
     .schedule-item {
+        flex-direction: column;
         padding: 2em 1em;
     }
 
     .date-item {
         min-width: 45px;
         font-size: 0.8rem;
+    }
+
+    .schedule-icon-text {
+        width: 100%;    
+    }
+
+    .schedule-details-dates-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 }
 
@@ -356,6 +482,19 @@
     border-radius: 8px;
     padding: 20px;
     border: none;
+}
+
+/* Card Background Colors */
+.card.card-1 {
+    background-color: #d7e9f7;
+}
+
+.card.card-2 {
+    background-color: #fef6c7;
+}
+
+.programme-fees {
+    padding: 0 5%;
 }
 
 .programme-fees .card:hover {
@@ -388,14 +527,6 @@
     margin-right: 0.5rem;
 }
 
-/* Card Background Colors */
-.card-1 {
-    background-color: #d7e9f7;
-}
-
-.card-2 {
-    background-color: #fef6c7;
-}
 
 
 
@@ -452,7 +583,8 @@
 
 .testimonials {
     background-color: #d9e6f2; /* Light blue background */
-    padding: 20px;
+    padding: 3% 5%;
+    padding-top: 2.5%;
     border-radius: 8px;
 }
 
@@ -518,6 +650,9 @@
     }
 }
 
+.related-webinars {
+    padding: 3% 5%;
+}
 
 .related-webinars .card {
     margin-bottom: 20px;
@@ -528,3 +663,4 @@
 .related-webinars .card:hover {
     transform: scale(1.05);
 }
+
