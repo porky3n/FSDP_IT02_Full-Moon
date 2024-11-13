@@ -130,7 +130,7 @@ exports.login = async (req, res) => {
     req.session.accountType = account.AccountType;
 
     // Send the response with the first name
-    res.json({ message: "Login successful", firstName, email });
+    res.json({ message: "Login successful", firstName, email, accountId: account.AccountID });
   } catch (error) {
     console.error("Error during login:", error);
     res.status(500).json({ message: "Internal server error" });

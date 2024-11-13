@@ -150,7 +150,7 @@ async function printReceipt() {
     const slotCreated = await createSlot();
     if (slotCreated) {
       // Redirect to payment receipt page only if slot creation is successful
-      window.location.href = "../paymentReceipt.html";
+      // window.location.href = "../paymentReceipt.html";
     }
   } catch (error) {
     console.error("Failed to create slot:", error);

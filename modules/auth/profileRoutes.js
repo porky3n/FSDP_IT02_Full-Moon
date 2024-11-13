@@ -11,4 +11,7 @@ router.put("/", profileController.updateProfile);
 // Route to update profile picture
 router.put("/picture", profileController.updateProfilePicture);
 
+// Route to get parent and child profiles by account ID
+router.get("/:id", profileController.getProfilesByAccountId);
+
 module.exports = router;

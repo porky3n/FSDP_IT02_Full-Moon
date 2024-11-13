@@ -25,6 +25,7 @@ document
         localStorage.setItem(
           "userDetails",
           JSON.stringify({
+            accountId: result.accountId,
             firstName: result.firstName, // Ensure the backend response includes firstName
             email: result.email,
           })
