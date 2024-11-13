@@ -71,7 +71,6 @@ async function getProgrammeSchedules(programmeId) {
         scheduleSection.innerHTML = "<h2>Upcoming Schedules</h2>";
 
         let rowElement = document.createElement("div");
-        // rowElement.classList.add("row");
 
         schedules.forEach((schedule, index) => {
             const scheduleList = document.createElement("div");
@@ -86,6 +85,20 @@ async function getProgrammeSchedules(programmeId) {
             // Generate the HTML for each date in the `dates` array
             const dateItemsHTML = generateDateItems(schedule.dates);
 
+            // Set the message and class for slots remaining
+            let slotsMessage = "";
+            let slotsClass = "badge";
+            if (schedule.slotsRemaining === 0) {
+                slotsMessage = "Full";
+                slotsClass += " full";
+            } else if (schedule.slotsRemaining < 6) {
+                slotsMessage = `${schedule.slotsRemaining} Slots Left!`;
+                slotsClass += " not-full";
+            } else {
+                slotsMessage = "Slots Filling Up Fast!";
+                slotsClass += " not-full";
+            }
+
             scheduleElement.innerHTML = `
                 <div class="schedule-details-dates-container">
                     <div class="schedule-icon-text">
@@ -98,14 +111,18 @@ async function getProgrammeSchedules(programmeId) {
                                 <img src="/images/alert-circle.png" alt="Level Icon" class="schedule-icon">
                                 <span>${schedule.programmeLevel || 'No Level'}</span>
                             </p>
+                            <p class="schedule-info mb-0">
+                                <img src="/images/clock-time-three-outline.png" alt="Time Icon" class="schedule-icon">
+                                ${formatTime(startDate)} - ${formatTime(endDate)}
+                            </p>
                         </div>
                     </div>
                     <div class="schedule-dates mt-3 mt-md-0 text-center">
                         <div class="date-list">
                             ${dateItemsHTML}
                         </div>
-                        <span class="badge bg-warning text-dark mt-2">
-                            ${schedule.slotsRemaining > 0 ? `${schedule.slotsRemaining} SLOTS LEFT!` : 'Full'}
+                        <span class="${slotsClass} mt-2">
+                            ${slotsMessage}
                         </span>
                     </div>
                 </div>
@@ -126,6 +143,7 @@ async function getProgrammeSchedules(programmeId) {
         console.error("Error fetching schedules:", error);
     }
 }
+
 
 
 

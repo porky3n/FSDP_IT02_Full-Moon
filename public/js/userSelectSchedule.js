@@ -11,11 +11,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const schedules = await response.json();
 
             const scheduleSection = document.querySelector("#select-schedule-section");
-            scheduleSection.innerHTML = "<h2>Select your schedule 📅</h2><p>Please check that you are available to attend all class dates.</p>";
+            scheduleSection.innerHTML = "<h3>Select your schedule 📅</h3><p>Please check that you are available to attend all class dates.</p>";
 
             schedules.forEach(schedule => {
                 const scheduleList = document.createElement("div");
-                scheduleList.classList.add("schedule-list", "mt-4");
+                scheduleList.classList.add("schedule-list");
 
                 const scheduleElement = document.createElement("div");
                 scheduleElement.classList.add("schedule-item", "p-3", "mb-3");
@@ -29,6 +29,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 const endDate = new Date(schedule.endDateTime);
 
                 const dateItemsHTML = generateDateItems(schedule.dates);
+
+                // Set the message and class for slots remaining
+                let slotsMessage = "";
+                let slotsClass = "badge";
+                if (schedule.slotsRemaining === 0) {
+                    slotsMessage = "Full";
+                    slotsClass += " full";
+                } else if (schedule.slotsRemaining < 6) {
+                    slotsMessage = `${schedule.slotsRemaining} Slots Left!`;
+                    slotsClass += " not-full";
+                } else {
+                    slotsMessage = "Slots Filling Up Fast!";
+                    slotsClass += " not-full";
+                }
 
                 scheduleElement.innerHTML = `
                     <input type="radio" name="schedule" class="me-2">
@@ -48,8 +62,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         </div>
                         <div class="schedule-dates mt-3 mt-md-0 text-center">
                             <div class="date-list">${dateItemsHTML}</div>
-                            <span class="badge bg-warning text-dark mt-2">
-                                ${schedule.slotsRemaining > 0 ? `${schedule.slotsRemaining} Slots Left!` : 'Limited Slots Available!'}
+                            <span class="${slotsClass} mt-2">
+                                ${slotsMessage}
                             </span>
                         </div>
                     </div>

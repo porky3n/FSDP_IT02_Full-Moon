@@ -66,13 +66,38 @@ body {
 /* Icon and Text Alignment */
 .schedule-icon-text {
     display: flex;
-    align-items: center;
     justify-content: flex-start;
     width: 30%;
 }
 
 .schedule-dates {
+    display: flex;
+    flex-direction: column;
     width: 100%;
+}
+
+.schedule-dates span.not-full {
+    font-size: 0.9rem;
+    color: #666;
+    width: 40%;
+    margin-left: 6%;
+    background-color: rgba(241, 202, 84, 0.2); /* Set background color with opacity */
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    color: rgb(237, 182, 18);
+    border: 1px solid rgba(220, 175, 39, 1); /* Add thin border with same color */
+}
+
+.schedule-dates span.full {
+    font-size: 0.9rem;
+    color: #666;
+    width: 40%;
+    margin-left: 6%;
+    background-color: rgba(247, 60, 31, 0.2); /* Set background color with opacity */
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    color: rgb(237, 51, 18);
+    border: 1px solid rgb(255, 29, 12); /* Add thin border with same color */
 }
 
 .schedule-icon-text i {
@@ -103,7 +128,7 @@ body {
 }
 
 #select-profile-section{
-    padding-right: 10%;
+    padding-right: 5%;
 }
 
 .schedule-list {
