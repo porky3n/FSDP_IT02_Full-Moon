@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             row.innerHTML = `
                 <td>${parent.FirstName} ${parent.LastName}</td>
+                <td>${parent.Gender === 'M' ? 'Male' : 'Female'}</td> <!-- Gender column data -->
                 <td>${new Date(parent.DateOfBirth).toLocaleDateString()}</td>
                 <td>${parent.Email}</td>
                 <td>${parent.ContactNumber}</td>
@@ -42,6 +43,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                             ${children.filter(child => child.ParentID === parent.ParentID).map(child => `
                                 <div class="child-info-box" data-child-id="${child.ChildID}">
                                     <p><strong>Child:</strong> ${child.FirstName} ${child.LastName}</p>
+                                    <p><strong>Relationship:</strong> ${child.Relationship || 'N/A'}</p>
+                                    <p><strong>Special Needs:</strong> ${child.SpecialNeeds || 'N/A'}</p>
+                                    <p><strong>Gender:</strong> ${child.Gender === 'M' ? 'Male' : 'Female'}</p>
                                     <p><strong>DOB:</strong> ${new Date(child.DateOfBirth).toLocaleDateString()}</p>
                                     <p><strong>School:</strong> ${child.School || 'N/A'}</p>
                                     <p><strong>Dietary:</strong> ${child.Dietary || 'N/A'}</p>
@@ -145,7 +149,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         try {
             const response = await fetch(`/auth/get-parent/${parentId}`);
             const parent = await response.json();
-
+    
             if (response.ok) {
                 document.getElementById('editParentID').value = parent.ParentID;
                 document.getElementById('editFirstName').value = parent.FirstName;
@@ -153,7 +157,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                 document.getElementById('editDOB').value = new Date(parent.DateOfBirth).toISOString().split('T')[0];
                 document.getElementById('editContactNumber').value = parent.ContactNumber;
                 document.getElementById('editDietary').value = parent.Dietary || '';
-
+                document.getElementById('editGender').value = parent.Gender || 'M'; // Populate gender
+    
                 const editModal = new bootstrap.Modal(document.getElementById('editParentModal'));
                 editModal.show();
             } else {
@@ -163,21 +168,31 @@ document.addEventListener('DOMContentLoaded', async function () {
             console.error('Error fetching parent data:', error);
         }
     }
+    
 
     async function handleEditParent(event) {
         event.preventDefault();
         const formData = new FormData(event.target);
         const parentId = formData.get('parentID');
-
+    
+        const payload = {
+            firstName: formData.get('firstName'),
+            lastName: formData.get('lastName'),
+            dob: formData.get('dob'),
+            contactNumber: formData.get('contactNumber'),
+            dietary: formData.get('dietary'),
+            gender: formData.get('gender') // Include gender in payload
+        };
+    
         try {
             const response = await fetch(`/auth/update-parent/${parentId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(Object.fromEntries(formData))
+                body: JSON.stringify(payload)
             });
-
+    
             if (response.ok) {
                 alert('Parent updated successfully');
                 location.reload();
@@ -188,7 +203,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             console.error('Error updating parent:', error);
         }
     }
-
+    
     async function openEditChildModal(childId) {
         try {
             const response = await fetch(`/auth/get-child/${childId}`);
@@ -201,6 +216,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                 document.getElementById('editChildDOB').value = new Date(child.DateOfBirth).toISOString().split('T')[0];
                 document.getElementById('editChildSchool').value = child.School || '';
                 document.getElementById('editChildDietary').value = child.Dietary || '';
+                document.getElementById('editChildRelationship').value = child.Relationship || '';
+                document.getElementById('editChildSpecialNeeds').value = child.SpecialNeeds || '';
+                document.getElementById('editChildGender').value = child.Gender || 'M';
 
                 const editChildModal = new bootstrap.Modal(document.getElementById('editChildModal'));
                 editChildModal.show();
