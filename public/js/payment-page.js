@@ -163,25 +163,41 @@ async function printReceipt() {
  * @returns {boolean} - Returns true if slot creation is successful, false otherwise
  */
 async function createSlot() {
-  if (!programmeId || !instanceId || !programmeClassId || !profileId) {
+  // Retrieve schedule details from session storage
+  const scheduleDetailsString = sessionStorage.getItem("selectedScheduleDetails");
+  const scheduleDetails = JSON.parse(scheduleDetailsString);
+
+  // Check if all required details are available
+  if (!scheduleDetails || !scheduleDetails.programmeId || !scheduleDetails.instanceId || !scheduleDetails.programmeClassId) {
     alert("No schedule details found. Please select a schedule before proceeding.");
     return false;
   }
 
-  //const userEmail = sessionStorage.getItem("userEmail"); // Retrieve user email from session storage
-  const userEmail = "xrages68@gmail.com";
-  
+  const programmeId = scheduleDetails.programmeId;
+  const instanceId = scheduleDetails.instanceId;
+  const programmeClassId = scheduleDetails.programmeClassId;
+
+  // Set parentID or childID based on profile type
+  const parentID = scheduleDetails.parentId || null;
+  const childID = scheduleDetails.childId || null;
+
+  // Retrieve user email from localStorage
+  const userDetailsString = localStorage.getItem("userDetails");
+  const userDetails = JSON.parse(userDetailsString);
+  const userEmail = userDetails.email;
+
+  // Prepare slot data object
   const slotData = {
     programmeClassID: programmeClassId,
     programmeID: programmeId,
     instanceID: instanceId,
-    parentID: null, // Replace with actual parentID if applicable
-    childID: 2, // Replace with actual childID if applicable
+    parentID: parentID, // Use parentID if profile type is parent
+    childID: childID, // Use childID if profile type is child
     paymentAmount: paymentAmount, // Use calculated payment amount from updateSummary
     paymentMethod: paymentMethod, // Retrieved from fetchProgrammeCartDetails
     paymentImage: Array.from(lastUploadedImageBinary), // Convert binary data to array for JSON transmission
     promotionID: promotionID,
-    userEmail: userEmail,  // Include user email
+    userEmail: userEmail, // Include user email
     programmeName: programmeName,
     startDate: startDate,
     endDate: endDate // Retrieved from fetchProgrammeCartDetails
@@ -213,3 +229,4 @@ async function createSlot() {
     return false; // Return false on failure
   }
 }
+
