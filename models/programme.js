@@ -109,7 +109,7 @@ class Programme {
     }
 
     // Search programmes by keyword with pagination, category filter, and total count
-static async searchProgrammes(keyword, category = "All", page = 1, limit = 6) {
+static async searchProgrammes(keyword, category = "All", page, limit) {
     const offset = (page - 1) * limit;
 
     // Start building the query with the necessary filters

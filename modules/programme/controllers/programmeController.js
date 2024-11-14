@@ -59,7 +59,7 @@ const getProgrammesByCategory = async (req, res) => {
 
 // Controller to search programmes
 const searchProgrammes = async (req, res) => {
-    const { keyword = '', category = '', page = 1, limit = 6 } = req.query;
+    const { keyword = '', category = '', page, limit } = req.query;
     
     try {
         const { programmes, total } = await Programme.searchProgrammes(keyword, category, parseInt(page), parseInt(limit));

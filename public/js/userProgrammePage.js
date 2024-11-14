@@ -35,6 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // Caching variables
 let featuredProgramsCache = null;
 let privateCoachingCache = null;
+let currentPage = 1; // Track the current page
 
 // Initialize the page with dynamic content
 async function initPage() {
@@ -156,19 +157,24 @@ function getSelectedCategory() {
 }
 
 // Populate the search results section
+// Populate the search results section
 async function populateSearchResults(keyword, page = 1, limit = 6, category = "All") {
   try {
+    currentPage = page; // Update the current page
+    console.log(`Loading page: ${page}, Category: ${category}, Keyword: ${keyword}`); // Debug log
+
     const response = await fetch(`/api/programme/search?keyword=${encodeURIComponent(keyword)}&page=${page}&limit=${limit}&category=${encodeURIComponent(category)}`);
     const { programmes, total, totalPages } = await response.json();
 
-    const cardGridContainer = document.querySelector('.card-grid'); // Select the card grid container
+    console.log("Total Pages:", totalPages); // Check if totalPages is correct
+
+    const cardGridContainer = document.querySelector('.card-grid');
     cardGridContainer.innerHTML = ''; // Clear existing content
 
     let row;
 
     // Loop through programs and add them in a row structure
     programmes.forEach((program, index) => {
-      // Create a new row for every 3 programs
       if (index % 3 === 0) {
         row = document.createElement('div');
         row.classList.add('row', 'mt-5');
@@ -193,7 +199,7 @@ async function populateSearchResults(keyword, page = 1, limit = 6, category = "A
     });
 
     // Render pagination controls with the current page, total pages, and keyword
-    renderPaginationControls(page, totalPages, keyword, category);
+    renderPaginationControls(currentPage, totalPages, keyword, category);
   } catch (error) {
     console.error("Error populating search results:", error);
   }
@@ -204,16 +210,26 @@ function renderPaginationControls(currentPage, totalPages, keyword, category) {
   const paginationContainer = document.querySelector('.pagination-container');
   paginationContainer.innerHTML = ''; // Clear existing pagination controls
 
-  for (let page = 1; page <= totalPages; page++) {
-    const button = document.createElement("button");
-    button.classList.add("pagination-button", "btn", "btn-primary", "m-1");
-    button.textContent = page;
-    button.disabled = page === currentPage;
+  if (totalPages > 1) { // Only show pagination if there is more than one page
+    for (let page = 1; page <= totalPages; page++) {
+      const button = document.createElement("button");
+      button.classList.add("pagination-button", "btn", "btn-primary", "m-1");
+      button.textContent = page;
 
-    button.addEventListener("click", () => {
-      populateSearchResults(keyword, page, 6, category); // Fetch selected page with category
-    });
+      // Set active class for the current page button
+      if (page === currentPage) {
+        button.classList.add("active"); // Apply active styling
+        button.disabled = true; // Disable the current page button
+      } else {
+        button.disabled = false; // Enable other page buttons
+      }
 
-    paginationContainer.appendChild(button);
+      button.addEventListener("click", () => {
+        console.log(`Button clicked for page: ${page}`); // Log the page button click
+        populateSearchResults(keyword, page, 6, category); // Fetch selected page with category
+      });
+
+      paginationContainer.appendChild(button);
+    }
   }
 }
