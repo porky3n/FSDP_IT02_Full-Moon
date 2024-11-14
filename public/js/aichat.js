@@ -123,7 +123,7 @@ function loadChatbot() {
 
       // Send the user's message to the backend and get a response
       sendMessageToBackend(userMessage, (reply) => {
-        incomingChatLi.querySelector("p").textContent = reply;
+        incomingChatLi.querySelector("p").innerHTML = reply;
         chatbox.scrollTo(0, chatbox.scrollHeight);
       });
     }, 500); // Adjust the delay as needed

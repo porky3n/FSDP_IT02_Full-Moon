@@ -95,7 +95,7 @@ class ChatDataModel {
     }
 
     // New function to get all user and programme details
-    static async getAllDetails() {
+    static async getAllDetails(accountID) {
         try {
             const query = `
                 SELECT 
@@ -123,10 +123,11 @@ class ChatDataModel {
                 LEFT JOIN Slot s ON pnt.ParentID = s.ParentID
                 LEFT JOIN Programme p ON s.ProgrammeID = p.ProgrammeID
                 LEFT JOIN Promotion pr ON p.ProgrammeID = pr.ProgrammeID
-                LEFT JOIN Reviews r ON p.ProgrammeID = r.ProgrammeID;
+                LEFT JOIN Reviews r ON p.ProgrammeID = r.ProgrammeID
+                WHERE acc.AccountID = ?;
             `;
 
-            const [rows] = await pool.query(query);
+            const [rows] = await pool.query(query, [accountID]);
             return rows;
         } catch (error) {
             console.error("Error fetching all details for chatbot data:", error);
