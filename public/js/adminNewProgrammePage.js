@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const additionalImagesBinary = [];
 
     // Load Navbar
-    fetch("navbar.html")
+    fetch("adminNavbar.html")
         .then(response => response.text())
         .then(data => document.getElementById("navbar-container").innerHTML = data);
 
@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Send to backend API
         try {
-            const response = await fetch("/api/programmes/new", {
+            const response = await fetch("/api/programme/new", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

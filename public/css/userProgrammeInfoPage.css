@@ -6,11 +6,9 @@ body {
 }
 
 /* Header Section */
-
-
 .header-section {
     background-color: #EDF2F7;
-    padding: 10% 5%;
+    padding: 5% 5%;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -50,6 +48,14 @@ body {
     object-fit: cover;
 }
 
+.header-section button {
+    background-color: #DCAF27;
+    border-color: #DCAF27;
+}
+
+.header-section button:hover {
+    background-color: #2F455B;
+}
 
 /* About-section */
 .about-section, .about-section-container {
@@ -66,7 +72,9 @@ body {
 }
 
 .about-section img, .about-section-container img {
-    width: 80%;
+    width: 100%;
+    height: 100%;
+    max-width: 800px;
     border-radius: 15px;
 }
 
@@ -215,7 +223,33 @@ body {
 }
 /* Date and Badge Styles */
 .schedule-dates {
+    display: flex;
+    flex-direction: column;
     width: 100%;
+}
+
+.schedule-dates span.not-full {
+    font-size: 0.9rem;
+    color: #666;
+    width: 40%;
+    margin-left: 6%;
+    background-color: rgba(241, 202, 84, 0.2); /* Set background color with opacity */
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    color: rgb(237, 182, 18);
+    border: 1px solid rgba(220, 175, 39, 1); /* Add thin border with same color */
+}
+
+.schedule-dates span.full {
+    font-size: 0.9rem;
+    color: #666;
+    width: 40%;
+    margin-left: 6%;
+    background-color: rgba(247, 60, 31, 0.2); /* Set background color with opacity */
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    color: rgb(237, 51, 18);
+    border: 1px solid rgb(255, 29, 12); /* Add thin border with same color */
 }
 
 .schedule-list {

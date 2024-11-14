@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     async function fetchData() {
         try {
-            const response = await fetch("/api/programmes/all");
+            const response = await fetch("/api/programme/all");
             if (!response.ok) {
                 throw new Error("Failed to fetch programme details");
             }
@@ -111,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function fetchProgrammes() {
         try {
-            const response = await fetch("/api/programmes/all");
+            const response = await fetch("/api/programme/all");
             if (!response.ok) throw new Error(`Error fetching programmes: ${response.statusText}`);
             const data = await response.json();
             renderProgrammes(data);
@@ -160,7 +160,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function openEditModal(id) {
         // Fetch programme details to prefill the form
-        fetch(`/api/programmes/${id}`)
+        fetch(`/api/programme/${id}`)
             .then((response) => response.json())
             .then((programme) => {
                 document.getElementById("editProgrammeName").value = programme.programmeName;
@@ -185,7 +185,7 @@ document.addEventListener("DOMContentLoaded", function () {
         };
 
         try {
-            const response = await fetch(`/api/programmes/${selectedProgrammeID}`, {
+            const response = await fetch(`/api/programme/${selectedProgrammeID}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(updatedProgramme),
@@ -193,6 +193,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!response.ok) throw new Error("Failed to update programme");
 
             alert("Programme updated successfully");
+            bootstrap.Modal.getInstance(document.getElementById("editProgrammeModal")).hide();
             fetchProgrammes();
         } catch (error) {
             console.error("Error updating programme:", error);
@@ -203,10 +204,11 @@ document.addEventListener("DOMContentLoaded", function () {
     // Handle delete confirmation
     document.getElementById("confirmDeleteButton").addEventListener("click", async () => {
         try {
-            const response = await fetch(`/api/programmes/${selectedProgrammeID}`, { method: "DELETE" });
+            const response = await fetch(`/api/programme/${selectedProgrammeID}`, { method: "DELETE" });
             if (!response.ok) throw new Error("Failed to delete programme");
 
             alert("Programme deleted successfully");
+            bootstrap.Modal.getInstance(document.getElementById("deleteProgrammeModal")).hide();
             fetchProgrammes();
         } catch (error) {
             console.error("Error deleting programme:", error);

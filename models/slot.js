@@ -75,9 +75,11 @@ class Slot {
                 SELECT COUNT(*) AS duplicateCount
                 FROM Slot
                 WHERE ProgrammeClassID = ? AND ProgrammeID = ? AND InstanceID = ? AND 
-                    (ParentID = ? OR (ParentID IS NULL AND ? IS NULL)) AND ChildID = ?
+                    (ParentID = ? OR (ParentID IS NULL AND ? IS NULL)) 
+                    AND
+                    (ChildID = ? OR (ChildID IS NULL AND ? IS NULL)) 
                 `,
-                [programmeClassID, programmeID, instanceID, parentID, parentID, childID]
+                [programmeClassID, programmeID, instanceID, parentID, parentID, childID, childID]
 
             );
     

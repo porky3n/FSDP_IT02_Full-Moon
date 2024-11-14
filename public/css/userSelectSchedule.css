@@ -58,21 +58,46 @@ body {
     height: 100%; /* Full height in each column */
 }
 
-.schedule-item:hover {
+/* .schedule-item:hover {
     background-color: #f8f9fa;
     transform: scale(1.02);
-}
+} */
 
 /* Icon and Text Alignment */
 .schedule-icon-text {
     display: flex;
-    align-items: center;
     justify-content: flex-start;
     width: 30%;
 }
 
 .schedule-dates {
+    display: flex;
+    flex-direction: column;
     width: 100%;
+}
+
+.schedule-dates span.not-full {
+    font-size: 0.9rem;
+    color: #666;
+    width: 40%;
+    margin-left: 6%;
+    background-color: rgba(241, 202, 84, 0.2); /* Set background color with opacity */
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    color: rgb(237, 182, 18);
+    border: 1px solid rgba(220, 175, 39, 1); /* Add thin border with same color */
+}
+
+.schedule-dates span.full {
+    font-size: 0.9rem;
+    color: #666;
+    width: 40%;
+    margin-left: 6%;
+    background-color: rgba(247, 60, 31, 0.2); /* Set background color with opacity */
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    color: rgb(237, 51, 18);
+    border: 1px solid rgb(255, 29, 12); /* Add thin border with same color */
 }
 
 .schedule-icon-text i {
@@ -98,8 +123,12 @@ body {
     font-size: 14px;
 }
 
-.schedule-section {
-    padding: 2rem;
+.schedule-section > *{
+    padding-left: 5%;
+}
+
+#select-profile-section{
+    padding-right: 5%;
 }
 
 .schedule-list {
@@ -406,4 +435,26 @@ body {
 .active-step {
     font-weight: bold;
     color: #007bff;
+}
+
+/* Hover and selected (highlighted) states */
+.profile-item, .schedule-item {
+    transition: background-color 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+}
+
+.profile-item:hover, .schedule-item:hover {
+    background-color: #f0f8ff; /* Light background on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.profile-item.selected, .schedule-item.selected {
+    background-color: #e0f0ff; /* Different background for selected item */
+    border: 2px solid #007bff; /* Border to indicate active selection */
+    box-shadow: 0 6px 12px rgba(0, 123, 255, 0.3); /* Blue shadow for selected state */
+}
+
+/* Ensure the radio button is hidden but still accessible */
+.profile-item input[type="radio"], .schedule-item input[type="radio"] {
+    display: none;
 }
