@@ -92,29 +92,29 @@ body {
   color: #333;
 }
 
-/* Footer */
-.footer {
-  background-color: white;
-  border-top: 1px solid #eee;
+.card {
+  transition: transform 0.2s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.footer-links a {
-  color: #333;
-  text-decoration: none;
-  margin: 0 1rem;
+.card:hover {
+  transform: translateY(-5px);
 }
 
-.social-links a {
-  margin: 0 0.5rem;
+.card-img-top {
+  border-bottom: 1px solid #eee;
 }
 
-.social-links img {
-  width: 24px;
-  height: 24px;
+.subscribed-programmes {
+  margin-top: 2rem;
 }
 
-.address,
-.copyright {
-  color: #666;
-  font-size: 0.9rem;
+.subscribed-programmes h4 {
+  background-color: #3a506b;
+  color: #ffffff;
+  padding: 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  text-align: center;
 }

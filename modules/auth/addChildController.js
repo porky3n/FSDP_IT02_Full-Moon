@@ -27,7 +27,9 @@ exports.getChildren = async (req, res) => {
         c.School,
         c.EmergencyContactNumber,
         c.Dietary,
-        c.ProfilePicture
+        c.ProfilePicture,
+        c.SpecialNeeds,
+        c.Relationship
       FROM Child c
       JOIN Parent p ON c.ParentID = p.ParentID
       WHERE p.AccountID = ?`,
@@ -54,12 +56,8 @@ exports.getChildren = async (req, res) => {
 };
 
 exports.getChild = async (req, res) => {
-  console.log("Getting child with ID:", req.params.id);
-  console.log("Session accountId:", req.session.accountId);
-
   const accountId = req.session.accountId;
   if (!accountId) {
-    console.log("No accountId found in session");
     return res.status(401).json({ message: "Unauthorized access" });
   }
 
@@ -76,7 +74,9 @@ exports.getChild = async (req, res) => {
         c.School,
         c.EmergencyContactNumber,
         c.Dietary,
-        c.ProfilePicture
+        c.ProfilePicture,
+        c.SpecialNeeds,
+        c.Relationship
       FROM Child c
       JOIN Parent p ON c.ParentID = p.ParentID
       WHERE p.AccountID = ? AND c.ChildID = ?`,
@@ -119,6 +119,8 @@ exports.addChild = async (req, res) => {
       emergencyContactNumber,
       dietary,
       profilePicture,
+      specialNeeds,
+      relationship,
     } = req.body;
 
     // Get parent ID from account ID
@@ -138,16 +140,18 @@ exports.addChild = async (req, res) => {
 
     const [result] = await pool.query(
       `INSERT INTO Child (
-        FirstName,
-        LastName,
-        DateOfBirth,
-        Gender,
-        School,
-        EmergencyContactNumber,
-        Dietary,
-        ProfilePicture,
-        ParentID
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          FirstName,
+          LastName,
+          DateOfBirth,
+          Gender,
+          School,
+          EmergencyContactNumber,
+          Dietary,
+          ProfilePicture,
+          ParentID,
+          SpecialNeeds,
+          Relationship
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         firstName,
         lastName,
@@ -158,6 +162,8 @@ exports.addChild = async (req, res) => {
         dietary,
         profilePictureBuffer,
         parentResult[0].ParentID,
+        specialNeeds,
+        relationship,
       ]
     );
 
@@ -206,6 +212,8 @@ exports.updateChild = async (req, res) => {
       emergencyContactNumber,
       dietary,
       profilePicture,
+      specialNeeds,
+      relationship,
     } = req.body;
 
     // Convert base64 string to Buffer if profilePicture exists
@@ -222,7 +230,9 @@ exports.updateChild = async (req, res) => {
         School = ?,
         EmergencyContactNumber = ?,
         Dietary = ?,
-        ProfilePicture = ?
+        ProfilePicture = ?,
+        SpecialNeeds = ?,
+        Relationship = ?
       WHERE ChildID = ?`,
       [
         firstName,
@@ -233,6 +243,8 @@ exports.updateChild = async (req, res) => {
         emergencyContactNumber,
         dietary,
         profilePictureBuffer,
+        specialNeeds,
+        relationship,
         childId,
       ]
     );
@@ -246,7 +258,6 @@ exports.updateChild = async (req, res) => {
     });
   }
 };
-
 exports.deleteChild = async (req, res) => {
   const accountId = req.session.accountId;
   if (!accountId) {

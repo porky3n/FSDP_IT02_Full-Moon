@@ -251,13 +251,104 @@ document.addEventListener("DOMContentLoaded", function () {
       confirmLogoutBtn.addEventListener("click", handleLogout);
     }
   };
+  const loadEnrolledProgrammes = async () => {
+    try {
+      const response = await fetch("/auth/enrolled-programmes", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const programmes = await response.json();
+      const container = document.getElementById("programmesContainer");
+
+      if (!container) {
+        console.error("Programmes container not found");
+        return;
+      }
+
+      if (programmes.length === 0) {
+        container.innerHTML =
+          '<div class="col-12"><p class="text-center">No enrolled programmes found.</p></div>';
+        return;
+      }
+
+      container.innerHTML = programmes
+        .map(
+          (prog) => `
+          <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+              <div class="card-header bg-white border-0 py-3">
+                <h5 class="card-title mb-0 text-primary">${
+                  prog.ProgrammeName
+                }</h5>
+              </div>
+              <div class="card-body d-flex flex-column">
+                <p class="card-text mb-2">
+                  <small class="text-muted">
+                    Enrolled: ${prog.EnrolledFirstName} ${
+            prog.EnrolledLastName
+          } 
+                    <span class="badge ${
+                      prog.EnrolledType === "Parent"
+                        ? "bg-primary"
+                        : "bg-success"
+                    } ms-2">
+                      ${prog.EnrolledType}
+                    </span>
+                  </small>
+                </p>
+                <p class="card-text flex-grow-1">${prog.Description}</p>
+                <div class="mt-3">
+                  <p class="mb-1"><strong>Level:</strong> ${
+                    prog.ProgrammeLevel
+                  }</p>
+                  <p class="mb-1"><strong>Location:</strong> ${
+                    prog.Location
+                  }</p>
+                  <div class="schedule-details mt-2 border-top pt-2">
+                    <p class="mb-1"><strong>Schedule:</strong></p>
+                    <div class="ps-3">
+                      <p class="mb-1">
+                        <i class="bi bi-clock"></i> Start: ${prog.StartDateTime}
+                      </p>
+                      <p class="mb-0">
+                        <i class="bi bi-clock-fill"></i> End: ${
+                          prog.EndDateTime
+                        }
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `
+        )
+        .join("");
+    } catch (error) {
+      console.error("Error loading enrolled programmes:", error);
+      const container = document.getElementById("programmesContainer");
+      if (container) {
+        container.innerHTML =
+          '<div class="col-12"><p class="text-center text-danger">Please sign in to see enrolled programmes.</p></div>';
+      }
+    }
+  };
 
   // Initialize all functionality
   const initialize = async () => {
     await updateUIBasedOnAuth();
     await loadUserProfile();
+    await loadEnrolledProgrammes(); // Add this line
     initializeEventListeners();
-    initializeProgrammeCards();
   };
 
   // Start initialization
