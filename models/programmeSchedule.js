@@ -105,7 +105,6 @@ class ProgrammeSchedule {
             GROUP BY ProgrammeClassID
         ) s 
             ON pcb.ProgrammeClassID = s.ProgrammeClassID
-        -- Filter for InstanceIDs with their first schedule date still upcoming
         WHERE pc.ProgrammeID = ?
             AND ps.InstanceID IN (
                 SELECT InstanceID
@@ -114,7 +113,6 @@ class ProgrammeSchedule {
                 HAVING MIN(StartDateTime) >= NOW()
             )
         ORDER BY ps.InstanceID, ps.StartDateTime ASC;
-
         `;
         
         try {
@@ -123,7 +121,9 @@ class ProgrammeSchedule {
             // Transform schedules by grouping and formatting them
             const schedulesByInstance = {};
             
+            let count = 0;
             rows.forEach(schedule => {
+                console.log(schedule);
                 const { InstanceID, ProgrammeClassID, ProgrammeID, StartDateTime, EndDateTime, ProgrammeLevel, slotsRemaining } = schedule;
                 
                 // If the instanceID doesn't exist in the object, initialize it
@@ -136,12 +136,14 @@ class ProgrammeSchedule {
                         slotsRemaining: slotsRemaining,
                         startDateTime: StartDateTime,
                         endDateTime: EndDateTime,  // Initialize with the first EndDateTime
-                        dates: []
+                        dates: []  // Initialize empty dates array
                     };
                 }
     
-                // Add each StartDateTime to the dates array for this instance
-                schedulesByInstance[InstanceID].dates.push(StartDateTime);
+                // Only add unique StartDateTime values for this instance
+                if (!schedulesByInstance[InstanceID].dates.includes(StartDateTime)) {
+                    schedulesByInstance[InstanceID].dates.push(StartDateTime);
+                }
     
                 // Update endDateTime if this EndDateTime is later than the current endDateTime
                 if (new Date(EndDateTime) > new Date(schedulesByInstance[InstanceID].endDateTime)) {
@@ -156,6 +158,7 @@ class ProgrammeSchedule {
             throw error;
         }
     }
+    
     
     // Create a new programme class entry
     static async createSchedule({ instanceID, startDateTime, endDateTime }) {

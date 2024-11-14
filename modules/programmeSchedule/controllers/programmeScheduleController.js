@@ -124,13 +124,7 @@ const getProgrammeSchedules = async (req, res) => {
         const programmeID = req.params.id;
         const schedules = await ProgrammeSchedule.getProgrammeSchedules(programmeID);
 
-        // Adding date range for each schedule
-        const schedulesWithDates = schedules.map(schedule => ({
-            ...schedule,
-            dates: getDateRange(schedule.startDateTime, schedule.endDateTime)
-        }));
-
-        res.json(schedulesWithDates);
+        res.json(schedules);
     } catch (error) {
         console.error("Error fetching programme schedules:", error);
         res.status(500).json({ error: "Failed to load programme schedules." });
