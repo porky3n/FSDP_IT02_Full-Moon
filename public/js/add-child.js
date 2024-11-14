@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const nameDiv = document.createElement("div");
         nameDiv.className = "child-name";
-        nameDiv.textContent = `${child.FirstName} ${child.LastName}`;
+        nameDiv.textContent = `${child.FirstName} ${child.LastName} (${child.Relationship})`;
 
         const detailsDiv = document.createElement("div");
         detailsDiv.className = "child-details";
@@ -88,6 +88,8 @@ document.addEventListener("DOMContentLoaded", function () {
           <p>School: ${child.School || "N/A"}</p>
           <p>Emergency Contact: ${child.EmergencyContactNumber}</p>
           <p>Dietary: ${child.Dietary || "N/A"}</p>
+          <p>Special Needs: ${child.SpecialNeeds || "N/A"}</p>
+          <p>Relationship: ${child.Relationship}</p>
         `;
 
         const actionsDiv = document.createElement("div");
@@ -210,6 +212,8 @@ document.addEventListener("DOMContentLoaded", function () {
           emergencyContactNumber:
             document.getElementById("emergencyContact").value,
           dietary: document.getElementById("dietary").value,
+          specialNeeds: document.getElementById("specialNeeds").value || "nil",
+          relationship: document.getElementById("relationship").value,
         };
 
         let url = "/api/children";
@@ -218,14 +222,12 @@ document.addEventListener("DOMContentLoaded", function () {
         if (isUpdate && childId) {
           url = `/api/children/${childId}`;
           method = "PUT";
-        }
-
-        // Conditionally add profile picture to formData
-        if (!isUpdate) {
-          // If creating, include profile picture directly in formData
-          formData.profilePicture = currentProfilePicture;
-        } else if (isUpdate && currentProfilePicture) {
-          // If updating and profile picture is provided, append it
+          // Include profile picture in update if it exists
+          if (currentProfilePicture) {
+            formData.profilePicture = currentProfilePicture;
+          }
+        } else {
+          // Always include profile picture for new children
           formData.profilePicture = currentProfilePicture;
         }
 
@@ -301,6 +303,9 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("emergencyContact").value =
         child.EmergencyContactNumber;
       document.getElementById("dietary").value = child.Dietary || "";
+      document.getElementById("specialNeeds").value =
+        child.SpecialNeeds || "nil";
+      document.getElementById("relationship").value = child.Relationship;
 
       if (child.ProfilePicture) {
         profilePreview.src = `data:image/jpeg;base64,${child.ProfilePicture}`;

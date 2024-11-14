@@ -300,3 +300,154 @@ exports.logout = async (req, res) => {
     });
   }
 };
+
+exports.getEnrolledProgrammes = async (req, res) => {
+  try {
+    const accountId = req.session?.accountId;
+    const userEmail = req.session?.user?.email;
+
+    if (!accountId && !userEmail) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized access",
+      });
+    }
+
+    // First, get the account ID if we only have email
+    let userAccountId = accountId;
+    if (!userAccountId) {
+      const [accountResult] = await pool.query(
+        "SELECT AccountID FROM Account WHERE Email = ?",
+        [userEmail]
+      );
+      if (accountResult.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Account not found",
+        });
+      }
+      userAccountId = accountResult[0].AccountID;
+    }
+
+    // Get the parent ID
+    const [parentResult] = await pool.query(
+      `SELECT ParentID FROM Parent WHERE AccountID = ?`,
+      [userAccountId]
+    );
+
+    if (parentResult.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Parent profile not found",
+      });
+    }
+
+    const parentId = parentResult[0].ParentID;
+
+    // Get all children IDs for this parent
+    const [childrenResult] = await pool.query(
+      `SELECT ChildID FROM Child WHERE ParentID = ?`,
+      [parentId]
+    );
+
+    const childIds = childrenResult.map((child) => child.ChildID);
+
+    // Updated query without image-related fields
+    const query = `
+    WITH ProgrammeDates AS (
+      SELECT 
+        s.ProgrammeID,
+        MIN(ps.StartDateTime) as StartDateTime,
+        MAX(ps.EndDateTime) as EndDateTime
+      FROM Slot s
+      JOIN ProgrammeSchedule ps ON s.InstanceID = ps.InstanceID
+      WHERE (s.ParentID = ? OR s.ChildID IN (?))
+      GROUP BY s.ProgrammeID
+    )
+    SELECT 
+      p.ProgrammeID,
+      p.ProgrammeName,
+      p.Description,
+      pc.Location,
+      pc.ProgrammeLevel,
+      pd.StartDateTime,
+      pd.EndDateTime,
+      CASE 
+        WHEN s.ChildID IS NOT NULL THEN c.FirstName
+        ELSE par.FirstName
+      END as EnrolledFirstName,
+      CASE 
+        WHEN s.ChildID IS NOT NULL THEN c.LastName
+        ELSE par.LastName
+      END as EnrolledLastName,
+      CASE 
+        WHEN s.ChildID IS NOT NULL THEN 'Child'
+        ELSE 'Parent'
+      END as EnrolledType
+    FROM Slot s
+    JOIN Programme p ON s.ProgrammeID = p.ProgrammeID
+    JOIN ProgrammeClass pc ON s.ProgrammeClassID = pc.ProgrammeClassID
+    JOIN ProgrammeDates pd ON p.ProgrammeID = pd.ProgrammeID
+    LEFT JOIN Child c ON s.ChildID = c.ChildID
+    LEFT JOIN Parent par ON s.ParentID = par.ParentID
+    WHERE (s.ParentID = ? OR s.ChildID IN (?))
+    GROUP BY 
+      p.ProgrammeID,
+      p.ProgrammeName,
+      p.Description,
+      pc.Location,
+      pc.ProgrammeLevel,
+      pd.StartDateTime,
+      pd.EndDateTime,
+      EnrolledFirstName,
+      EnrolledLastName,
+      EnrolledType
+    ORDER BY pd.StartDateTime`;
+
+    // If there are no children, use only the parent ID for the query
+    let queryParams;
+    if (childIds.length === 0) {
+      queryParams = [parentId, null, parentId, null];
+    } else {
+      queryParams = [parentId, childIds, parentId, childIds];
+    }
+
+    const [programmes] = await pool.query(query, queryParams);
+
+    if (programmes.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    // Format the data with only date formatting
+    const formattedProgrammes = programmes.map((prog) => {
+      const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date
+          .toLocaleString("en-GB", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          })
+          .replace(/,/, " at");
+      };
+
+      return {
+        ...prog,
+        StartDateTime: formatDate(prog.StartDateTime),
+        EndDateTime: formatDate(prog.EndDateTime),
+      };
+    });
+
+    res.status(200).json(formattedProgrammes);
+  } catch (error) {
+    console.error("Error fetching enrolled programmes:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error retrieving enrolled programmes",
+      error: error.message,
+    });
+  }
+};

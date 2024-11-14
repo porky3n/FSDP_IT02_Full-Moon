@@ -92,47 +92,45 @@ exports.login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Find the account by email
     const account = await Account.findAccountByEmail(email);
     if (!account) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    // Check if the account type is 'P' (Parent)
     if (account.AccountType !== "P") {
       return res
         .status(403)
         .json({ message: "Access denied. Admins please use Admin Portal." });
     }
 
-    // Compare passwords
     const match = await bcrypt.compare(password, account.PasswordHashed);
     if (!match) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
-    // Fetch the first name from the Parent table
+
     const [parentData] = await pool.query(
       "SELECT FirstName FROM Parent WHERE AccountID = ?",
       [account.AccountID]
     );
     const firstName = parentData[0]?.FirstName;
 
-    // Generate JWT (JSON Web Token)
     const token = jwt.sign(
       { accountId: account.AccountID, accountType: account.AccountType },
       process.env.JWT_SECRET,
-      {
-        expiresIn: "1h",
-      }
+      { expiresIn: "1h" }
     );
 
-    // Set session data
     req.session.isLoggedIn = true;
     req.session.accountId = account.AccountID;
     req.session.accountType = account.AccountType;
 
     // Send the response with the first name
-    res.json({ message: "Login successful", firstName, email, accountId: account.AccountID });
+    res.json({
+      message: "Login successful",
+      firstName,
+      email,
+      accountId: account.AccountID,
+    });
   } catch (error) {
     console.error("Error during login:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -269,18 +267,35 @@ exports.updateParent = async (req, res) => {
   }
 };
 
-
-
 exports.updateChild = async (req, res) => {
   const { id } = req.params;
-  const { firstName, lastName, dob, school, dietary, relationship, specialNeeds, gender } = req.body;
+  const {
+    firstName,
+    lastName,
+    dob,
+    school,
+    dietary,
+    relationship,
+    specialNeeds,
+    gender,
+  } = req.body;
 
   try {
     const result = await pool.query(
       `UPDATE Child 
        SET FirstName = ?, LastName = ?, DateOfBirth = ?, School = ?, Dietary = ?, Relationship = ?, SpecialNeeds = ?, Gender = ?
        WHERE ChildID = ?`,
-      [firstName, lastName, dob, school, dietary, relationship, specialNeeds, gender, id]
+      [
+        firstName,
+        lastName,
+        dob,
+        school,
+        dietary,
+        relationship,
+        specialNeeds,
+        gender,
+        id,
+      ]
     );
 
     if (result.affectedRows === 0) {
@@ -293,7 +308,6 @@ exports.updateChild = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
 
 exports.getParentById = async (req, res) => {
   const { id } = req.params;
