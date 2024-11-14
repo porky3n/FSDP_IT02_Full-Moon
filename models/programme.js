@@ -9,6 +9,36 @@ class Programme {
         this.description = description;
     }
 
+     // Get a programme by its ID
+     static async getProgrammeDetailsByID(programmeID) {
+        const sqlQuery = `
+            SELECT 
+                p.ProgrammeID, 
+                p.ProgrammeName, 
+                p.Category, 
+                p.ProgrammePicture, 
+                p.Description,
+                pc.Location, 
+                pc.Fee, 
+                pc.ProgrammeLevel, 
+                pc.Remarks,
+                MIN(ps.StartDateTime) AS EarliestStartDateTime, 
+                MAX(ps.EndDateTime) AS LatestEndDateTime,
+                (pc.MaxSlots - COUNT(s.SlotID)) AS SlotsLeft
+            FROM Programme p
+            JOIN ProgrammeClass pc ON p.ProgrammeID = pc.ProgrammeID
+            JOIN ProgrammeClassBatch pcb ON pc.ProgrammeClassID = pcb.ProgrammeClassID
+            JOIN ProgrammeSchedule ps ON pcb.InstanceID = ps.InstanceID
+            LEFT JOIN Slot s ON pcb.InstanceID = s.InstanceID
+            WHERE p.ProgrammeID = ?
+            GROUP BY 
+                p.ProgrammeID, p.ProgrammeName, p.Category, p.ProgrammePicture, p.Description, 
+                pc.Location, pc.Fee, pc.ProgrammeLevel, pc.Remarks, pc.MaxSlots;
+        `;
+        const [rows] = await pool.query(sqlQuery, [programmeID]);
+        return rows.length > 0 ? rows[0] : null;
+    }
+
     // Gets programmes that are 3 days away, sent to Telegram Channel
     static async getProgrammesThreeDaysAway() {
         const sqlQuery = `

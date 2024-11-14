@@ -28,8 +28,8 @@ programmeRoutes.get("/all", programmeController.getAllProgrammeDetails);
 // Route to get fees for a specific programme by ID
 // programmeRoutes.get("/:id/fees", programmeController.getProgrammeFees);
 
-// Route to announce programmes with 3 days left using Telegram bot
-programmeRoutes.get('/announce', programmeController.announceProgrammes);
+// Route to announce programmes using Telegram bot and ChatGPT 4 for formatting
+programmeRoutes.post('/announce', programmeController.sendFormattedProgramme);
 
 // Route to get all programmes by category
 programmeRoutes.get("/category/:category", programmeController.getProgrammesByCategory);
@@ -43,9 +43,6 @@ programmeRoutes.delete("/:id", programmeController.deleteProgramme);
 // Route to update a specific programme by its ID
 programmeRoutes.put("/:id", programmeController.updateProgramme);
 
-// Get all programmes
-programmeRoutes.get("/", programmeController.getAllProgrammes);
-
 // Get featured programmes
 programmeRoutes.get("/featured", programmeController.getFeaturedProgrammes);
 
@@ -54,6 +51,9 @@ programmeRoutes.get("/search", programmeController.searchProgrammes);
 
 // Get a programme by its ID
 programmeRoutes.get("/:id", programmeController.getProgrammeByID);
+
+// Get all programmes
+programmeRoutes.get("/", programmeController.getAllProgrammes);
 
 
 // // Get schedules for a specific programme by ID
