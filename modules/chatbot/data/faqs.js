@@ -9,7 +9,7 @@ const faqs = [
     },
     {
         question: "Where are the workshops conducted?",
-        answer: "Our workshops are held at various locations across Singapore. Specific venue details are provided upon enrollment."
+        answer: "Our workshops are held at various locations across Singapore and online. Specific venue details are provided upon enrollment."
     },
     {
         question: "Who are the founders of Mindsphere.sg?",

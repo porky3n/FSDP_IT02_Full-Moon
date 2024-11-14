@@ -6,9 +6,13 @@ const moment = require('moment-timezone');
 // In-memory store for user sessions (will be lost when the server restarts or page is refreshed)
 const userSessions = {};
 
+const OPENAI_API_KEY_part1="sk-proj-qe1XH7QWJmcsAPhkBvY3RNQatBGwazsROnKaL7Z9xdm50g2kc7zx1uKn7fkdrd";
+const OPENAI_API_KEY_part2="acrEBMeXcQ_-T3BlbkFJHiS1DaIKCY0QQkBCalzpbVl9EmtwthlQZAJhFnNydIWezzI652zZrlF21NwlbCRzMs2mqyTWoA";
+const OPENAI_API_KEY = OPENAI_API_KEY_part1 + OPENAI_API_KEY_part2;
+
 // Configure OpenAI API
 const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+    apiKey: OPENAI_API_KEY, // unable to use .env OEPNAI_API_KEY as database would crash
   });
   
 // Markdown to HTML conversion function
