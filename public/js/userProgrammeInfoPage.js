@@ -22,29 +22,30 @@ async function getProgrammeDetails(programmeId) {
 
         // Populate the main programme details
         document.querySelector(".header-text h1").textContent = data.programmeName || "N/A";
-        document.querySelector(".header-text p").textContent = data.description || "N/A";
+        // document.querySelector(".header-text p").textContent = data.description || "N/A";
+        document.querySelector(".about-section .mt-4").textContent = data.description || "N/A";
 
 
         console.log("data.picture: " + data.programmePicture);
         // Populate the main image (ProgrammePicture) as a Base64-encoded image
         const headerImage = document.querySelector(".header-image img");
         if (data.programmePicture) {
-            headerImage.src = `data:image/jpeg;base64,${data.programmePicture}`;
+            headerImage.src = `${data.programmePicture}`;
         } else {
             headerImage.src = "/images/default-image.png";
         }
         headerImage.alt = `${data.programmeName} Image`;
 
         // Populate additional images in the about section
-        const aboutImageContainer = document.querySelector(".about-section .col-md-4 img");
-        if (data.images && data.images.length > 0) {
-            // Display the first additional image as an example, using Base64 format
-            aboutImageContainer.src = `data:image/jpeg;base64,${data.images[0]}`;
-            aboutImageContainer.alt = `${data.programmeName} Additional Image`;
-        } else {
-            aboutImageContainer.src = "/images/default-image.png";
-            aboutImageContainer.alt = "Default Image";
-        }
+        // const aboutImageContainer = document.querySelector(".about-section .col-md-4 img");
+        // if (data.images && data.images.length > 0) {
+        //     // Display the first additional image as an example, using Base64 format
+        //     aboutImageContainer.src = `data:image/jpeg;base64,${data.images[0]}`;
+        //     aboutImageContainer.alt = `${data.programmeName} Additional Image`;
+        // } else {
+        //     aboutImageContainer.src = "/images/default-image.png";
+        //     aboutImageContainer.alt = "Default Image";
+        // }
 
         // Store the category to use for related programmes
         const category = data.category;
@@ -71,10 +72,11 @@ async function getProgrammeSchedules(programmeId) {
         scheduleSection.innerHTML = "<h2>Upcoming Schedules</h2>";
 
         let rowElement = document.createElement("div");
+        rowElement.classList.add("row"); // Add the "row" class initially
 
         schedules.forEach((schedule, index) => {
             const scheduleList = document.createElement("div");
-            scheduleList.classList.add("schedule-list", "mt-4");
+            scheduleList.classList.add("schedule-list", "col-md-6", "mt-4"); // "col-md-6" for 2 schedules per row
 
             const scheduleElement = document.createElement("div");
             scheduleElement.classList.add("schedule-item", "p-3", "mb-3");
@@ -136,7 +138,7 @@ async function getProgrammeSchedules(programmeId) {
             if ((index + 1) % 2 === 0 || index === schedules.length - 1) {
                 scheduleSection.appendChild(rowElement);
                 rowElement = document.createElement("div");
-                rowElement.classList.add("row");
+                rowElement.classList.add("row"); // Add the "row" class to the new row element
             }
         });
     } catch (error) {
@@ -243,7 +245,7 @@ async function getRelatedProgrammes(category, excludeProgrammeID = null, limit =
             // Populate each card with the programme's data
             webinarCard.innerHTML = `
                 <div class="card">
-                    <img src="${programme.image || '/images/default-webinar.png'}" class="card-img-top" alt="Webinar">
+                    <img src="${programme.programmePicture || '/images/default-webinar.png'}" class="card-img-top" alt="Webinar">
                     <div class="card-body">
                         <h5 class="card-title">${programme.programmeName}</h5>
                         <p class="card-text">${programme.description}</p>

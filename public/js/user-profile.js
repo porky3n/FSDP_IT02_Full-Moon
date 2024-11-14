@@ -261,41 +261,35 @@ document.addEventListener("DOMContentLoaded", function () {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-
+  
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+  
       const programmes = await response.json();
       const container = document.getElementById("programmesContainer");
-
+  
       if (!container) {
         console.error("Programmes container not found");
         return;
       }
-
+  
       if (programmes.length === 0) {
         container.innerHTML =
           '<div class="col-12"><p class="text-center">No enrolled programmes found.</p></div>';
         return;
       }
-
+  
       container.innerHTML = programmes
         .map(
           (prog) => `
           <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card h-100">
-              <div class="card-header bg-white border-0 py-3">
-                <h5 class="card-title mb-0 text-primary">${
-                  prog.ProgrammeName
-                }</h5>
-              </div>
-              <div class="card-body d-flex flex-column">
-                <p class="card-text mb-2">
+            <div class="programme-card h-100">
+              <div class="programme-info p-3">
+                <h5 class="card-title text-primary date">${prog.ProgrammeName}</h5>
+                <p class="card-text">
                   <small class="text-muted">
-                    Enrolled: ${prog.EnrolledFirstName} ${
-            prog.EnrolledLastName
-          } 
+                    Enrolled: ${prog.EnrolledFirstName} ${prog.EnrolledLastName}
                     <span class="badge ${
                       prog.EnrolledType === "Parent"
                         ? "bg-primary"
@@ -305,14 +299,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     </span>
                   </small>
                 </p>
-                <p class="card-text flex-grow-1">${prog.Description}</p>
+                <p class="card-text description">${prog.Description}</p>
                 <div class="mt-3">
-                  <p class="mb-1"><strong>Level:</strong> ${
-                    prog.ProgrammeLevel
-                  }</p>
-                  <p class="mb-1"><strong>Location:</strong> ${
-                    prog.Location
-                  }</p>
+                  <p class="mb-1"><strong>Level:</strong> ${prog.ProgrammeLevel}</p>
+                  <p class="mb-1"><strong>Location:</strong> ${prog.Location}</p>
                   <div class="schedule-details mt-2 border-top pt-2">
                     <p class="mb-1"><strong>Schedule:</strong></p>
                     <div class="ps-3">
@@ -320,9 +310,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         <i class="bi bi-clock"></i> Start: ${prog.StartDateTime}
                       </p>
                       <p class="mb-0">
-                        <i class="bi bi-clock-fill"></i> End: ${
-                          prog.EndDateTime
-                        }
+                        <i class="bi bi-clock-fill"></i> End: ${prog.EndDateTime}
                       </p>
                     </div>
                   </div>
@@ -342,6 +330,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
   };
+  
 
   // Initialize all functionality
   const initialize = async () => {

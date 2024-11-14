@@ -475,8 +475,18 @@ body {
 
 
 /* programe info */
+.programme-fees .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch; /* Ensures cards in the same row have the same height */
+  }
+  
+
 /* Programme Fees Card Styles */
 .programme-fees .card {
+    display: flex;
+    flex-direction: column; /* Allows content inside the card to stack vertically */
+    height: 100%; /* Card fills the full height of the row */
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
     border-radius: 8px;
@@ -484,6 +494,7 @@ body {
     border: none;
 }
 
+  
 /* Card Background Colors */
 .card.card-1 {
     background-color: #d7e9f7;
@@ -493,6 +504,21 @@ body {
     background-color: #fef6c7;
 }
 
+.related-webinars .card img {
+    height: 200px;
+    object-fit: cover;
+}
+
+.related-webinars .card-text {
+    display: -webkit-box;            /* Necessary for multi-line ellipsis */
+    -webkit-box-orient: vertical;    /* Set the box orientation to vertical */
+    overflow: hidden;                /* Hide any overflowing text */
+    text-overflow: ellipsis;         /* Add ellipsis (...) */
+    -webkit-line-clamp: 1;           /* Limit text to 2 lines; adjust to your preference */
+    /*max-height: 3em;*/                 /* Set max-height based on the line limit */
+  }
+
+  
 .programme-fees {
     padding: 0 5%;
 }
