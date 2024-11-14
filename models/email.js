@@ -34,7 +34,7 @@ const sendPaymentConfirmationEmail = async (userDetails) => {
     
     const mailOptions = {
       from: "",
-      to: userEmail,
+      to: "vhernando_05@outlook.com",
       subject: "Payment Confirmation and Slot Booking Successful",
       // html: `
       //   <div style="font-family: Arial, sans-serif; color: #333;">
