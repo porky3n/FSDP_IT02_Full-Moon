@@ -16,17 +16,17 @@ const transporter = nodemailer.createTransport({
  */
 
 const sendPaymentConfirmationEmail = async (userDetails) => {
-    const { userEmail, programmeName, startDate, endDate, paymentAmount, paymentMethod } = userDetails;
+    const { userEmail, paymentID, programmeName, startDate, endDate, paymentAmount, paymentMethod } = userDetails;
   
     console.log(__dirname);
     let htmlContent = fs.readFileSync(path.join(__dirname, '../public/paymentReceipt.html'), 'utf-8');
     htmlContent = htmlContent
     .replace("{{receiptDate}}", new Date().toDateString())
-    .replace("{{receiptNumber}}", Math.floor(Math.random() * 10000000000).toString())
+    .replace("{{receiptNumber}}", paymentID)
     .replace("{{programmeName}}", programmeName)
-    .replace("{{programmeAmount}}", paymentAmount)
+    .replace("{{programmeAmount}}", paymentAmount.toFixed(2))
     // .replace("{{paymentMethod}}", paymentMethod)
-    .replace("{{subTotal}}", paymentAmount)
+    .replace("{{subTotal}}", paymentAmount.toFixed(2))
     .replace("{{taxFee}}", (paymentAmount * 0.09).toFixed(2))
     .replace("{{total}}", (paymentAmount * 1.09).toFixed(2))
     .replace("{{startDate}}", startDate)

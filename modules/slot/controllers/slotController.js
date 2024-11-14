@@ -91,6 +91,7 @@ const createSlotAndPayment = async (req, res) => {
         // Send a payment confirmation email
         await sendPaymentConfirmationEmail({
             userEmail: userEmail, // Ensure this is correctly passed
+            paymentID: paymentID,
             programmeName: programmeName,
             startDate: startDate,
             endDate: endDate,

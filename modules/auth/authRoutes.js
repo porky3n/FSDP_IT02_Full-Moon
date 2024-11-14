@@ -39,7 +39,5 @@ router.get('/check-session', authController.checkSession);
 // GET - Check session and log out
 router.get('/logout', authController.logout);
 
-
-
 module.exports = router;
 

@@ -1,235 +1,139 @@
-require("dotenv").config();
-const OpenAI = require("openai");
-const sql = require("mssql");
-const fs = require("fs");
-const path = require("path");
-const dbConfig = require("../dbConfig");
-const EventEmitter = require("events");
-const { v4: uuidv4 } = require("uuid");
+const pool = require("../dbConfig");
 
-const openai = new OpenAI({
-  apiKey: process.env.openAISecretKey,
-});
+class ChatDataModel {
+    static async getStructuredChatData() {
+        try {
+            const query = `
+                SELECT 
+                    p.ProgrammeID,
+                    p.ProgrammeName,
+                    p.Description,
+                    p.Category,
+                    c.ProgrammeClassID,
+                    c.ShortDescription AS ClassDescription,
+                    c.Location,
+                    c.Fee,
+                    c.MaxSlots,
+                    c.ProgrammeLevel,
+                    b.InstanceID,
+                    s.ScheduleID,
+                    s.StartDateTime,
+                    s.EndDateTime,
+                    pi.ImageID,
+                    pr.PromotionID,
+                    pr.PromotionName,
+                    pr.DiscountType,
+                    pr.DiscountValue,
+                    pr.StartDateTime AS PromoStart,
+                    pr.EndDateTime AS PromoEnd,
+                    r.ReviewID,
+                    r.Rating,
+                    r.ReviewText
+                FROM Programme p
+                LEFT JOIN ProgrammeClass c ON p.ProgrammeID = c.ProgrammeID
+                LEFT JOIN ProgrammeClassBatch b ON c.ProgrammeClassID = b.ProgrammeClassID
+                LEFT JOIN ProgrammeSchedule s ON b.InstanceID = s.InstanceID
+                LEFT JOIN ProgrammeImages pi ON p.ProgrammeID = pi.ProgrammeID
+                LEFT JOIN Promotion pr ON p.ProgrammeID = pr.ProgrammeID
+                LEFT JOIN Reviews r ON p.ProgrammeID = r.ProgrammeID;
+            `;
 
-class ChatbotEmitter extends EventEmitter {}
-const chatbotEmitter = new ChatbotEmitter();
+            const [rows] = await pool.query(query);
+            const programmes = {};
 
-class Chatbot {
-  async initializeChat(patientId) {
-    const chatSessionId = uuidv4();
-    const initialPrompt = `
-    You are a helpful assistant for a programme-selling website. Respond in a friendly, helpful tone.
-    Format your responses neatly, using regular \n for new lines. Limit responses to 100 words per reply.
-    Respond with concise information that a layperson can understand. Always invite the user to ask further questions.
-    Here are the programme details: ${programmeInfo}.    
-      - Answers must be formatted neatly, adding regular \n after each new topic.
-      - Ensure all responses do not exceed 100 words no matter what.
-      - Do not reply to any prompts that are not related to health.
-      - Your name is Health Buddy.
-      - Give an answer that layman can understand.
-      - Be concise, friendly, and cheerful.
-      - Remind the user to visit a doctor at the end of each reply.
-    `;
+            rows.forEach(row => {
+                if (!programmes[row.ProgrammeID]) {
+                    programmes[row.ProgrammeID] = {
+                        ProgrammeName: row.ProgrammeName,
+                        Description: row.Description,
+                        Category: row.Category,
+                        Classes: []
+                    };
+                }
 
-    await this.saveChatHistory(chatSessionId, patientId, "bot", initialPrompt);
+                if (row.ProgrammeClassID) {
+                    const existingClass = programmes[row.ProgrammeID].Classes.find(c => c.ProgrammeClassID === row.ProgrammeClassID);
+                    if (!existingClass) {
+                        programmes[row.ProgrammeID].Classes.push({
+                            ProgrammeClassID: row.ProgrammeClassID,
+                            ClassDescription: row.ClassDescription,
+                            Location: row.Location,
+                            Fee: row.Fee,
+                            MaxSlots: row.MaxSlots,
+                            ProgrammeLevel: row.ProgrammeLevel,
+                            Batches: []
+                        });
+                    }
 
-    return chatSessionId;
-  }
+                    if (row.InstanceID) {
+                        const classObj = programmes[row.ProgrammeID].Classes.find(c => c.ProgrammeClassID === row.ProgrammeClassID);
+                        const existingBatch = classObj.Batches.find(b => b.InstanceID === row.InstanceID);
+                        if (!existingBatch) {
+                            classObj.Batches.push({
+                                InstanceID: row.InstanceID,
+                                Schedules: []
+                            });
+                        }
 
-  async sendMessage(chatSessionId, patientId, message) {
-    console.log(
-      `Saving chat history for session: ${chatSessionId}, patient: ${patientId}, message: ${message}`
-    );
-    await this.saveChatHistory(chatSessionId, patientId, "user", message);
+                        if (row.ScheduleID) {
+                            const batchObj = classObj.Batches.find(b => b.InstanceID === row.InstanceID);
+                            batchObj.Schedules.push({
+                                ScheduleID: row.ScheduleID,
+                                StartDateTime: row.StartDateTime,
+                                EndDateTime: row.EndDateTime
+                            });
+                        }
+                    }
+                }
+            });
 
-    console.log(`Retrieving chat history for session: ${chatSessionId}`);
-    const chatHistory = await this.getChatHistory(chatSessionId);
-    console.log(`Chat history: ${JSON.stringify(chatHistory)}`);
-
-    // Filter out any entries with invalid message content (e.g., null or non-string values)
-    const messages = chatHistory
-      .filter(
-        (entry) =>
-          entry.message &&
-          typeof entry.message === "string" &&
-          entry.message.trim() !== ""
-      )
-      .map((entry) => ({
-        role: entry.sender === "user" ? "user" : "system",
-        content: entry.message,
-      }));
-    console.log(`Filtered messages: ${JSON.stringify(messages)}`);
-
-    // Include the current message in the request to OpenAI
-    messages.push({
-      role: "user",
-      content: message,
-    });
-
-    // Make the API call to OpenAI
-    try {
-      const completion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: messages,
-      });
-      console.log(`OpenAI response: ${JSON.stringify(completion)}`);
-
-      // Extract and save the bot's response
-      const botMessage = completion.choices[0].message.content.trim();
-      console.log(`Bot message: ${botMessage}`);
-
-      console.log(
-        `Saving bot response to chat history for session: ${chatSessionId}, patient: ${patientId}`
-      );
-      await this.saveChatHistory(chatSessionId, patientId, "bot", botMessage);
-
-      return botMessage;
-    } catch (error) {
-      console.error(`Error calling OpenAI API: ${error.message}`);
-      throw new Error("Failed to get response from OpenAI");
-    }
-  }
-
-  async saveChatHistory(chatSessionId, patientId, sender, message) {
-    const connection = await sql.connect(dbConfig);
-    const sqlQuery = `
-      INSERT INTO ChatHistory (ChatSessionID, PatientID, Sender, Message, Timestamp)
-      VALUES (@ChatSessionID, @PatientID, @Sender, @Message, GETDATE())
-    `;
-    const request = connection.request();
-    request.input("ChatSessionID", chatSessionId);
-    request.input("PatientID", patientId);
-    request.input("Sender", sender);
-    request.input("Message", message);
-    await request.query(sqlQuery);
-    connection.close();
-  }
-
-  async getChatHistory(chatSessionId) {
-    const connection = await sql.connect(dbConfig);
-    const sqlQuery = `
-      SELECT Sender, Message
-      FROM ChatHistory
-      WHERE ChatSessionID = @ChatSessionID
-      ORDER BY Timestamp ASC
-    `;
-    const request = connection.request();
-    request.input("ChatSessionID", chatSessionId);
-    const result = await request.query(sqlQuery);
-    connection.close();
-    return result.recordset;
-  }
-
-  async saveRecognitionHistory(promptID, patientID, medicineName, mainPurpose, sideEffects, recommendedDosage, otherRemarks) {
-    const connection = await sql.connect(dbConfig);
-    const sqlQuery = `
-      INSERT INTO MedicineRecognitionHistory (PromptID, PatientID, MedicineName, MainPurpose, SideEffects, RecommendedDosage, OtherRemarks, Timestamp)
-      VALUES (@PromptID, @PatientID, @MedicineName, @MainPurpose, @SideEffects, @RecommendedDosage, @OtherRemarks, GETDATE())
-    `;
-    const request = connection.request();
-    request.input("PromptID", promptID);
-    request.input("PatientID", patientID);
-    request.input("MedicineName", sql.NVarChar, medicineName);
-    request.input("MainPurpose", sql.NVarChar, mainPurpose);
-    request.input("SideEffects", sql.NVarChar, sideEffects);
-    request.input("RecommendedDosage", sql.NVarChar, recommendedDosage);
-    request.input("OtherRemarks", sql.NVarChar, otherRemarks);
-    await request.query(sqlQuery);
-    connection.close();
-  }
-
-  async analyzeText(patientID, text) {
-    try {
-      const promptID = uuidv4();
-      const prompt = `
-        You are a medicine expert.
-        This is a medicine package or label recognition task. 
-
-        Analyze the image or text from the image and generate the following details if it is a medicine package or label:
-        - If information is not given on the image or label, generate it from your own knowledge.
-        - Do not mention that information is not found on the package.
-        - Ensure the response follows the format strictly with each key-value pair on a new line.
-        - You must generate a response for each column given below.
-        - If the text does not contain information about a medicine package or label, respond with:
-        "Image uploaded does not seem to contain a medicine package or label. Please try again"
-
-        Response format:
-        Medicine Name: <value>
-        Main Purpose: <value>
-        Side Effects: <value>
-        Recommended Dosage: <value>
-        Other Remarks: <value>
-
-        For recommended dosage: mention amount(pills/mg) per day
-
-        For other remarks, mention
-        -when is the best time to eat (example: after meal)
-        -who should not eat this medicine if they have certain condition.
-
-        Always start with "The image is a medicine product called [MEDICINE NAME]."
-      `;
-
-      const response = await openai.chat.completions.create({
-        model: "gpt-4",
-        messages: [
-          { role: "system", content: prompt },
-          { role: "user", content: text }
-        ],
-      });
-
-      const botMessage = response.choices[0].message.content.trim();
-      if (botMessage.startsWith("Image uploaded does not seem to contain a medicine package or label.")) {
-        return botMessage;
-      }
-
-      const lines = botMessage.split('\n');
-      const details = {
-        MedicineName: "",
-        MainPurpose: "",
-        SideEffects: "",
-        RecommendedDosage: "",
-        OtherRemarks: ""
-      };
-
-      lines.forEach(line => {
-        const [key, ...valueParts] = line.split(':');
-        const value = valueParts.join(':').trim();
-        switch (key.trim()) {
-          case 'Medicine Name':
-            details.MedicineName = value;
-            break;
-          case 'Main Purpose':
-            details.MainPurpose = value;
-            break;
-          case 'Side Effects':
-            details.SideEffects = value;
-            break;
-          case 'Recommended Dosage':
-            details.RecommendedDosage = value;
-            break;
-          case 'Other Remarks':
-            details.OtherRemarks = value;
-            break;
+            return programmes;
+        } catch (error) {
+            console.error("Error fetching structured chatbot data:", error);
+            throw error;
         }
-      });
-
-      await this.saveRecognitionHistory(
-        promptID,
-        patientID,
-        details.MedicineName,
-        details.MainPurpose,
-        details.SideEffects,
-        details.RecommendedDosage,
-        details.OtherRemarks
-      );
-
-      return botMessage;
-    } catch (error) {
-      console.error(`Error analyzing text with OpenAI: ${error.message}`);
-      throw new Error("Failed to analyze text with OpenAI");
     }
-  }
 
-  
+    // New function to get all user and programme details
+    static async getAllDetails(accountID) {
+        try {
+            const query = `
+                SELECT 
+                    acc.AccountID,
+                    acc.Email,
+                    acc.AccountType,
+                    pnt.ParentID,
+                    pnt.FirstName AS ParentFirstName,
+                    pnt.LastName AS ParentLastName,
+                    pnt.Membership,
+                    ch.ChildID,
+                    ch.FirstName AS ChildFirstName,
+                    ch.LastName AS ChildLastName,
+                    ch.SpecialNeeds,
+                    s.SlotID,
+                    s.ProgrammeID,
+                    s.ProgrammeClassID,
+                    pr.PromotionName,
+                    r.ReviewID,
+                    r.Rating,
+                    r.ReviewText
+                FROM Account acc
+                LEFT JOIN Parent pnt ON acc.AccountID = pnt.AccountID
+                LEFT JOIN Child ch ON pnt.ParentID = ch.ParentID
+                LEFT JOIN Slot s ON pnt.ParentID = s.ParentID
+                LEFT JOIN Programme p ON s.ProgrammeID = p.ProgrammeID
+                LEFT JOIN Promotion pr ON p.ProgrammeID = pr.ProgrammeID
+                LEFT JOIN Reviews r ON p.ProgrammeID = r.ProgrammeID
+                WHERE acc.AccountID = ?;
+            `;
+
+            const [rows] = await pool.query(query, [accountID]);
+            return rows;
+        } catch (error) {
+            console.error("Error fetching all details for chatbot data:", error);
+            throw error;
+        }
+    }
 }
-module.exports = { Chatbot, chatbotEmitter };
+
+module.exports = ChatDataModel;

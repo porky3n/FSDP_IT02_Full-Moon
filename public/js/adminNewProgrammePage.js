@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Send to backend API
         try {
-            const response = await fetch("/api/programmes/new", {
+            const response = await fetch("/api/programme/new", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
