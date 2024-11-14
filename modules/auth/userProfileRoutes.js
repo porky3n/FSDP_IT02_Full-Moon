@@ -20,4 +20,6 @@ router.post(
 // Route for logout
 router.post("/logout", userProfileController.logout);
 
+router.get("/enrolled-programmes", userProfileController.getEnrolledProgrammes);
+
 module.exports = router;
