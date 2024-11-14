@@ -14,7 +14,7 @@
     "multer-storage-cloudinary": "^4.0.0",
     "mysql2": "^3.11.3",
     "nodemailer": "^6.9.16",
-    "node": "^22.11.0",
+    "openai": "^4.72.0",
     "sql": "^0.78.0"
   },
   "name": "fsdp_it02_full-moon",

@@ -23,6 +23,7 @@ const programmeClassRoutes = require('./modules/programmeClass/programmeClass.ro
 const programmeScheduleRoutes = require('./modules/programmeSchedule/programmeSchedule.routes');
 const slotRoutes = require('./modules/slot/slot.routes');
 const paymentRoutes = require('./modules/payment/payment.routes');
+const chatbotRoutes = require("./modules/chatbot/chatbot.routes");
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
@@ -121,6 +122,8 @@ app.use("/api/programmeSchedule", programmeScheduleRoutes);
 app.use("/api/slot", slotRoutes);
 app.use("/api/payment", paymentRoutes);
 
+// Route for handling chatbot interactions
+app.use('/api/chatbot', chatbotRoutes);
 // app.get('/api/programme', programmeController.getAllProgrammes);
 // app.get('/api/programme/featuredProgramme', programmeController.getFeaturedProgrammes);
 // app.get('/api/programme/searchProgramme', programmeController.searchProgrammes);
