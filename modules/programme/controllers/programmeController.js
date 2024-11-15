@@ -22,7 +22,7 @@ const OPENAI_API_KEY_part2="acrEBMeXcQ_-T3BlbkFJHiS1DaIKCY0QQkBCalzpbVl9EmtwthlQ
 const OPENAI_API_KEY = OPENAI_API_KEY_part1 + OPENAI_API_KEY_part2;
 
 // Create a new Telegram bot instance
-// const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: false });
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: false });
 
 // Configure OpenAI API
 const openai = new OpenAI({
