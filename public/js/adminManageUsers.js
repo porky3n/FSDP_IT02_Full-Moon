@@ -276,13 +276,14 @@ document.addEventListener('DOMContentLoaded', async function () {
             });
 
             if (response.ok) {
-                alert('Parent deleted successfully');
+                alert('Parent deleted successfully. Please refresh.');
                 document.querySelector(`tr[data-parent-id="${parentId}"]`).remove();
+                location.reload();
             } else {
-                alert('Failed to delete parent');
+                alert('Deletion not allowed. Parent has existing programme booking & payment records.');
             }
         } catch (error) {
-            console.error('Error deleting parent:', error);
+            console.error('Deletion not allowed. Parent has existing programme booking & payment records.', error);
         }
     }
 
@@ -293,14 +294,15 @@ document.addEventListener('DOMContentLoaded', async function () {
             });
 
             if (response.ok) {
-                alert('Child deleted successfully');
+                alert('Child deleted successfully. Please refresh.');
                 document.querySelector(`[data-child-id="${childId}"]`).closest('.child-info-box').remove();
+                location.reload();
             } else {
-                alert('Failed to delete child');
+                alert('Deletion not allowed. Parent/Child has existing programme booking & payment records.');
             }
         } catch (error) {
-            console.error('Error deleting child:', error);
-            alert('An error occurred. Please try again later.');
+            console.error('Deletion not allowed. Parent/Child has existing programme booking & payment records.', error);
+            alert('Deletion not allowed. Parent/Child has existing programme booking & payment records.');
         }
     }
 

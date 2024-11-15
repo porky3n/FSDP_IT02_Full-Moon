@@ -259,6 +259,23 @@ const sendFormattedProgramme = async (req, res) => {
 
 };
 
+const getProgrammeImages = async (req, res) => {
+    try {
+        const [images] = await pool.query(`
+            SELECT 
+                ImageID, 
+                ProgrammeID, 
+                TO_BASE64(Image) AS Image 
+            FROM ProgrammeImages
+        `);
+        res.json(images);
+    } catch (error) {
+        console.error("Error fetching programme images:", error);
+        res.status(500).json({ message: "Failed to fetch programme images" });
+    }
+};
+
+
 // const sendAnnouncementToTelegram = async (programme) => {
 //     try {
 //         const channelId = process.env.CHANNEL_ID;
@@ -623,14 +640,15 @@ const getAllProgrammeDetails = async (req, res) => {
         const programmeClasses = await ProgrammeClass.getAllProgrammeClasses();
         const schedules = await ProgrammeSchedule.getAllSchedules();
         const batches = await ProgrammeClassBatch.getAllBatches();
+        const images = await ProgrammeImages.getAllImages(); // Fetch programme images
 
-        res.json({ programmes, programmeClasses, schedules, batches });
+        res.json({ programmes, programmeClasses, schedules, batches, images });
     } catch (error) {
         console.error("Error fetching all programme details:", error);
-        console.log("Fetching all programme details");
         res.status(500).json({ message: "Error fetching all programme details" });
     }
 };
+
 
 // Controller to get featured programmes
 const getFeaturedProgrammes = async (req, res) => {
@@ -768,7 +786,6 @@ const createProgramme = async (req, res) => {
     }
 };
 
-// Controller to delete a programme
 const deleteProgramme = async (req, res) => {
     const { id } = req.params;
     try {
@@ -776,9 +793,14 @@ const deleteProgramme = async (req, res) => {
         res.status(200).json({ message: "Programme deleted successfully" });
     } catch (error) {
         console.error("Error deleting programme:", error);
-        res.status(500).json({ message: "Error deleting programme" });
+        res.status(500).json({
+            message: `Error deleting programme. Issue with constraints in ${
+                error.sqlMessage.match(/`([^`]*)`/g)[1] || "related table"
+            }.`,
+        });
     }
 };
+
 
 // Controller to update a programme
 const updateProgramme = async (req, res) => {
@@ -808,4 +830,5 @@ module.exports = {
     createProgramme,
     deleteProgramme,
     updateProgramme,
+    getProgrammeImages,
 };

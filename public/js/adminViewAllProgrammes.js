@@ -14,8 +14,8 @@ document.addEventListener("DOMContentLoaded", function () {
             alert("Failed to load programme details. Please try again.");
         }
     }
-    
 
+    
     function populateTables(data) {
         if (data.programmes) populateProgrammeTable(data.programmes);
         if (data.programmeClasses) populateProgrammeClassTable(data.programmeClasses);
@@ -88,20 +88,21 @@ document.addEventListener("DOMContentLoaded", function () {
     
     function populateProgrammeImagesTable(images) {
         const imagesTableBody = document.querySelector("#programmeImagesTable tbody");
-        imagesTableBody.innerHTML = "";
+        imagesTableBody.innerHTML = ""; // Clear existing table content
+    
         images.forEach((image) => {
+            const imgSrc = `data:image/png;base64,${image.Image}`; // Validate this value in the console
             const row = document.createElement("tr");
-            const imgSrc = `data:image/png;base64,${image.image}`; // Assumes image data is base64 encoded
+    
             row.innerHTML = `
-                <td>${image.imageID}</td>
-                <td>${image.programmeID}</td>
-                <td><img src="${imgSrc}" alt="Programme Image" class="img-thumbnail" width="100" /></td>
+                <td>${image.ImageID}</td>
+                <td>${image.ProgrammeID}</td>
+                <td><img src="${imgSrc}" alt="Programme Image" class="img-thumbnail" width="100"></td>
             `;
+    
             imagesTableBody.appendChild(row);
         });
-    }
-    
-    
+    }    
 
     fetchData();
 });

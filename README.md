@@ -43,6 +43,17 @@ The primary goal of this project is to build a web application that allows Minds
 - Email Confirmation: Sends booking and payment confirmation emails with detailed information.
 - Receipt Generation: Provides a downloadable receipt for payment and booking details.
 
+## Login Credentials
+For general users you may use the sample account or create a new account.
+
+Email: parent1@example.com
+PW: jason1234
+
+For admin users, please use the login credentials below.
+
+Admin Email: admin1@example.com
+Admin PW: jason1234
+
 ## Admin Flow
 - User Account Management: Admins can view, edit, or delete all user accounts, including details of parents and children, such as name, date of birth, membership status, and date joined.
 
@@ -71,8 +82,12 @@ This project leverages various technologies to provide a comprehensive, secure, 
 - Email services for booking and payment confirmation
 
 # Future Enhancements (TBC)
-- Singpass Login: Enable secure login using Singapore’s national authentication system.
 - Google Login: Provide convenient login via Google accounts.
 - Multiple Language Support: Make the platform accessible to users in various languages.
 - Automated Feedback and Survey Forms: Collect user feedback and insights automatically after sessions.
 - Lottie Animations: Enhance user engagement with visually appealing animations.
+- Improved Telegram Channel: Direct message customers. Polls to receive quick and easy user feedback. Images
+- In-built Video Call: Allows users to schedule + join a video call for 1-1 coaching.
+- Improve Payment Process: Payment proof upload not required. Use automated methods.
+- Personal Dashboard: Easy manage of scheduled sessions/review past programmes + Cancel + Reschedule Bookings
+- Drop out feature: Allows users to drop out from programme + Refund.

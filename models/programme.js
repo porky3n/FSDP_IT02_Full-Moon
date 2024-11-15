@@ -251,10 +251,16 @@ static async searchProgrammes(keyword, category = "All", page = 1, limit = 6) {
         const connection = await pool.getConnection(); // Get a database connection
         try {
             await connection.beginTransaction();
+    
+            // Delete related entries in the Reviews table
+            await connection.query("DELETE FROM Reviews WHERE ProgrammeID = ?", [programmeID]);
 
+            // Delete related entries in the Promotion table
+            await connection.query("DELETE FROM Promotion WHERE ProgrammeID = ?", [programmeID]);
+    
             // Delete ProgrammeImages associated with the programme
             await connection.query("DELETE FROM ProgrammeImages WHERE ProgrammeID = ?", [programmeID]);
-
+    
             // Delete ProgrammeSchedules associated with the programme's classes and batches
             await connection.query(`
                 DELETE ProgrammeSchedule 
@@ -262,20 +268,20 @@ static async searchProgrammes(keyword, category = "All", page = 1, limit = 6) {
                 JOIN ProgrammeClassBatch ON ProgrammeSchedule.InstanceID = ProgrammeClassBatch.InstanceID
                 JOIN ProgrammeClass ON ProgrammeClassBatch.ProgrammeClassID = ProgrammeClass.ProgrammeClassID
                 WHERE ProgrammeClass.ProgrammeID = ?`, [programmeID]);
-
+    
             // Delete ProgrammeClassBatch entries
             await connection.query(`
                 DELETE ProgrammeClassBatch 
                 FROM ProgrammeClassBatch 
                 JOIN ProgrammeClass ON ProgrammeClassBatch.ProgrammeClassID = ProgrammeClass.ProgrammeClassID
                 WHERE ProgrammeClass.ProgrammeID = ?`, [programmeID]);
-
+    
             // Delete ProgrammeClass entries
             await connection.query("DELETE FROM ProgrammeClass WHERE ProgrammeID = ?", [programmeID]);
-
+    
             // Delete the Programme itself
             await connection.query("DELETE FROM Programme WHERE ProgrammeID = ?", [programmeID]);
-
+    
             await connection.commit();
             console.log(`Programme with ID ${programmeID} and all related data deleted successfully.`);
         } catch (error) {
@@ -286,6 +292,8 @@ static async searchProgrammes(keyword, category = "All", page = 1, limit = 6) {
             connection.release();
         }
     }
+    
+    
 }
 
 module.exports = Programme;
