@@ -35,6 +35,9 @@
     "start": "node app.js",
     "setup-db": "node executeSQL.js"
   },
+  "engines": {
+    "node": ">=16.x"
+  },
   "author": "",
   "license": "ISC"
 }
