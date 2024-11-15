@@ -2,7 +2,6 @@
   "dependencies": {
     "ajax": "^0.0.4",
     "axios": "^1.7.7",
-    "bcrpyt": "^2.0.0",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.3",
     "cloudinary": "^1.41.3",
