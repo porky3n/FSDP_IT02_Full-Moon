@@ -4,14 +4,14 @@ const ProgrammeSchedule = require("../../../models/programmeSchedule");
 const ProgrammeClassBatch = require("../../../models/programmeClassBatch");
 const ProgrammeImages = require("../../../models/programmeImages");
 const axios = require('axios');
-const fs = require('fs');
-const sharp = require('sharp');
-const FormData = require('form-data');
+// const fs = require('fs');
+// const sharp = require('sharp');
+// const FormData = require('form-data');
 const TelegramBot = require('node-telegram-bot-api');
-const { fromBuffer } = require('file-type');
-const { fileTypeFromBuffer } = require('file-type');
-const path = require('path');
-const tmp = require('tmp');
+// const { fromBuffer } = require('file-type');
+// const { fileTypeFromBuffer } = require('file-type');
+// const path = require('path');
+// const tmp = require('tmp');
 const OpenAI = require("openai");
 const mindSphereData = require('../../chatbot/data/mindSphereData');
 const cron = require('node-cron');
@@ -22,7 +22,7 @@ const OPENAI_API_KEY_part2="acrEBMeXcQ_-T3BlbkFJHiS1DaIKCY0QQkBCalzpbVl9EmtwthlQ
 const OPENAI_API_KEY = OPENAI_API_KEY_part1 + OPENAI_API_KEY_part2;
 
 // Create a new Telegram bot instance
-const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: false });
+// const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: false });
 
 // Configure OpenAI API
 const openai = new OpenAI({
