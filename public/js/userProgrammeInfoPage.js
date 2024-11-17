@@ -249,8 +249,7 @@ async function getRelatedProgrammes(category, excludeProgrammeID = null, limit =
                     <div class="card-body">
                         <h5 class="card-title">${programme.programmeName}</h5>
                         <p class="card-text">${programme.description}</p>
-                        <a href="/programme/${programme.programmeID}" class="btn btn-outline-primary">Learn More</a>
-                    </div>
+                        <a href="userProgrammeInfoPage.html?programmeId=${encodeURIComponent(programme.programmeID)}" class="btn btn-outline-primary">Learn More</a>                    </div>
                 </div>
             `;
 
