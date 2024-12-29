@@ -1,4 +1,9 @@
 const pool = require('../dbConfig');
+require("dotenv").config();
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
+//testkey = sk_test_51Qb1BvP2e3AF4UmhWHOgMw0xlqHsL0itETq1l1wyqFd22r3g7h5e3fUKQaJPbMblVLsMV07ouSNFgh0Xf5IYbyxZ00iLWvw9Vd
+//apikey = pk_test_51Qb1BvP2e3AF4UmhhiZG78Pr695qyCygnIKvbpm4EKk8t2ggA6LAc8ycF4Ghg3IAA3SB42OdemXL4eADwL7U0XeI00Qf9wG6xG
 
 class Payment {
     constructor(paymentID, slotID, promotionID, paymentAmount, paymentDate, paymentMethod, paymentImage) {
@@ -73,6 +78,24 @@ class Payment {
         } catch (error) {
             console.error("Error fetching all payments:", error);
             throw error;
+        }
+    }
+
+    static async createPaymentIntent(paymentAmount) {
+        try {
+            const paymentIntent = await stripe.paymentIntents.create({
+                payment_method_types: ['paynow'],
+                payment_method_data: {
+                    type: 'paynow',
+                },
+                amount: paymentAmount,
+                currency: 'sgd',
+            });
+            console.log("Payment Intent Response:", paymentIntent);
+            return paymentIntent;
+        } catch (error) {
+            console.error("Error creating payment intent in Stripe:", error);
+            throw error; // Rethrow the error to handle it in the controller
         }
     }
 }

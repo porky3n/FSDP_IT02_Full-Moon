@@ -61,8 +61,22 @@ const getAllPayments = async (req, res) => {
     }
 };
 
+const createPaymentIntent = async (req, res) => {
+    const { paymentAmount } = req.body;
+
+    try {
+        const intent = await Payment.createPaymentIntent(paymentAmount);
+        res.json({ client_secret: intent.client_secret });
+    } catch (error) {
+        console.error("Error creating payment intent:", error);
+        res.status(500).json({ message: "Error creating payment intent" });
+    }
+};
+
+
 module.exports = {
     // createPayment,
     // getPaymentByID,
-    getAllPayments
+    getAllPayments,
+    createPaymentIntent 
 };
