@@ -1,6 +1,6 @@
 const pool = require("../../dbConfig");
 const Account = require("../../models/accountModel");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 exports.adminLogin = async (req, res) => {
