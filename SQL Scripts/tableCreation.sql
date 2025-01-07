@@ -97,12 +97,12 @@ CREATE TABLE ProgrammeSchedule (
 );
 
 -- Create ProgrammeImages table for the content of the programme
-CREATE TABLE ProgrammeImages (
-    ImageID INT AUTO_INCREMENT PRIMARY KEY,
-    ProgrammeID INT NOT NULL,
-    Image MEDIUMBLOB NOT NULL, -- Binary data for the image
-    CONSTRAINT FK_ProgrammeImages_Programme FOREIGN KEY (ProgrammeID) REFERENCES Programme(ProgrammeID)
-);
+-- CREATE TABLE ProgrammeImages (
+--     ImageID INT AUTO_INCREMENT PRIMARY KEY,
+--     ProgrammeID INT NOT NULL,
+--     Image MEDIUMBLOB NOT NULL, -- Binary data for the image
+--     CONSTRAINT FK_ProgrammeImages_Programme FOREIGN KEY (ProgrammeID) REFERENCES Programme(ProgrammeID)
+-- );
 
 -- Create Slot table
 -- Created when user books a slot for a class of a programme

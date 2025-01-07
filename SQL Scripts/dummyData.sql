@@ -44,10 +44,10 @@ VALUES
 (2, '2024-02-10 10:00:00', '2024-02-10 16:00:00');
 
 -- Insert data into ProgrammeImages table
-INSERT INTO ProgrammeImages (ProgrammeID, Image)
-VALUES 
-(1, 'PLACEHOLDER_PROGRAMME_1_CONTENT_1');
-(2, 'PLACEHOLDER_PROGRAMME_2_CONTENT_1');
+-- INSERT INTO ProgrammeImages (ProgrammeID, Image)
+-- VALUES 
+-- (1, 'PLACEHOLDER_PROGRAMME_1_CONTENT_1'),
+-- (2, 'PLACEHOLDER_PROGRAMME_2_CONTENT_1');
 
 -- Insert data into Slot table
 INSERT INTO Slot (ProgrammeClassID, ProgrammeID, InstanceID, ParentID, ChildID)
