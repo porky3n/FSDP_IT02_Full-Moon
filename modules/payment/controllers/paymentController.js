@@ -73,10 +73,22 @@ const createPaymentIntent = async (req, res) => {
     }
 };
 
+const createPayout = async (req, res) => {
+    const { amount } = req.body;
+
+    try {
+        const payout = await Payment.createPayout(amount);
+        res.status(201).json({ message: "Payout created successfully", payout });
+    } catch (error) {
+        console.error("Error creating payout:", error);
+        res.status(500).json({ message: "Error creating payout" });
+    }
+}
 
 module.exports = {
     // createPayment,
     // getPaymentByID,
     getAllPayments,
-    createPaymentIntent 
+    createPaymentIntent,
+    createPayout
 };

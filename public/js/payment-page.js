@@ -26,16 +26,16 @@ document.addEventListener("DOMContentLoaded", function () {
 /**
  * Generate QR Code
  */
-function generateQRCode() {
-  const qrcode = new QRCode(document.getElementById("qrcode"), {
-    text: "https://payment-link-example.com",
-    width: 200,
-    height: 200,
-    colorDark: "#000000",
-    colorLight: "#ffffff",
-    correctLevel: QRCode.CorrectLevel.H,
-  });
-}
+// function generateQRCode() {
+//   const qrcode = new QRCode(document.getElementById("qrcode"), {
+//     text: "https://payment-link-example.com",
+//     width: 200,
+//     height: 200,
+//     colorDark: "#000000",
+//     colorLight: "#ffffff",
+//     correctLevel: QRCode.CorrectLevel.H,
+//   });
+// }
 
 /**
  * Fetch programme cart details from the server and populate the summary box
@@ -112,7 +112,7 @@ function updateSummary(data, dates) {
   // document.getElementById("totalPrice").textContent = `$${discountedFee.toFixed(2)}`;
 
   // Create payment intent with the discounted fee (Using stripe)
-  createPaymentIntent(paymentAmount);
+  // createPaymentIntent(paymentAmount);
 
 
   // Display start and end dates
@@ -244,6 +244,17 @@ async function createSlot() {
 
 
 
+document.getElementById("payNowButton").addEventListener("click", async function () {
+  const clientSecret = await createPaymentIntent(1000);
+  console.log("Client secret:", clientSecret);
+  // const clientSecret = await createPaymentIntent(paymentAmount);
+
+  if (clientSecret) {
+    confirmPay(clientSecret);
+  }
+});
+
+
 // new functions using stripe
 async function createPaymentIntent(paymentAmount) {
   try {
@@ -263,7 +274,7 @@ async function createPaymentIntent(paymentAmount) {
     const data = await response.json();
     console.log("Payment intent created successfully:", data);
     console.log("Client secret:", data.client_secret);
-    return data.client_secret;
+    return data.client_secret.toString();
   } catch (error) {
     console.error("Error creating payment intent:", error);
     alert(`Error creating payment intent: ${error.message}`);
@@ -272,19 +283,13 @@ async function createPaymentIntent(paymentAmount) {
 }
 
 
-document.getElementById("payNowButton").addEventListener("click", async function () {
-  const clientSecret = await createPaymentIntent(1000);
-  // const clientSecret = await createPaymentIntent(paymentAmount);
-
-  if (clientSecret) {
-    confirmPay(clientSecret);
-  }
-});
-
-const stripe = Stripe('pk_live_51Qb1BvP2e3AF4Umh0NRIRpe9akcwniiyYQN5qvGumxoxlNgi5A2zPWclfjEjM8sbGlDcqUEDrS6XcO5YRfnPEYu300jSxF7BNz');
+// const stripe = Stripe('pk_live_51Qb1BvP2e3AF4Umh0NRIRpe9akcwniiyYQN5qvGumxoxlNgi5A2zPWclfjEjM8sbGlDcqUEDrS6XcO5YRfnPEYu300jSxF7BNz');
+const stripe = Stripe('pk_test_51QefolPwgB6Ze04CvONegf5es97gWPMkVLxcQv9XOBoEi26IIyvzBFmBpxHC5ORKE9eBIIACAK6uoL3dv5CpWjZx00E67kJbua');
 
 function confirmPay(clientSecret) {
-  stripe.confirmPayNowPayment(clientSecret,)
+  stripe.confirmPayNowPayment(
+    clientSecret,
+  )
   .then((res) => {
     if(res.paymentIntent.status === 'succeeded') {
       // The user scanned the QR code

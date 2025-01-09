@@ -20,6 +20,7 @@ const paymentRoutes = express.Router();
 
 paymentRoutes.get('/', paymentController.getAllPayments);
 paymentRoutes.post('/create', paymentController.createPaymentIntent);
+paymentRoutes.post('/payout', paymentController.createPayout);
 
 // ========== Export Route ==========
 // Export the programme routes to be used in other parts of the application

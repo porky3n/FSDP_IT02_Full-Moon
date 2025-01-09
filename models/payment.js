@@ -83,18 +83,38 @@ class Payment {
 
     static async createPaymentIntent(paymentAmount) {
         try {
+            // const paymentIntent = await stripe.paymentIntents.create({
+            //     payment_method_types: ['paynow'],
+            //     payment_method_data: {
+            //         type: 'paynow',
+            //     },
+            //     amount: paymentAmount,
+            //     currency: 'sgd',
+            // });
+
             const paymentIntent = await stripe.paymentIntents.create({
-                payment_method_types: ['paynow'],
-                payment_method_data: {
-                    type: 'paynow',
-                },
-                amount: paymentAmount,
+                amount: 5000,
                 currency: 'sgd',
+                automatic_payment_methods: { enabled: true },
             });
             console.log("Payment Intent Response:", paymentIntent);
             return paymentIntent;
         } catch (error) {
             console.error("Error creating payment intent in Stripe:", error);
+            throw error; // Rethrow the error to handle it in the controller
+        }
+    }
+
+    static async createPayout(payoutAmount) {
+        try {
+            const payout = await stripe.payouts.create({
+                amount: payoutAmount,
+                currency: 'sgd',
+            });
+            console.log("Payout Response:", payout);
+            return payout;
+        } catch (error) {
+            console.error("Error creating payout in Stripe:", error);
             throw error; // Rethrow the error to handle it in the controller
         }
     }

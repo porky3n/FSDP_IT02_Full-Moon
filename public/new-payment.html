@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Payment Page</title>
+
+        <!-- Custom CSS for Navbar and Footer -->
+        <link rel="stylesheet" href="./css/navbar.css" />
+        <link rel="stylesheet" href="./css/footer.css" />
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+        <link href="./css/new-payment.css" rel="stylesheet" />
+        <script src="https://js.stripe.com/v3/"></script>
+    </head>
+
+    <body>
+
+        <!-- Navbar Section -->
+        <header>
+            <div id="navbar-container"></div>
+        </header>
+
+        <div class="payment-container">
+            <div class="col-md-6 details-container">
+                <div class="product-group">
+                    <!-- <h4>Pay Default Sandbox</h4>
+                    <p class="text-muted">TEST MODE</p> -->
+                    <p class="price mb-4">SGD 1,000.00</p>
+                    <div class="product-info">
+                        <p class="product-name">Public Speaking Programme<span class="float-end">SGD 1,000.00</span></p>
+                        <p class="product-details text-muted">Public Speaking is an essential for your kids to develop communication skills. Public Speaking is an essential for your kids to develop communication skills.</p>
+                    </div> 
+                    <hr>
+                    <p class="subtotal">Subtotal<span class="float-end">SGD 1,000.00</span></p>
+                    <p class="promotion-link mt-3" id="addPromotionLink">Add promotion code</p>
+                    <div class="promotion-input mt-3" id="promotionInput">
+                        <input id="promotion-input-field" type="text" class="form-control" placeholder="Add promotion code">
+                        <button type="button" class="apply-btn" id="applyButton">Apply</button>
+                    </div>
+                    <!-- <input class="CheckoutInput PromotionCodeEntry-input Input Input--empty" autocomplete="off" autocorrect="off" spellcheck="false" size="1" type="text" name="promotionCode" id="promotionCode" placeholder="Add promotion code" aria-invalid="false" data-1p-ignore="false" value=""> -->
+                    <hr>
+                    <p class="total">Total due<span class="float-end">SGD 1,000.00</span></p>
+                </div>
+            </div>
+    
+            <div class="col-md-6 form-container">
+                <div class="form-group">
+                    <form>
+                        <h3>Payment method</h3>
+
+                        <div class="payment-method">
+                            <!-- Card Payment -->
+                            <!-- <div class="payment-option">
+                              <div class="radio-header">
+                                <input type="radio" id="card" name="payment-method" value="card">
+                                <label for="card">Card</label>
+                              </div>
+                              <div id="card-form" class="card-container"> -->
+                                <!-- <div>
+                                  <label for="card-number">Card information</label>
+                                  <input type="text" id="card-number" placeholder="1234 1234 1234 1234" maxlength="19">
+                                  <div class="card-container-2">
+                                    <input type="text" id="expiry" placeholder="MM / YY" maxlength="5">
+                                    <input type="text" id="cvc" placeholder="CVC" maxlength="3">
+                                  </div>
+                                </div>
+                                <div>
+                                  <label for="cardholder-name">Cardholder name</label>
+                                  <input type="text" id="cardholder-name" placeholder="Full name on card">
+                                </div>
+                                <div>
+                                  <label for="country">Country or region</label>
+                                  <select id="country">
+                                    <option value="Singapore">Singapore</option>
+                                    <option value="Malaysia">Malaysia</option>
+                                    <option value="Indonesia">Indonesia</option>
+                                  </select>
+                                </div>
+                              </div> -->
+                            <div id="card-element">
+                            </div>
+                        </div>
+                    
+                            <!-- PayNow Payment -->
+                            <!-- <div class="payment-option">
+                              <div class="radio-header">
+                                <input type="radio" id="paynow" name="payment-method" value="paynow">
+                                <label for="paynow">PayNow</label>
+                              </div>
+                              <div id="paynow-form" class="paynow-container">
+                                <p><strong>PayNow</strong></p>
+                                <p class="text-muted">PayNow is supported by bank apps and payment apps such as DBS, POSB, OCBC, UOB, and GrabPay.</p>
+                                <p class="text-muted">After submitting your order, scan the QR code using your preferred banking or payment app.</p>
+                              </div>
+                            </div>
+                          </div> -->
+                    
+                          <button id="bookButton" type="submit" class="btn-book">Book for SGD 1,000.00</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+
+        <!-- Footer Section -->
+        <footer class="bg-dark text-white">
+            <div id="footer-container"></div>
+        </footer>
+
+        <!-- Bootstrap JS and other dependencies -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+        <script>
+        $(document).ready(function () {
+            // Load external navbar and footer into the template
+            $("#navbar-container").load("navbar.html");
+            $("#footer-container").load("footer.html");
+        });
+        </script>
+
+        <script src="./js/new-payment.js"></script>
+    </body>
+
+</html>
