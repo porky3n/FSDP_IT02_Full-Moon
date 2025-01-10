@@ -100,9 +100,8 @@ async function createPaymentIntent(paymentAmount) {
 
     const data = await response.json();
     console.log("Payment intent created successfully:", data);
-    console.log("Client secret:", data.client_secret);
     clientSecret = data.client_secret;
-    return data.client_secret;
+    return clientSecret;
   } catch (error) {
     console.error("Error creating payment intent:", error);
     alert(`Error creating payment intent: ${error.message}`);
@@ -112,100 +111,210 @@ async function createPaymentIntent(paymentAmount) {
 
 /* stripe form */ 
 let clientSecret = '';
+let elements = null;
+let cardElement = null;
+let selectedPaymentMethod = ''; // To store the selected payment method
+
 //Edit payment amount
 async function stripeCheckout(clientSecret) {
   console.log("Client secret:", clientSecret);
-  const appearance = {
-    theme: 'stripe'
-  };
-  
-  // Pass the appearance object to the Elements instance
-  const elements = stripe.elements({clientSecret, appearance});
+  try {
+    const appearance = {
+      theme: "stripe",
+    };
+    elements = stripe.elements({ clientSecret, appearance });
+
+    cardElement = elements.create("payment");
+    cardElement.mount("#card-element");
+
+    // Listen for changes to detect the selected payment method
+    cardElement.on("change", (event) => {
+      const errorDisplay = document.getElementById("card-errors");
+      const bookButton = document.getElementById("bookButton");
+
+      if (event.error) {
+        errorDisplay.textContent = event.error.message;
+        bookButton.disabled = true;
+      } else {
+        errorDisplay.textContent = "";
+        bookButton.disabled = false;
+
+        // Capture the selected payment method
+        if (event.value && event.value.type) {
+          selectedPaymentMethod = event.value.type;
+          console.log("Selected payment method:", selectedPaymentMethod);
+        }
+      }
+    });
+  } catch (error) {
+    console.error("Error setting up Stripe elements:", error);
+  }
+
   // const paymentElementOptions = {
   //   layout: "accordion",
   // };
 
-  const cardElement = elements.create("payment");
+  // const cardElement = elements.create("payment");
+  // cardElement = elements.create("payment");
+  // cardElement.on("change", (event) => {
+  //   const errorDisplay = document.getElementById("card-errors");
+  //   const bookButton = document.getElementById("bookButton");
 
-  
-
-  // Mount the card element into the #card-element div
-  cardElement.mount("#card-element");
-
-  setTimeout (() => {
-    const form = document.getElementsByTagName("form")[0];
-    const bookButton = document.createElement("button");
-    bookButton.id = "bookButton";
-    bookButton.className = "btn-book";
-    bookButton.type = "submit";
-    paymentAmount = 100000;
-    bookButton.textContent = `Book for SGD $${paymentAmount / 100}`;
-    bookButton.disabled = true;
-
-    // Add click event listener
-    bookButton.addEventListener("click", async function (e) {
-      e.preventDefault(); // Prevent the default form submission
-      
-      console.log("Client secret:", clientSecret);
-    
-      if (clientSecret) {
-        await confirmPay(clientSecret);
-      } else {
-        console.error("Client secret is not available");
-      }
-    });
-
-    // form.appendChild(bookButton);  
-
-    // Add the show class to trigger the animation
-    setTimeout(() => {
-      bookButton.classList.add("show");
-    }, 10); // Small delay to ensure the element is added to the DOM before the animation starts
-  }, 650);
-  
-  const { error: submitError } = await elements.submit();
-  if (submitError) {
-    console.error("Error submitting payment:", submitError);
-  } 
-  // Handle form submission
-  // const cardButton = document.getElementById("card-button");
-  // cardButton.addEventListener("click", async () => {
-  //     const { error, paymentIntent } = await stripe.confirmCardPayment("{{CLIENT_SECRET}}", {
-  //         payment_method: {
-  //             card: cardElement,
-  //         },
-  //     });
-
-  //     if (error) {
-  //         document.getElementById("card-errors").textContent = error.message;
-  //     } else {
-  //         alert("Payment Successful!");
-  //     }
+  //   // Display errors in the UI and disable the button if there's an error
+  //   if (event.error) {
+  //     errorDisplay.textContent = event.error.message;
+  //     bookButton.disabled = true;
+  //   } else {
+  //     errorDisplay.textContent = '';
+  //     bookButton.disabled = false;
+  //   }
   // });
 
+  // // Mount the card element into the #card-element div
+  // cardElement.mount("#card-element");
+
+  // setTimeout (() => {
+  //   const form = document.getElementsByTagName("form")[0];
+  //   const bookButton = document.createElement("button");
+  //   bookButton.id = "bookButton";
+  //   bookButton.className = "btn-book";
+  //   bookButton.type = "submit";
+  //   paymentAmount = 100000;
+  //   bookButton.textContent = `Book for SGD $${paymentAmount / 100}`;
+  //   bookButton.disabled = true;
+
+  //   // Add click event listener
+  //   // bookButton.addEventListener("click", async function (e) {
+  //   //   e.preventDefault(); // Prevent the default form submission
+      
+  //   //   console.log("Client secret:", clientSecret);
+    
+  //   //   if (clientSecret) {
+  //   //     await confirmPay(clientSecret);
+  //   //   } else {
+  //   //     console.error("Client secret is not available");
+  //   //   }
+  //   // });
+
+  //   // form.appendChild(bookButton);  
+
+  //   // Add the show class to trigger the animation
+  //   setTimeout(() => {
+  //     bookButton.classList.add("show");
+  //   }, 10); // Small delay to ensure the element is added to the DOM before the animation starts
+  // }, 650);
+  
+  
 }
   
   
 
+// Function to confirm the payment
+async function confirmPayment(clientSecret) {
+  const errorMessageContainer = document.getElementById("card-errors");
+  const spinner = document.getElementById("spinner");
+  const bookButton = document.getElementById("bookButton");
 
-function confirmPay(clientSecret) {
-  stripe.confirmPayNowPayment(
-    clientSecret,
-  )
-  .then((res) => {
-    if(res.paymentIntent.status === 'succeeded') {
-      // The user scanned the QR code
-      console.log('Payment successful');
-      // createPayout(100000);
-    } else {
-      // The user closed the modal, cancelling payment
-      console.log('Payment cancelled');
+  bookButton.disabled = true;
+  spinner.style.display = "block"; // Show loading spinner
+
+  try {
+    const { error: submitError } = await elements.submit();
+    if (submitError) {
+      errorMessageContainer.textContent = submitError.message;
+      bookButton.disabled = false;
+      spinner.style.display = "none";
+      return;
     }
-  });
+
+    if (selectedPaymentMethod === "card") {
+      // Confirm card payment
+      const { error } = await stripe.confirmPayment({
+        elements,
+        clientSecret,
+        confirmParams: {
+          return_url: `http://www.localhost:3000`,
+        },
+      });
+
+      if (error) {
+        errorMessageContainer.textContent = error.message;
+      }
+    } else if (selectedPaymentMethod === "paynow") {
+      // Confirm PayNow payment
+      const res = await stripe.confirmPayNowPayment(clientSecret);
+      console.log("res: ", res);
+      if (res.paymentIntent.status === "succeeded") {
+        console.log("Payment successful via PayNow");
+      } else {
+        console.log("PayNow payment cancelled");
+      }
+    } else {
+      console.error("Unknown payment method selected:", selectedPaymentMethod);
+    }
+  } catch (err) {
+    console.error("Unexpected error during payment confirmation:", err);
+    errorMessageContainer.textContent =
+      "An unexpected error occurred. Please try again.";
+  } finally {
+    bookButton.disabled = false;
+    spinner.style.display = "none"; // Hide loading spinner
+  }
+  // stripe.confirmPayNowPayment(
+  //   clientSecret,
+  // )
+  // .then((res) => {
+  //   if(res.paymentIntent.status === 'succeeded') {
+  //     // The user scanned the QR code
+  //     console.log('Payment successful');
+  //     // createPayout(100000);
+  //   } else {
+  //     // The user closed the modal, cancelling payment
+  //     console.log('Payment cancelled');
+  //   }
+  // });
 }
 
 
 
+// Handling form submission
+document.getElementById('paymentForm').addEventListener('submit', handleSubmit);
+
+async function handleSubmit(event) {
+  // Prevent the default form submission behavior
+  event.preventDefault();
+
+  // Update PaymentIntent with the selected payment method
+  // try {
+  //   if (selectedPaymentMethod === "card") {
+  //     await stripe.paymentIntents.update(clientSecret, {
+  //       payment_method_types: ["card"],
+  //     });
+  //   } else if (selectedPaymentMethod === "paynow") {
+  //     await stripe.paymentIntents.update(clientSecret, {
+  //       payment_method_types: ["paynow"],
+  //     });
+  //   }
+
+  //   // Confirm the payment
+  //   const result = await stripe.confirmPayment({
+  //     clientSecret: clientSecret,
+  //     confirmParams: {
+  //       return_url: "https://your-site.com/payment-success",
+  //     },
+  //   });
+
+  //   if (result.error) {
+  //     console.error("Payment failed:", result.error.message);
+  //   } else {
+  //     console.log("Payment succeeded:", result.paymentIntent);
+  //   }
+  // } catch (error) {
+  //   console.error("Error updating PaymentIntent:", error.message);
+  // }
+  
+  await confirmPayment(clientSecret);
+}
 
 
 

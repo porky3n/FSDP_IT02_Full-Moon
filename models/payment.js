@@ -95,7 +95,10 @@ class Payment {
             const paymentIntent = await stripe.paymentIntents.create({
                 amount: 5000,
                 currency: 'sgd',
-                automatic_payment_methods: { enabled: true },
+                payment_method_types: ["card", "paynow"],
+                payment_method_data: {
+                    type: 'paynow',
+                },
             });
             console.log("Payment Intent Response:", paymentIntent);
             return paymentIntent;

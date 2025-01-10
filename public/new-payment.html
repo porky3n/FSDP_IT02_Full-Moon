@@ -45,8 +45,9 @@
     
             <div class="col-md-6 form-container">
                 <div class="form-group">
-                    <form>
-                        <h3>Payment method</h3>
+                  <h3>Payment method</h3>
+
+                    <form id="paymentForm">
 
                         <div class="payment-method">
                             <!-- Card Payment -->
@@ -77,7 +78,17 @@
                                   </select>
                                 </div>
                               </div> -->
-                            <div id="card-element">
+                            <div id="card-element"></div>
+                            <div id="card-errors" style="color: red;"></div>
+                            <div id="spinner" style="display: none;">
+                              <div
+                                class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-black motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                                role="status"
+                              >
+                                <span class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+                                  Loading...
+                                </span>
+                              </div>
                             </div>
                         </div>
                     
