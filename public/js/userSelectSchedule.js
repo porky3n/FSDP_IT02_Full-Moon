@@ -249,7 +249,7 @@
                 };
         
                 sessionStorage.setItem("selectedScheduleDetails", JSON.stringify(scheduleDetails));
-                window.location.href = "payment-page.html";
+                window.location.href = "new-payment.html";
             });
         
             container.appendChild(nextButton);

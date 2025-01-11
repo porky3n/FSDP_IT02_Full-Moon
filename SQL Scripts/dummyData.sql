@@ -39,9 +39,9 @@ VALUES
 -- Insert data into ProgrammeSchedule table
 INSERT INTO ProgrammeSchedule (InstanceID, StartDateTime, EndDateTime)
 VALUES 
-(1, '2024-02-01 09:00:00', '2024-02-01 12:00:00'),
-(1, '2024-02-03 09:00:00', '2024-02-03 12:00:00'),
-(2, '2024-02-10 10:00:00', '2024-02-10 16:00:00');
+(1, '2025-02-01 09:00:00', '2025-02-01 12:00:00'),
+(1, '2025-02-03 09:00:00', '2025-02-03 12:00:00'),
+(2, '2025-02-10 10:00:00', '2025-02-10 16:00:00');
 
 -- Insert data into ProgrammeImages table
 -- INSERT INTO ProgrammeImages (ProgrammeID, Image)
@@ -65,8 +65,8 @@ VALUES
 -- Insert data into Promotion table
 INSERT INTO Promotion (ProgrammeID, PromotionName, DiscountType, DiscountValue, StartDateTime, EndDateTime, Remarks)
 VALUES 
-(1, 'Early Bird Discount', 'Percentage', 10.00, '2024-01-01 00:00:00', '2024-01-20 23:59:59', 'Available for early sign-ups'),
-(2, 'Spring Special', 'Fixed Amount', 20.00, '2024-03-01 00:00:00', '2024-03-15 23:59:59', 'Limited-time offer');
+(1, 'Early Bird Discount', 'Percentage', 10.00, '2025-01-01 00:00:00', '2025-01-20 23:59:59', 'Available for early sign-ups'),
+(2, 'Spring Special', 'Fixed Amount', 20.00, '2025-01-01 00:00:00', '2025-01-15 23:59:59', 'Limited-time offer');
 
 -- Insert data into Payment table
 INSERT INTO Payment (SlotID, PromotionID, PaymentAmount, PaymentDate, PaymentMethod, PaymentImage)

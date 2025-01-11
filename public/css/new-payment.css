@@ -65,7 +65,7 @@ hr {
     background-color: red; /* Optional: Change the color */
     border: none; /* Remove the default border */
 }
-.product-name, .subtotal, .total  {
+.product-name, .discount-label, .subtotal, .total  {
     font-weight: 600;
     font-size: 14px;
     margin: 0;
@@ -74,6 +74,9 @@ hr {
 .product-details {
     font-size: 12px;
     width: 80%;
+}
+.discount-section {
+    display: none;
 }
 .promotion-link {
     color: #007bff;
@@ -245,6 +248,13 @@ h3 {
     transition: opacity 0.3s ease, transform 0.3s ease;
     opacity: 1;
     transform: translateY(-20px);
+}
+
+.btn-book:disabled {
+    background-color: #ccc; /* Gray out the button */
+    color: #777; /* Change text color */
+    cursor: not-allowed; /* Change cursor */
+    opacity: 0.6; /* Add a faded effect */
 }
 
 .btn-book.show {
