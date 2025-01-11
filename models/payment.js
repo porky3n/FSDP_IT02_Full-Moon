@@ -6,14 +6,13 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 //apikey = pk_test_51Qb1BvP2e3AF4UmhhiZG78Pr695qyCygnIKvbpm4EKk8t2ggA6LAc8ycF4Ghg3IAA3SB42OdemXL4eADwL7U0XeI00Qf9wG6xG
 
 class Payment {
-    constructor(paymentID, slotID, promotionID, paymentAmount, paymentDate, paymentMethod, paymentImage) {
+    constructor(paymentID, slotID, promotionID, paymentAmount, paymentDate, paymentMethod) {
         this.paymentID = paymentID;
         this.slotID = slotID;
         this.promotionID = promotionID;
         this.paymentAmount = paymentAmount;
         this.paymentDate = paymentDate;
         this.paymentMethod = paymentMethod;
-        this.paymentImage = paymentImage;
     }
 
     // // Method to create a new payment
@@ -72,8 +71,7 @@ class Payment {
                 row.PromotionID,
                 row.PaymentAmount,
                 row.PaymentDate,
-                row.PaymentMethod,
-                row.PaymentImage
+                row.PaymentMethod
             ));
         } catch (error) {
             console.error("Error fetching all payments:", error);

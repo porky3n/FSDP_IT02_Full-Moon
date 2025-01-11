@@ -69,7 +69,7 @@ VALUES
 (2, 'Spring Special', 'Fixed Amount', 20.00, '2025-01-01 00:00:00', '2025-01-15 23:59:59', 'Limited-time offer');
 
 -- Insert data into Payment table
-INSERT INTO Payment (SlotID, PromotionID, PaymentAmount, PaymentDate, PaymentMethod, PaymentImage)
+INSERT INTO Payment (SlotID, PromotionID, PaymentAmount, PaymentDate, PaymentMethod)
 VALUES 
-(1, 1, 45.00, NOW(), 'PayNow', 'PLACEHOLDER_PAYMENT_1'), -- Slot with promotion
-(2, NULL, 75.00, NOW(), 'PayNow', "PLACEHOLDER_PAYMENT_2"); -- Slot without promotion
+(1, 1, 45.00, NOW(), 'PayNow'), -- Slot with promotion
+(2, NULL, 75.00, NOW(), 'PayNow'); -- Slot without promotion

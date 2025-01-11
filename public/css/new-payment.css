@@ -73,7 +73,8 @@ hr {
 }
 .product-details {
     font-size: 12px;
-    width: 80%;
+    /* width: 80%; */
+    width: 100%;
 }
 .discount-section {
     display: none;

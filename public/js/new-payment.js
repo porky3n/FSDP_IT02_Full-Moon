@@ -178,8 +178,7 @@ async function createSlot() {
     parentID: parentID, // Use parentID if profile type is parent
     childID: childID, // Use childID if profile type is child
     paymentAmount: paymentAmount, // Use calculated payment amount from updateSummary
-    paymentMethod: paymentMethod, // Retrieved from fetchProgrammeCartDetails
-    paymentImage: Array.from(lastUploadedImageBinary), // Convert binary data to array for JSON transmission
+    paymentMethod: selectedPaymentMethod, // Retrieved from fetchProgrammeCartDetails
     promotionID: promotionID,
     userEmail: userEmail, // Include user email
     programmeName: programmeName,
@@ -483,6 +482,7 @@ async function confirmPayment(clientSecret) {
       console.log("res: ", res);
       if (res.paymentIntent.status === "succeeded") {
         console.log("Payment successful via PayNow");
+        createSlot();
       } else {
         console.log("PayNow payment cancelled");
       }

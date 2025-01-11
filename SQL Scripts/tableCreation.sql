@@ -156,7 +156,6 @@ CREATE TABLE Payment (
     PaymentAmount DECIMAL(10,2) CHECK (PaymentAmount > 0) NOT NULL,
     PaymentDate DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
     PaymentMethod VARCHAR(255) NOT NULL, -- PayNow for now,
-    PaymentImage MEDIUMBLOB NOT NULL, -- Binary data for the payment image
     Verified VARCHAR(255) DEFAULT 'Pending' NOT NULL, -- Pending, Verified, Rejected
     CONSTRAINT FK_Payment_Slot FOREIGN KEY (SlotID) REFERENCES Slot(SlotID),
     CONSTRAINT FK_Payment_Promotion FOREIGN KEY (PromotionID) REFERENCES Promotion(PromotionID)
