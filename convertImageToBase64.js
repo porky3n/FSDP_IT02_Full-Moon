@@ -22,6 +22,19 @@ const generateSQLUpdateStatement = async (imagePath, programmeID) => {
     }
 };
 
+// Utility function to convert binary images to Base64
+const convertToBase64 = (programme) => {
+    if (programme.programmePicture instanceof Buffer) {
+        programme.programmePicture = `data:image/jpeg;base64,${programme.programmePicture.toString('base64')}`;
+    }
+    if (programme.images) {
+        programme.images = programme.images.map(image =>
+            image instanceof Buffer ? `data:image/jpeg;base64,${image.toString('base64')}` : image
+        );
+    }
+    return programme;
+};
+
 // Example usage to generate SQL update statements
 (async () => {
     try {

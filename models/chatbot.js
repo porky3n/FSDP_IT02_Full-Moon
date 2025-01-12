@@ -134,6 +134,22 @@ class ChatDataModel {
             throw error;
         }
     }
+
+    static async getChatPrompt(promptType) {
+        try {
+            const query = `
+                SELECT PromptText
+                FROM ChatPrompts
+                WHERE PromptType = ?;
+            `;
+
+            const [rows] = await pool.query(query, [promptType]);
+            return rows[0].PromptText;
+        } catch (error) {
+            console.error("Error fetching chat prompt:", error);
+            throw error;
+        }
+    }
 }
 
 module.exports = ChatDataModel;
