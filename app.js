@@ -8,6 +8,7 @@ const authRoutes = require("./modules/auth/authRoutes"); // Import auth routes
 const profileRoutes = require("./modules/auth/profileRoutes"); // Import profile routes
 const userProfileRoutes = require("./modules/auth/userProfileRoutes");
 const childRoutes = require("./modules/auth/addChildRoutes");
+const adminRoutes = require("./modules/admin/adminDashboardRoutes");
 const ensureAdminAuthenticated = require("./middlewares/auth");
 
 const programmeRoutes = require("./modules/programme/programmeRoutes"); // Import programme routes
@@ -31,14 +32,21 @@ app.use(
   })
 );
 
-// Set up session handling
-// app.use(
-//   session({
-//     secret: "jason1234",
-//     resave: false,
-//     saveUninitialized: false,
-//   })
-// );
+app.post("/login", async (req, res) => {
+  try {
+    // After successful authentication
+    req.session.user = {
+      AccountID: user.AccountID,
+      AccountType: user.AccountType,
+      // other user data...
+    };
+    await req.session.save();
+    res.json({ success: true, user: req.session.user });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 // Serve static files
 app.use(express.static(path.join(__dirname, "public")));
@@ -59,6 +67,7 @@ app.use("/auth", authRoutes);
 app.use("/auth", userProfileRoutes);
 app.use("/auth/profile", profileRoutes); // Mount profile routes
 app.use("/api/children", childRoutes); // Mount child routes
+app.use("/api/admin", adminRoutes);
 
 // Mount programme-related routes
 app.use("/api/programmes", programmeRoutes); // Programme routes
@@ -68,11 +77,6 @@ app.use("/api/programme-schedules", programmeScheduleRoutes); // Programme sched
 // Route for the index page
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
-// Route protected with middleware for admin access
-app.get("/adminHomePage.html", ensureAdminAuthenticated, (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "adminHomePage.html"));
 });
 
 // Start the server
