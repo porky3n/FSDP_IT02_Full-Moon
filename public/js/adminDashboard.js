@@ -5,26 +5,29 @@ document.addEventListener("DOMContentLoaded", function () {
   setInterval(initializeDashboard, 300000);
 });
 
-async function initializeDashboard() {
+async function initializeDashboard(selectedMonth = new Date().getMonth()) {
   try {
-    const metrics = await fetchDashboardMetrics();
-    renderDashboard(metrics);
+    const metrics = await fetchDashboardMetrics(selectedMonth);
+    renderDashboard(metrics, selectedMonth);
   } catch (error) {
     console.error("Error initializing dashboard:", error);
     showError("Failed to load dashboard data");
   }
 }
 
-// Fetch metrics from the server
-async function fetchDashboardMetrics() {
+// Fetch metrics from the server with month parameter
+async function fetchDashboardMetrics(month) {
   try {
-    const response = await fetch("/api/admin/dashboard-metrics", {
-      method: "GET",
-      credentials: "include", // Important!
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await fetch(
+      `/api/admin/dashboard-metrics?month=${month}&includeTotal=true`,
+      {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     if (!response.ok) {
       throw new Error("Network response was not ok");
@@ -39,13 +42,20 @@ async function fetchDashboardMetrics() {
 }
 
 // Main function to render the dashboard
-function renderDashboard(metrics) {
+function renderDashboard(metrics, selectedMonth) {
   const mainContent = document.querySelector("main");
-  const currentDate = new Date();
-  const monthYear = currentDate.toLocaleDateString("en-US", {
+  const date = new Date();
+  date.setMonth(selectedMonth);
+  const monthYear = date.toLocaleDateString("en-US", {
     month: "long",
     year: "numeric",
   });
+
+  // Calculate total revenue for the selected month
+  const totalMonthlyRevenue = metrics.monthlyRevenue.reduce(
+    (sum, day) => sum + parseFloat(day.Revenue || 0),
+    0
+  );
 
   mainContent.innerHTML = `
         <div class="container py-4">
@@ -66,9 +76,21 @@ function renderDashboard(metrics) {
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="card-title mb-0">Monthly Revenue</h5>
-                            <span class="text-muted">${monthYear}</span>
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">Monthly Revenue</h5>
+                                <div class="d-flex align-items-center">
+                                    <span class="text-muted me-3">Revenue in ${monthYear}: $${totalMonthlyRevenue.toLocaleString()}</span>
+                                    <div class="dropdown">
+                                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            ${monthYear}
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            ${renderMonthOptions(selectedMonth)}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="card-body">
                             <canvas id="revenueChart" height="300"></canvas>
@@ -77,7 +99,7 @@ function renderDashboard(metrics) {
                 </div>
             </div>
 
-            <!-- Rest of the dashboard content remains the same -->
+            <!-- Rest of the dashboard content -->
             <div class="row g-4">
                 <div class="col-md-6 col-lg-4">
                     ${renderTopSpendersCard(metrics.topSpenders)}
@@ -99,14 +121,62 @@ function renderDashboard(metrics) {
 
   // Initialize the revenue chart
   initializeRevenueChart(metrics.monthlyRevenue);
+
+  // Add event listeners for month selection
+  addMonthSelectionListeners();
+}
+
+// Function to render month options
+function renderMonthOptions(selectedMonth) {
+  const months = Array.from({ length: 12 }, (_, i) => {
+    const date = new Date();
+    date.setMonth(i);
+    return {
+      index: i,
+      name: date.toLocaleDateString("en-US", { month: "long" }),
+    };
+  });
+
+  return months
+    .map(
+      (month) => `
+        <li>
+            <button class="dropdown-item ${
+              month.index === selectedMonth ? "active" : ""
+            }" 
+               type="button"
+               data-month="${month.index}">
+                ${month.name}
+            </button>
+        </li>
+    `
+    )
+    .join("");
+}
+
+// Function to add month selection listeners
+function addMonthSelectionListeners() {
+  const monthItems = document.querySelectorAll(".dropdown-item");
+  monthItems.forEach((item) => {
+    item.addEventListener("click", (e) => {
+      e.preventDefault();
+      const selectedMonth = parseInt(e.target.dataset.month);
+      initializeDashboard(selectedMonth);
+    });
+  });
 }
 
 // Render summary cards at the top of the dashboard
 function renderSummaryCards(metrics) {
-  const totalRevenue = metrics.monthlyRevenue.reduce(
-    (sum, day) => sum + parseFloat(day.Revenue || 0),
-    0
-  );
+  // Check if totalRevenue exists and has data
+  console.log("Total Revenue Data:", metrics.totalRevenue); // Debug log
+
+  // Calculate total revenue from all payments
+  const totalRevenue =
+    metrics.totalRevenue && metrics.totalRevenue[0]
+      ? parseFloat(metrics.totalRevenue[0].TotalRevenue || 0)
+      : 0;
+
   const totalParticipants = metrics.activeParticipants.reduce(
     (sum, participant) => sum + parseInt(participant.ProgrammeCount),
     0

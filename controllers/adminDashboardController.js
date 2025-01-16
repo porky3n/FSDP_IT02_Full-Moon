@@ -4,6 +4,14 @@ const adminController = {
   async getDashboardMetrics(req, res) {
     try {
       const metrics = {};
+      const selectedMonth = parseInt(req.query.month) || new Date().getMonth();
+      const year = new Date().getFullYear();
+
+      const totalRevenueQuery = `
+  SELECT 
+    COALESCE(SUM(CASE WHEN Verified = 'Verified' THEN PaymentAmount ELSE 0 END), 0) as TotalRevenue
+  FROM Payment
+`;
 
       // Get top spending customers
       const topSpendersQuery = `
@@ -48,14 +56,14 @@ const adminController = {
 
       // Get revenue by month
       const monthlyRevenueQuery = `
-                SELECT 
-                  DATE(PaymentDate) as Date,
-                  SUM(CASE WHEN Verified = 'Verified' THEN PaymentAmount ELSE 0 END) as Revenue
-                FROM Payment 
-                WHERE PaymentDate >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-                GROUP BY DATE(PaymentDate)
-                ORDER BY Date ASC
-`;
+      SELECT 
+        DATE(PaymentDate) as Date,
+        SUM(CASE WHEN Verified = 'Verified' THEN PaymentAmount ELSE 0 END) as Revenue
+      FROM Payment 
+      WHERE MONTH(PaymentDate) = ? AND YEAR(PaymentDate) = ?
+      GROUP BY DATE(PaymentDate)
+      ORDER BY Date ASC
+    `;
 
       // Get average ratings
       const ratingsQuery = `
@@ -78,12 +86,14 @@ const adminController = {
         popularProgrammes,
         monthlyRevenue,
         ratings,
+        totalRevenue,
       ] = await Promise.all([
         pool.query(topSpendersQuery),
         pool.query(activeParticipantsQuery),
         pool.query(popularProgrammesQuery),
-        pool.query(monthlyRevenueQuery),
+        pool.query(monthlyRevenueQuery, [selectedMonth + 1, year]), // Add 1 because MySQL months are 1-based
         pool.query(ratingsQuery),
+        pool.query(totalRevenueQuery),
       ]);
 
       metrics.topSpenders = topSpenders[0];
@@ -91,6 +101,7 @@ const adminController = {
       metrics.popularProgrammes = popularProgrammes[0];
       metrics.monthlyRevenue = monthlyRevenue[0];
       metrics.ratings = ratings[0];
+      metrics.totalRevenue = totalRevenue[0];
 
       res.json(metrics);
     } catch (error) {
