@@ -371,16 +371,21 @@ function renderStarRating(rating) {
 function initializeRevenueChart(revenueData) {
   const ctx = document.getElementById("revenueChart").getContext("2d");
 
-  // Create an array of dates for the current month
-  const currentDate = new Date();
+  // Get the selected month from the dropdown
+  const selectedMonthStr = document
+    .querySelector(".dropdown-toggle")
+    .textContent.trim();
+  const selectedDate = new Date(selectedMonthStr);
+
+  // Create an array of dates for the selected month
   const firstDay = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth(),
+    selectedDate.getFullYear(),
+    selectedDate.getMonth(),
     1
   );
   const lastDay = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth() + 1,
+    selectedDate.getFullYear(),
+    selectedDate.getMonth() + 1,
     0
   );
 
@@ -389,11 +394,12 @@ function initializeRevenueChart(revenueData) {
   let currentDay = new Date(firstDay);
 
   while (currentDay <= lastDay) {
-    // Format both dates to YYYY-MM-DD for comparison
+    // Format the current date to match MySQL date format (YYYY-MM-DD)
     const currentDateStr = currentDay.toISOString().slice(0, 10);
 
-    // Find matching data by comparing dates without time
+    // Find matching data
     const matchingData = revenueData.find((item) => {
+      // Ensure we're comparing the same date format
       const itemDate = new Date(item.Date);
       return itemDate.toISOString().slice(0, 10) === currentDateStr;
     });
@@ -403,9 +409,11 @@ function initializeRevenueChart(revenueData) {
       revenue: matchingData ? parseFloat(matchingData.Revenue) : 0,
     });
 
+    // Move to next day
     currentDay.setDate(currentDay.getDate() + 1);
   }
 
+  // Create the chart
   new Chart(ctx, {
     type: "line",
     data: {
@@ -451,7 +459,8 @@ function initializeRevenueChart(revenueData) {
         tooltip: {
           callbacks: {
             label: function (context) {
-              return "Revenue: $" + context.raw.toLocaleString();
+              const date = formattedData[context.dataIndex].date;
+              return `Revenue on ${date.toLocaleDateString()}: $${context.raw.toLocaleString()}`;
             },
           },
         },
