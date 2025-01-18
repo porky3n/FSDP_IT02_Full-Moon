@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS Payment;
 DROP TABLE IF EXISTS Promotion;
 DROP TABLE IF EXISTS Reviews;
 DROP TABLE IF EXISTS Slot;
+DROP TABLE IF EXISTS ProgrammeImages;
 DROP TABLE IF EXISTS ProgrammeSchedule;
 DROP TABLE IF EXISTS ProgrammeClassBatch;
 DROP TABLE IF EXISTS ProgrammeClass;
@@ -13,7 +14,7 @@ DROP TABLE IF EXISTS Child;
 DROP TABLE IF EXISTS Parent;
 DROP TABLE IF EXISTS Account;
 DROP TABLE IF EXISTS TierCriteria;
-
+DROP TABLE IF EXISTS BusinessEnquiries;
 
 -- Create Account table
 CREATE TABLE Account (
@@ -37,6 +38,7 @@ CREATE TABLE Parent (
     ProfilePicture MEDIUMBLOB NULL,
     Tier ENUM('Non-Membership', 'Bronze', 'Silver', 'Gold') DEFAULT 'Non-Membership' NOT NULL,
     TierStartDate DATE DEFAULT (CURRENT_DATE) NOT NULL,
+    ProfileDetails TEXT NULL,
     CONSTRAINT FK_Parent_Account FOREIGN KEY (AccountID) REFERENCES Account(AccountID)
 );  
 
@@ -54,7 +56,7 @@ CREATE TABLE Child (
     ChildID INT AUTO_INCREMENT PRIMARY KEY,
     FirstName VARCHAR(100) NOT NULL,
     LastName VARCHAR(100) NOT NULL,
-    SpecialNeeds VARCHAR(255) NULL,
+    HealthDetails VARCHAR(255) NULL,
     Relationship VARCHAR(100) NOT NULL, -- Son, Daughter, Niece,etc
     EmergencyContactNumber VARCHAR(15) NOT NULL,
     School VARCHAR(100) NULL,
@@ -63,6 +65,7 @@ CREATE TABLE Child (
     Dietary TEXT NULL,
     ParentID INT NOT NULL,
     ProfilePicture MEDIUMBLOB NULL, -- Binary data for the profile picture
+    ProfileDetails TEXT NULL,
     CONSTRAINT FK_Child_Parent FOREIGN KEY (ParentID) REFERENCES Parent(ParentID)
 );
 
@@ -190,3 +193,24 @@ CREATE TABLE ChatbotPrompts (
     PromptType VARCHAR(255) NOT NULL, -- E.g 'TelegramAnnouncement','TelegramDM','ChatbotUser','ChatbotAdmin'. AI Chatbot on user side, AI Chatbot on admin side, AI Chatbot for Telegram
     PromptText TEXT NOT NULL
 );
+
+-- Create BusinessEnquiries table
+-- used for storing enquiries from businesses interested in collaboration (B2B)
+CREATE TABLE BusinessEnquiries (
+    EnquiryID INT AUTO_INCREMENT PRIMARY KEY, -- Unique identifier for each enquiry
+    BusinessName VARCHAR(255) NOT NULL,       -- Name of the business
+    Industry VARCHAR(255) NOT NULL,                    -- Industry of the business
+    BusinessSize ENUM('Small', 'Medium', 'Large') NOT NULL, -- Size of the business
+    ContactName VARCHAR(255) NOT NULL,        -- Full name of the primary contact
+    ContactJobTitle VARCHAR(255) NOT NULL,             -- Job title of the contact person
+    EmailAddress VARCHAR(255) NOT NULL,       -- Email address of the contact person
+    PhoneNumber VARCHAR(50) NULL,                  -- Phone number of the contact person (optional)
+    PreferredContactMethod ENUM('Email', 'Phone') DEFAULT 'Email' NOT NULL, -- Contact preference
+    InterestAreas TEXT NULL,                       -- Comma-separated list of interest areas (optional)
+    AdditionalComments TEXT NULL,                  -- Additional details or comments (optional)
+    Consent TINYINT(1) NOT NULL DEFAULT 0,    -- Whether the user has consented to terms (1 = Yes, 0 = No)
+    Status ENUM('New', 'In Progress', 'Completed', 'Rejected') DEFAULT 'New' NOT NULL, -- Status of the enquiry
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, -- Timestamp for enquiry submission
+    AdminNotes TEXT NULL                          -- Internal notes for admin reference (optional)
+);
+

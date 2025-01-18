@@ -7,16 +7,16 @@ VALUES
 ('admin1@example.com', '$2a$10$.dscA5Fja5puF70mD0n2mua.Psz1pmIEsiZ9ugFFVycFnFARr9WpC', 'A', NOW());
 
 -- Insert data into Parent table
-INSERT INTO Parent (AccountID, FirstName, LastName, DateOfBirth, Gender, ContactNumber, Tier, TierStartDate, Dietary, ProfilePicture)
+INSERT INTO Parent (AccountID, FirstName, LastName, DateOfBirth, Gender, ContactNumber, Tier, TierStartDate, Dietary, ProfilePicture, ProfileDetails)
 VALUES 
-(1, 'John', 'Doe', '1980-05-10', 'M', '1234567890', 'Gold', '2023-12-12', 'No beef', 'PLACEHOLDER_PROFILE_USER_1'),
-(2, 'Jane', 'Smith', '1985-03-22', 'F', '0987654321', 'Silver', '2024-06-15', 'Vegetarian', 'PLACEHOLDER_PROFILE_USER_2');
+(1, 'John', 'Doe', '1980-05-10', 'M', '1234567890', 'Gold', '2023-12-12', 'No beef', 'PLACEHOLDER_PROFILE_USER_1', "i am a passionate in learning art and music as my side hobbies."),
+(2, 'Jane', 'Smith', '1985-03-22', 'F', '0987654321', 'Silver', '2024-06-15', 'Vegetarian', 'PLACEHOLDER_PROFILE_USER_2', 'i work as a Software Engineer and I love coding.');
 
 -- Insert data into Child table
-INSERT INTO Child (FirstName, LastName, SpecialNeeds, Relationship, EmergencyContactNumber, School, DateOfBirth, Gender, Dietary, ParentID, ProfilePicture)
+INSERT INTO Child (FirstName, LastName, HealthDetails, Relationship, EmergencyContactNumber, School, DateOfBirth, Gender, Dietary, ParentID, ProfilePicture, ProfileDetails)
 VALUES 
-('Jack', 'Doe', 'Has mild autism', 'Son', '1234567890', 'Greenwood School', '2010-09-15', 'M', 'None', 1, 'PLACEHOLDER_PROFILE_CHILD_1'),
-('Ella', 'Smith', '', 'Daughter', '0987654321', 'Bluebell Academy', '2012-12-05', 'F', 'Dairy-Free', 2, 'PLACEHOLDER_PROFILE_CHILD_2');
+('Jack', 'Doe', 'Has mild autism', 'Son', '1234567890', 'Greenwood School', '2010-09-15', 'M', 'None', 1, 'PLACEHOLDER_PROFILE_CHILD_1', 'im very interested in computers, technology and the world. i love to learn new things and make new friends.'),
+('Ella', 'Smith', '', 'Daughter', '0987654321', 'Bluebell Academy', '2012-12-05', 'F', 'Dairy-Free', 2, 'PLACEHOLDER_PROFILE_CHILD_2', 'i love to draw and paint, and i enjoy playing with my friends.');
 
 -- Insert data into Programme table
 INSERT INTO Programme (ProgrammeName, Category, ProgrammePicture, Description)
@@ -44,10 +44,10 @@ VALUES
 (2, '2025-02-10 10:00:00', '2025-02-10 16:00:00');
 
 -- Insert data into ProgrammeImages table
--- INSERT INTO ProgrammeImages (ProgrammeID, Image)
--- VALUES 
--- (1, 'PLACEHOLDER_PROGRAMME_1_CONTENT_1'),
--- (2, 'PLACEHOLDER_PROGRAMME_2_CONTENT_1');
+INSERT INTO ProgrammeImages (ProgrammeID, Image)
+VALUES 
+(1, 'PLACEHOLDER_PROGRAMME_1_CONTENT_1'),
+(2, 'PLACEHOLDER_PROGRAMME_2_CONTENT_1');
 
 -- Insert data into Slot table
 INSERT INTO Slot (ProgrammeClassID, ProgrammeID, InstanceID, ParentID, ChildID)
@@ -98,3 +98,10 @@ VALUES
             Please do not assume any information not provided in the context, if unsure, provide a general response.
             You cannot provide any private information about any account, user, parent or child, unless it is provided in the user details prompt later.
             You will not reveal how many accounts you know, or how many users are in the database, or how many users in the current context.'); 
+
+-- Insert data into BusinessEnquiries table
+INSERT INTO BusinessEnquiries (BusinessName, Industry, BusinessSize, ContactName, ContactJobTitle, EmailAddress, PhoneNumber, PreferredContactMethod, InterestAreas, AdditionalComments, Consent, Status, AdminNotes)
+VALUES 
+('TechCo Innovations', 'Technology', 'Medium', 'David Green', 'HR Manager', 'david.green@techco.com', '456789012', 'Email', 'Group Booking, Custom Workshops', 'Looking for workshops on leadership skills.', 1, 'New', 'Follow up by end of next week'),
+('EduFuture', 'Education', 'Small', 'Laura White', 'CEO', 'laura.white@edufuture.com', '0987654321', 'Phone', 'Sponsorship Opportunities', 'Interested in sponsoring STEM camps.', 1, 'In Progress', 'Sent sponsorship proposal. Awaiting feedback.'),
+('HealthFirst Ltd.', 'Healthcare', 'Large', 'Sophia Black', 'Training Coordinator', 'sophia.black@healthfirst.com', '1122334455', 'Email', 'Bulk Discounts', 'Seeking discounts for employee wellness programs.', 1, 'Completed', 'Confirmed discount details. Program starts in March.');
