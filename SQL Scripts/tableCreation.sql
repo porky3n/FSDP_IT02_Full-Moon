@@ -1,10 +1,10 @@
 -- Drop tables if they exist
+DROP TABLE IF EXISTS ChatbotPrompts;
 DROP TABLE IF EXISTS Token;
 DROP TABLE IF EXISTS Payment;
 DROP TABLE IF EXISTS Promotion;
 DROP TABLE IF EXISTS Reviews;
 DROP TABLE IF EXISTS Slot;
-DROP TABLE IF EXISTS ProgrammeImages;
 DROP TABLE IF EXISTS ProgrammeSchedule;
 DROP TABLE IF EXISTS ProgrammeClassBatch;
 DROP TABLE IF EXISTS ProgrammeClass;
@@ -181,4 +181,12 @@ CREATE TABLE Token (
     Token TEXT NOT NULL,
     ExpiresAt DATETIME NOT NULL,
     CONSTRAINT FK_Tokens_Account FOREIGN KEY (AccountID) REFERENCES Account(AccountID)
+);
+
+-- Create ChatbotPrompts table
+-- used for storing chatbot prompts for admin configuration
+CREATE TABLE ChatbotPrompts (
+    PromptID INT AUTO_INCREMENT PRIMARY KEY,
+    PromptType VARCHAR(255) NOT NULL, -- E.g 'TelegramAnnouncement','TelegramDM','ChatbotUser','ChatbotAdmin'. AI Chatbot on user side, AI Chatbot on admin side, AI Chatbot for Telegram
+    PromptText TEXT NOT NULL
 );

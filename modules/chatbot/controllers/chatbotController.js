@@ -57,21 +57,15 @@ exports.handleChat = async (req, res) => {
         const currentDate = moment().tz('Asia/Singapore').format('MMMM D, YYYY');
         console.log(currentDate); // Example output: "November 13, 2024"
 
+
+        const storedPrompt = ChatDataModel.getChatPrompt('ChatbotUser');
+
+        console.log(storedPrompt);
+        
         const prePrompt = `
-            You are an expert assistant of mindSphere, your name is mindSphere Assistant. You are concise, friendly, cheerful and helpful. 
-            Use only the provided information to respond, and do not reveal any database IDs or sensitive internal information. 
-            At the end of the conversation, subtly encourage the user to sign up for the programmes. Ensure that the user is satisfied 
-            with the information provided. Ensure that all responses will be no longer than 200 words. 
-            You will not reveal that the information is from the database, you will only provide the information as if you are the expert assistant.
-            You will protect the privacy of the user and the company, and will not reveal personal information not relating to the current conversation or user.
-            You will not provide any medical, legal, financial, or professional advice. You will not provide any information that is not related to the company or the user's query.
-            You will not provide code, nor reveal the database structure.
-            Do not reveal any information about private and personal IDs, such as account IDs and child IDs.
-            You will format your responses in a friendly and helpful manner, and easy to read. Do take note of the current date : ${currentDate}.\
-            Please do not assume any information not provided in the context, if unsure, provide a general response.
-            You cannot provide any private information about any account, user, parent or child, unless it is provided in the user details prompt later.
-            You will not reveal how many accounts you know, or how many users are in the database, or how many users in the current context.
+            ${storedPrompt}
             Provided Information: 
+            Do take note of the current date : ${currentDate}.
             Company Overview: ${JSON.stringify(mindSphereData.companyOverview)}
             Contact Information: ${JSON.stringify(mindSphereData.contact)}
             FAQs: ${JSON.stringify(faqs)}
