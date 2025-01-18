@@ -25,13 +25,13 @@ function loadChatbot() {
     </button>
     <div class="chatbot">
       <header>
-        <h2>mindSphere Assistant</h2>
+        <h2>InsightSphere</h2>
         <span class="close-btn material-symbols-outlined">close</span>
       </header>
       <ul class="chatbox">
         <li class="chat incoming">
           <span class="material-symbols-outlined">smart_toy</span>
-          <p>Hi there 👋<br>How can I help you today?</p>
+          <p>Hi there 👋<br>How can I help you today? I provide insightful guidance on business ideas and more, feel free to ask!</p>
         </li>
       </ul>
       <div class="chat-input">
@@ -80,7 +80,7 @@ function loadChatbot() {
 
   // Function to send a message to the backend and get a response
   const sendMessageToBackend = (message, callback) => {
-    fetch('/api/chatbot/message/user', {
+    fetch('/api/chatbot/message/admin', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
