@@ -168,7 +168,7 @@ CREATE TABLE Payment (
     PaymentDate DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
     PaymentMethod VARCHAR(255) NOT NULL, -- PayNow for now,
     Verified VARCHAR(255) DEFAULT 'Pending' NOT NULL, -- Pending, Verified, Rejected
-    PurchaseTier ENUM('Non-Membership', 'Bronze', 'Silver', 'Gold') NOT NULL DEFAULT 'Bronze',
+    PurchaseTier ENUM('Non-Membership', 'Bronze', 'Silver', 'Gold') NOT NULL DEFAULT 'Non-Membership',
     CONSTRAINT FK_Payment_Slot FOREIGN KEY (SlotID) REFERENCES Slot(SlotID),
     CONSTRAINT FK_Payment_Promotion FOREIGN KEY (PromotionID) REFERENCES Promotion(PromotionID)
 );
