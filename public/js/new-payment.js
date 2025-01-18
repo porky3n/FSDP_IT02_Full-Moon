@@ -1,26 +1,31 @@
 // Global variables to store payment information, last uploaded image in binary format, and session details
-let promotionID = null;       // Will be updated based on fetched data
-let paymentAmount = 0;        // Updated based on original or discounted fee
+let promotionID = null; // Will be updated based on fetched data
+let paymentAmount = 0; // Updated based on original or discounted fee
 
 // Retrieve session storage details and store in global variables
-const sessionDetails = JSON.parse(sessionStorage.getItem("selectedScheduleDetails"));
+const sessionDetails = JSON.parse(
+  sessionStorage.getItem("selectedScheduleDetails")
+);
 const programmeId = sessionDetails ? sessionDetails.programmeId : null;
 const instanceId = sessionDetails ? sessionDetails.instanceId : null;
-const programmeClassId = sessionDetails ? sessionDetails.programmeClassId : null;
+const programmeClassId = sessionDetails
+  ? sessionDetails.programmeClassId
+  : null;
 const profileId = sessionDetails ? sessionDetails.profileId : null;
 let startDate = "";
 let endDate = "";
 let programmeName = "";
+let accountId = null;
 
 // Stripe variables
-let clientSecret = '';
+let clientSecret = "";
 let elements = null;
 let cardElement = null;
-let selectedPaymentMethod = ''; // To store the selected payment method
+let selectedPaymentMethod = ""; // To store the selected payment method
 
 document.addEventListener("DOMContentLoaded", async () => {
   fetchProgrammeCartDetails();
-  initializeStripe();
+  // initializeStripe();
 });
 
 /**
@@ -35,11 +40,12 @@ async function fetchProgrammeCartDetails() {
 
     const [cartResponse, datesResponse] = await Promise.all([
       fetch(`/api/programmeClass/${programmeClassId}/cart`),
-      fetch(`/api/programmeSchedule/${instanceId}/startenddates`)
+      fetch(`/api/programmeSchedule/${instanceId}/startenddates`),
     ]);
 
     if (!cartResponse.ok) throw new Error("Failed to fetch programme details");
-    if (!datesResponse.ok) throw new Error("Failed to fetch programme schedule dates");
+    if (!datesResponse.ok)
+      throw new Error("Failed to fetch programme schedule dates");
 
     const cartData = await cartResponse.json();
     const dateData = await datesResponse.json();
@@ -51,7 +57,6 @@ async function fetchProgrammeCartDetails() {
 
     // Set global variables for payment details
     promotionID = cartData.promotionID || null;
-
   } catch (error) {
     console.error("Error fetching programme cart details or dates:", error);
   }
@@ -73,8 +78,12 @@ function updateSummary(data, dates) {
   // programmeDescription = data.programmeDescription;
   const originalFee = parseFloat(data.originalFee);
   const discountType = data.discountType || "No discount available";
-  const discountAmount = data.discountValue ? parseFloat(data.discountValue) : 0;
-  const discountedFee = data.discountedFee ? parseFloat(data.discountedFee) : originalFee;
+  const discountAmount = data.discountValue
+    ? parseFloat(data.discountValue)
+    : 0;
+  const discountedFee = data.discountedFee
+    ? parseFloat(data.discountedFee)
+    : originalFee;
   const discountValue = originalFee - discountedFee;
   const promotionName = data.promotionName || "No promotion available";
 
@@ -85,24 +94,30 @@ function updateSummary(data, dates) {
   document.getElementById("courseName").firstChild.textContent = programmeName;
 
   // Update original price
-  document.getElementById("originalPrice").textContent = `SGD ${originalFee.toFixed(2)}`;
-  document.getElementById("coursePrice").textContent = `SGD ${originalFee.toFixed(2)}`;
+  document.getElementById(
+    "originalPrice"
+  ).textContent = `SGD ${originalFee.toFixed(2)}`;
+  document.getElementById(
+    "coursePrice"
+  ).textContent = `SGD ${originalFee.toFixed(2)}`;
 
   // Display discount section if there is a discount
   if (discountedFee < originalFee) {
     document.getElementById("discountSection").style.display = "block";
-    document.getElementById("discountLabel").firstChild.textContent = `Discount (${promotionName}) `;
+    document.getElementById(
+      "discountLabel"
+    ).firstChild.textContent = `Discount (${promotionName}) `;
     console.log(discountType);
     if (discountType === "Percentage") {
-      document.getElementById("discountAmount").textContent = `(${discountAmount}%)`;
-    }
-    else {
+      document.getElementById(
+        "discountAmount"
+      ).textContent = `(${discountAmount}%)`;
+    } else {
       document.getElementById("discountAmount").textContent = null;
     }
-    document.getElementById("discountedPrice").textContent = `SGD ${discountValue.toFixed(2)}`;
-    document.getElementById("subtotal").textContent = `SGD ${discountedFee.toFixed(2)}`;
-    document.getElementById("total").textContent = `SGD ${discountedFee.toFixed(2)}`;
-    paymentAmount = discountedFee.toFixed(2);
+    document.getElementById(
+      "discountedPrice"
+    ).textContent = `SGD ${discountValue.toFixed(2)}`;
 
     // Update total price (1)
     // document.getElementById("totalPrice").textContent = `$${discountedFee.toFixed(2)}`;
@@ -110,6 +125,14 @@ function updateSummary(data, dates) {
     // Hide discount section if no discount
     document.getElementById("discountSection").classList.add("d-none");
   }
+  document.getElementById(
+    "subtotal"
+  ).textContent = `SGD ${discountedFee.toFixed(2)}`;
+  document.getElementById("total").textContent = `SGD ${discountedFee.toFixed(
+    2
+  )}`;
+  paymentAmount = discountedFee.toFixed(2);
+  console.log("discountedFee:", discountedFee.toFixed(2));
 
   // Update total price (2)
   // document.getElementById("totalPrice").textContent = `$${discountedFee.toFixed(2)}`;
@@ -117,14 +140,14 @@ function updateSummary(data, dates) {
   // Create payment intent with the discounted fee (Using stripe)
   // createPaymentIntent(paymentAmount);
 
-
   // Display start and end dates
   startDate = new Date(dates.firstStartDate).toLocaleDateString();
   endDate = new Date(dates.lastEndDate).toLocaleDateString();
+
+  initializeStripe();
   // document.getElementById("startDate").textContent = startDate;
   // document.getElementById("endDate").textContent = endDate;
 }
-
 
 /**
  * Function to create a slot, and upon success redirect to payment receipt page
@@ -148,12 +171,21 @@ function updateSummary(data, dates) {
  */
 async function createSlot() {
   // Retrieve schedule details from session storage
-  const scheduleDetailsString = sessionStorage.getItem("selectedScheduleDetails");
+  const scheduleDetailsString = sessionStorage.getItem(
+    "selectedScheduleDetails"
+  );
   const scheduleDetails = JSON.parse(scheduleDetailsString);
 
   // Check if all required details are available
-  if (!scheduleDetails || !scheduleDetails.programmeId || !scheduleDetails.instanceId || !scheduleDetails.programmeClassId) {
-    alert("No schedule details found. Please select a schedule before proceeding.");
+  if (
+    !scheduleDetails ||
+    !scheduleDetails.programmeId ||
+    !scheduleDetails.instanceId ||
+    !scheduleDetails.programmeClassId
+  ) {
+    alert(
+      "No schedule details found. Please select a schedule before proceeding."
+    );
     return false;
   }
 
@@ -169,6 +201,7 @@ async function createSlot() {
   const userDetailsString = localStorage.getItem("userDetails");
   const userDetails = JSON.parse(userDetailsString);
   const userEmail = userDetails.email;
+  accountId = userDetails.accountId;
 
   // Prepare slot data object
   const slotData = {
@@ -179,11 +212,13 @@ async function createSlot() {
     childID: childID, // Use childID if profile type is child
     paymentAmount: paymentAmount, // Use calculated payment amount from updateSummary
     paymentMethod: selectedPaymentMethod, // Retrieved from fetchProgrammeCartDetails
+    verified: "Verified", // Set to "Verified" for now
+    purchaseTier: userDetails.tier, // Retrieve user tier from localStorage
     promotionID: promotionID,
     userEmail: userEmail, // Include user email
     programmeName: programmeName,
     startDate: startDate,
-    endDate: endDate // Retrieved from fetchProgrammeCartDetails
+    endDate: endDate, // Retrieved from fetchProgrammeCartDetails
   };
 
   console.log("Slot and payment data:", slotData);
@@ -192,18 +227,21 @@ async function createSlot() {
     const response = await fetch("/api/slot/create", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(slotData)
+      body: JSON.stringify(slotData),
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || "Failed to create slot and payment.");
+      throw new Error(
+        errorData.message || "Failed to create slot and payment."
+      );
     }
 
     const data = await response.json();
     console.log("Slot and payment created successfully:", data);
+    updateTierForAccount();
     alert("Slot and payment created successfully.");
     return true; // Return true on successful slot creation
   } catch (error) {
@@ -213,81 +251,71 @@ async function createSlot() {
   }
 }
 
-
-
-
-
-
-
-
-
 // Stripe Payment
 // Stripe Public Key
-const stripe = Stripe('pk_test_51QefolPwgB6Ze04CvONegf5es97gWPMkVLxcQv9XOBoEi26IIyvzBFmBpxHC5ORKE9eBIIACAK6uoL3dv5CpWjZx00E67kJbua');
+const stripe = Stripe(
+  "pk_test_51QefolPwgB6Ze04CvONegf5es97gWPMkVLxcQv9XOBoEi26IIyvzBFmBpxHC5ORKE9eBIIACAK6uoL3dv5CpWjZx00E67kJbua"
+);
 
 // Promotion code
-const addPromotionLink = document.getElementById('addPromotionLink');
-const promotionInput = document.getElementById('promotionInput');
-const promotionInputField = document.getElementById('promotion-input-field');
+const addPromotionLink = document.getElementById("addPromotionLink");
+const promotionInput = document.getElementById("promotionInput");
+const promotionInputField = document.getElementById("promotion-input-field");
 
-addPromotionLink.addEventListener('click', function(e) {
-    e.preventDefault();
-    addPromotionLink.style.opacity = '0';
-    setTimeout(() => {
-        addPromotionLink.style.display = 'none';
-        promotionInput.classList.add('show');
-        promotionInputField.focus();
-    }, 0);
+addPromotionLink.addEventListener("click", function (e) {
+  e.preventDefault();
+  addPromotionLink.style.opacity = "0";
+  setTimeout(() => {
+    addPromotionLink.style.display = "none";
+    promotionInput.classList.add("show");
+    promotionInputField.focus();
+  }, 0);
 });
 
-document.addEventListener('click', function(e) {
-    if (!promotionInput.contains(e.target) && e.target !== addPromotionLink) {
-        if (promotionInputField.value.trim() === '') {
-            if (promotionInput.classList.contains('show')) {
-                promotionInput.classList.remove('show');
-                setTimeout(() => {
-                    addPromotionLink.style.display = 'block';
-                    addPromotionLink.style.opacity = '1';
-                }, 0);
-            }
-        }
+document.addEventListener("click", function (e) {
+  if (!promotionInput.contains(e.target) && e.target !== addPromotionLink) {
+    if (promotionInputField.value.trim() === "") {
+      if (promotionInput.classList.contains("show")) {
+        promotionInput.classList.remove("show");
+        setTimeout(() => {
+          addPromotionLink.style.display = "block";
+          addPromotionLink.style.opacity = "1";
+        }, 0);
+      }
     }
+  }
 });
-
 
 // Show "Apply" button when there is text
-promotionInputField.addEventListener('input', function () {
-    if (promotionInputField.value.trim() === '') {
-        applyButton.classList.remove('show');
-    } else {
-        applyButton.classList.add('show');
-    }
+promotionInputField.addEventListener("input", function () {
+  if (promotionInputField.value.trim() === "") {
+    applyButton.classList.remove("show");
+  } else {
+    applyButton.classList.add("show");
+  }
 });
 
-const applyButton = document.getElementById('applyButton');
+const applyButton = document.getElementById("applyButton");
 // Handle "Apply" button click
-applyButton.addEventListener('click', function () {
-    alert(`Promotion code applied: ${promotionInputField.value}`);
+applyButton.addEventListener("click", function () {
+  alert(`Promotion code applied: ${promotionInputField.value}`);
 });
 
 // Handle focus and blur events for smooth transition
-promotionInputField.addEventListener('focus', function () {
-    promotionInputField.style.width = '380px';
-    promotionInputField.style.height = '35px';
+promotionInputField.addEventListener("focus", function () {
+  promotionInputField.style.width = "380px";
+  promotionInputField.style.height = "35px";
 });
 
-promotionInputField.addEventListener('blur', function () {
-    if (promotionInputField.value.trim() === '') {
-        promotionInputField.style.width = '250px';
-        promotionInputField.style.height = '30px';
-    }
+promotionInputField.addEventListener("blur", function () {
+  if (promotionInputField.value.trim() === "") {
+    promotionInputField.style.width = "250px";
+    promotionInputField.style.height = "30px";
+  }
 });
-
-
-
 
 /// Stripe Payment
-  
+
 async function initializeStripe() {
   // Wait for createPaymentIntent to complete and get the client secret
   clientSecret = await createPaymentIntent(paymentAmount);
@@ -296,7 +324,9 @@ async function initializeStripe() {
     // Proceed to set up Stripe elements and UI
     stripeCheckout(clientSecret);
   } else {
-    console.error("Failed to create payment intent. Stripe Checkout cannot proceed.");
+    console.error(
+      "Failed to create payment intent. Stripe Checkout cannot proceed."
+    );
   }
 }
 
@@ -305,18 +335,17 @@ async function initializeStripe() {
 //   initializeStripe();
 // });
 
-
-
 // new functions using stripe
 async function createPaymentIntent(paymentAmount) {
   paymentAmount = paymentAmount * 100; // Convert to cents
+  console.log("Payment amount in cents:", paymentAmount);
   try {
     const response = await fetch("/api/payment/create", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ paymentAmount })
+      body: JSON.stringify({ paymentAmount }),
     });
 
     if (!response.ok) {
@@ -335,8 +364,7 @@ async function createPaymentIntent(paymentAmount) {
   }
 }
 
-/* stripe form */ 
-
+/* stripe form */
 
 //Edit payment amount
 async function stripeCheckout(clientSecret) {
@@ -350,7 +378,7 @@ async function stripeCheckout(clientSecret) {
     cardElement = elements.create("payment");
     cardElement.mount("#card-element");
 
-    setTimeout (() => {
+    setTimeout(() => {
       const form = document.getElementsByTagName("form")[0];
       const bookButton = document.createElement("button");
       bookButton.id = "bookButton";
@@ -362,18 +390,18 @@ async function stripeCheckout(clientSecret) {
       // Add click event listener
       // bookButton.addEventListener("click", async function (e) {
       //   e.preventDefault(); // Prevent the default form submission
-        
+
       //   console.log("Client secret:", clientSecret);
-      
+
       //   if (clientSecret) {
       //     await confirmPay(clientSecret);
       //   } else {
       //     console.error("Client secret is not available");
       //   }
       // });
-  
-      form.appendChild(bookButton);  
-  
+
+      form.appendChild(bookButton);
+
       // Add the show class to trigger the animation
 
       // Listen for changes to detect the selected payment method
@@ -384,13 +412,10 @@ async function stripeCheckout(clientSecret) {
         console.log("bookButton:", bookButton);
         if (event.complete === false) {
           bookButton.disabled = true;
-
-        }
-        else if (event.error) {
+        } else if (event.error) {
           errorDisplay.textContent = event.error.message;
           bookButton.disabled = true;
-        } 
-        else {
+        } else {
           errorDisplay.textContent = "";
           bookButton.disabled = false;
 
@@ -401,17 +426,11 @@ async function stripeCheckout(clientSecret) {
           }
         }
       });
-      
+
       setTimeout(() => {
         bookButton.classList.add("show");
       }, 10); // Small delay to ensure the element is added to the DOM before the animation starts
     }, 650);
-
-    
-
-
-    
-    
   } catch (error) {
     console.error("Error setting up Stripe elements:", error);
   }
@@ -438,12 +457,7 @@ async function stripeCheckout(clientSecret) {
 
   // // Mount the card element into the #card-element div
   // cardElement.mount("#card-element");
-
-  
-  
 }
-  
-  
 
 // Function to confirm the payment
 async function confirmPayment(clientSecret) {
@@ -512,10 +526,8 @@ async function confirmPayment(clientSecret) {
   // });
 }
 
-
-
 // Handling form submission
-document.getElementById('paymentForm').addEventListener('submit', handleSubmit);
+document.getElementById("paymentForm").addEventListener("submit", handleSubmit);
 
 async function handleSubmit(event) {
   // Prevent the default form submission behavior
@@ -549,16 +561,9 @@ async function handleSubmit(event) {
   // } catch (error) {
   //   console.error("Error updating PaymentIntent:", error.message);
   // }
-  
+
   await confirmPayment(clientSecret);
 }
-
-
-
-
-
-
-
 
 // FOR CARD PAYMENT
 // function createPayout(amount) {
@@ -584,3 +589,43 @@ async function handleSubmit(event) {
 //     alert(`Error creating payout: ${error.message}`);
 //   });
 // }
+
+async function updateTierForAccount() {
+  try {
+    console.log("Updating tier for account:", accountId);
+
+    // Call the API to update the tier
+    const response = await fetch(`/api/payment/${accountId}/tier`, {
+      method: "PUT",
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to update tier for account.");
+    }
+
+    const data = await response.json();
+
+    // Check if the tier was upgraded
+    if (data.tierUpdated) {
+      // Update localStorage if the tier was upgraded
+      const userDetails = JSON.parse(localStorage.getItem("userDetails")) || {};
+      localStorage.setItem(
+        "userDetails",
+        JSON.stringify({
+          ...userDetails,
+          tier: data.newTier, // Update the tier in localStorage
+        })
+      );
+      alert(data.message);
+    } else {
+      alert(data.message); // Notify the user that the tier was retained
+    }
+  } catch (error) {
+    console.error("Error updating tier for account:", error);
+    alert(`Error updating tier for account: ${error.message}`);
+  }
+}
+
+
+
+//update the localstorage

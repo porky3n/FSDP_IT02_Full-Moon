@@ -84,11 +84,13 @@
             const userDetailsString = localStorage.getItem("userDetails");
             let accountId = null;
             let email = null;
+            let tier = null;
             // Check if userDetails exists and parse it if it does
             if (userDetailsString) {
                 const userDetails = JSON.parse(userDetailsString);
                 accountId = userDetails.accountId;
                 email = userDetails.email;
+                tier = userDetails.tier;
                 console.log(email); // Output the accountId
             } else {
                 console.log("User details not found in localStorage.");
