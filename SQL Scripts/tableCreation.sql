@@ -25,6 +25,15 @@ CREATE TABLE Account (
     PasswordHashed VARCHAR(1000) NOT NULL
 );
 
+-- Create TierCriteria table
+CREATE TABLE TierCriteria (
+    Tier ENUM('Non-Membership', 'Bronze', 'Silver', 'Gold') PRIMARY KEY,
+    MinPurchases INT NOT NULL,
+    TierDuration INT NOT NULL, -- Duration in days
+    TierDiscount DECIMAL(5, 2) DEFAULT 0.00 NOT NULL, -- Discount percentage
+    Special BOOLEAN DEFAULT FALSE -- Indicates special benefits
+);
+
 -- Create Parent table
 CREATE TABLE Parent (
     ParentID INT AUTO_INCREMENT PRIMARY KEY,
@@ -36,20 +45,12 @@ CREATE TABLE Parent (
     ContactNumber VARCHAR(15) NOT NULL,
     Dietary TEXT NULL,
     ProfilePicture MEDIUMBLOB NULL,
-    Tier ENUM('Non-Membership', 'Bronze', 'Silver', 'Gold') DEFAULT 'Non-Membership' NOT NULL,
-    TierStartDate DATE DEFAULT (CURRENT_DATE) NOT NULL,
+    Membership ENUM('Non-Membership', 'Bronze', 'Silver', 'Gold') DEFAULT 'Non-Membership' NOT NULL,
+    StartDate DATE DEFAULT (CURRENT_DATE) NOT NULL,
     ProfileDetails TEXT NULL,
-    CONSTRAINT FK_Parent_Account FOREIGN KEY (AccountID) REFERENCES Account(AccountID)
+    CONSTRAINT FK_Parent_Account FOREIGN KEY (AccountID) REFERENCES Account(AccountID),
+    CONSTRAINT FK_Parent_TierCriteria FOREIGN KEY (Membership) REFERENCES TierCriteria(Tier)
 );  
-
--- Create TierCriteria table
-CREATE TABLE TierCriteria (
-    Tier ENUM('Non-Membership', 'Bronze', 'Silver', 'Gold') PRIMARY KEY,
-    MinPurchases INT NOT NULL,
-    TierDuration INT NOT NULL, -- Duration in days
-    TierDiscount DECIMAL(5, 2) DEFAULT 0.00 NOT NULL, -- Discount percentage
-    Special BOOLEAN DEFAULT FALSE -- Indicates special benefits
-);
 
 -- Create Child table
 CREATE TABLE Child (
@@ -191,7 +192,7 @@ CREATE TABLE Token (
 CREATE TABLE ChatbotPrompts (
     PromptID INT AUTO_INCREMENT PRIMARY KEY,
     PromptType VARCHAR(255) NOT NULL, -- E.g 'TelegramAnnouncement','TelegramDM','ChatbotUser','ChatbotAdmin'. AI Chatbot on user side, AI Chatbot on admin side, AI Chatbot for Telegram
-    PromptText TEXT NOT NULL
+    PromptText MEDIUMTEXT NOT NULL
 );
 
 -- Create BusinessEnquiries table
