@@ -62,6 +62,8 @@ const createSlotAndPayment = async (req, res) => {
         childID, 
         paymentAmount, 
         paymentMethod, 
+        verified,
+        purchaseTier,
         //paymentImage, // Expecting an array of binary data here
         promotionID,
         userEmail,
@@ -83,8 +85,10 @@ const createSlotAndPayment = async (req, res) => {
             childID,
             paymentAmount,
             paymentMethod,
+            verified,
+            purchaseTier,
             //paymentImageBuffer,
-            promotionID
+            promotionID,
              // Include user email
         );
 

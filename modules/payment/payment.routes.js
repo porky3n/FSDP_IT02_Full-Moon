@@ -19,6 +19,7 @@ const paymentRoutes = express.Router();
 
 
 paymentRoutes.get('/', paymentController.getAllPayments);
+paymentRoutes.put('/:accountId/tier', paymentController.updateTierBasedOnPurchases);
 paymentRoutes.post('/create', paymentController.createPaymentIntent);
 paymentRoutes.post('/payout', paymentController.createPayout);
 
