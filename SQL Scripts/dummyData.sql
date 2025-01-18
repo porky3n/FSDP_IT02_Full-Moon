@@ -78,6 +78,6 @@ VALUES
 INSERT INTO TierCriteria (Tier, MinPurchases, TierDuration, TierDiscount, Special)
 VALUES 
 ('Non-Membership', 0, 0, 0.00, FALSE), -- Default tier with no benefits
-('Bronze', 5, 30, 5.00, FALSE),       -- Requires 5 purchases, 5% discount, valid for 30 days
+('Bronze', 2, 30, 5.00, FALSE),       -- Requires 5 purchases, 5% discount, valid for 30 days
 ('Silver', 10, 90, 10.00, TRUE),      -- Requires 10 purchases, 10% discount, valid for 90 days, with special benefits
 ('Gold', 20, 180, 20.00, TRUE);       -- Requires 20 purchases, 20% discount, valid for 180 days, with special benefits

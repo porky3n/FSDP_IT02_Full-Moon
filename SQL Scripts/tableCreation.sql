@@ -36,9 +36,9 @@ CREATE TABLE Parent (
     Dietary TEXT NULL,
     ProfilePicture MEDIUMBLOB NULL,
     Tier ENUM('Non-Membership', 'Bronze', 'Silver', 'Gold') DEFAULT 'Non-Membership' NOT NULL,
-    TierStartDate DATE NULL,
+    TierStartDate DATE DEFAULT (CURRENT_DATE) NOT NULL,
     CONSTRAINT FK_Parent_Account FOREIGN KEY (AccountID) REFERENCES Account(AccountID)
-);
+);  
 
 -- Create TierCriteria table
 CREATE TABLE TierCriteria (
