@@ -7,10 +7,10 @@ VALUES
 ('admin1@example.com', '$2a$10$.dscA5Fja5puF70mD0n2mua.Psz1pmIEsiZ9ugFFVycFnFARr9WpC', 'A', NOW());
 
 -- Insert data into Parent table
-INSERT INTO Parent (AccountID, FirstName, LastName, DateOfBirth, Gender, ContactNumber, Membership, MembershipExpirationDate, Dietary, ProfilePicture)
+INSERT INTO Parent (AccountID, FirstName, LastName, DateOfBirth, Gender, ContactNumber, Tier, TierStartDate, Dietary, ProfilePicture)
 VALUES 
-(1, 'John', 'Doe', '1980-05-10', 'M', '1234567890', 'Member', '2024-12-12', 'No beef', 'PLACEHOLDER_PROFILE_USER_1'),
-(2, 'Jane', 'Smith', '1985-03-22', 'F', '0987654321', 'Non-Member', NULL, 'Vegetarian', 'PLACEHOLDER_PROFILE_USER_2');
+(1, 'John', 'Doe', '1980-05-10', 'M', '1234567890', 'Gold', '2023-12-12', 'No beef', 'PLACEHOLDER_PROFILE_USER_1'),
+(2, 'Jane', 'Smith', '1985-03-22', 'F', '0987654321', 'Silver', '2024-06-15', 'Vegetarian', 'PLACEHOLDER_PROFILE_USER_2');
 
 -- Insert data into Child table
 INSERT INTO Child (FirstName, LastName, SpecialNeeds, Relationship, EmergencyContactNumber, School, DateOfBirth, Gender, Dietary, ParentID, ProfilePicture)
@@ -39,9 +39,9 @@ VALUES
 -- Insert data into ProgrammeSchedule table
 INSERT INTO ProgrammeSchedule (InstanceID, StartDateTime, EndDateTime)
 VALUES 
-(1, '2024-02-01 09:00:00', '2024-02-01 12:00:00'),
-(1, '2024-02-03 09:00:00', '2024-02-03 12:00:00'),
-(2, '2024-02-10 10:00:00', '2024-02-10 16:00:00');
+(1, '2025-02-01 09:00:00', '2025-02-01 12:00:00'),
+(1, '2025-02-03 09:00:00', '2025-02-03 12:00:00'),
+(2, '2025-02-10 10:00:00', '2025-02-10 16:00:00');
 
 -- Insert data into ProgrammeImages table
 -- INSERT INTO ProgrammeImages (ProgrammeID, Image)
@@ -65,14 +65,22 @@ VALUES
 -- Insert data into Promotion table
 INSERT INTO Promotion (ProgrammeID, PromotionName, DiscountType, DiscountValue, StartDateTime, EndDateTime, Remarks)
 VALUES 
-(1, 'Early Bird Discount', 'Percentage', 10.00, '2024-01-01 00:00:00', '2024-01-20 23:59:59', 'Available for early sign-ups'),
-(2, 'Spring Special', 'Fixed Amount', 20.00, '2024-03-01 00:00:00', '2024-03-15 23:59:59', 'Limited-time offer');
+(1, 'Early Bird Discount', 'Percentage', 10.00, '2025-01-01 00:00:00', '2025-01-20 23:59:59', 'Available for early sign-ups'),
+(2, 'Spring Special', 'Fixed Amount', 20.00, '2025-01-01 00:00:00', '2025-01-15 23:59:59', 'Limited-time offer');
 
 -- Insert data into Payment table
-INSERT INTO Payment (SlotID, PromotionID, PaymentAmount, PaymentDate, PaymentMethod, PaymentImage)
+INSERT INTO Payment (SlotID, PromotionID, PaymentAmount, PaymentDate, PaymentMethod, Verified, PurchaseTier)
 VALUES 
-(1, 1, 45.00, NOW(), 'PayNow', 'PLACEHOLDER_PAYMENT_1'), -- Slot with promotion
-(2, NULL, 75.00, NOW(), 'PayNow', "PLACEHOLDER_PAYMENT_2"); -- Slot without promotion
+(1, 1, 25.50, NOW(), 'PayNow', 'Verified', 'Gold'), -- Slot with yoga promotion
+(2, 2, 125.00, NOW(), 'PayNow', 'Pending', 'Silver'); -- Slot with robotics promotion
+
+-- Insert data into TierCriteria table
+INSERT INTO TierCriteria (Tier, MinPurchases, TierDuration, TierDiscount, Special)
+VALUES 
+('Non-Membership', 0, 0, 0.00, FALSE), -- Default tier with no benefits
+('Bronze', 2, 30, 5.00, FALSE),       -- Requires 5 purchases, 5% discount, valid for 30 days
+('Silver', 10, 90, 10.00, TRUE),      -- Requires 10 purchases, 10% discount, valid for 90 days, with special benefits
+('Gold', 20, 180, 20.00, TRUE);       -- Requires 20 purchases, 20% discount, valid for 180 days, with special benefits
 
 -- Insert data into ChatbotPrompts table
 INSERT INTO ChatbotPrompts (PromptType, PromptText)

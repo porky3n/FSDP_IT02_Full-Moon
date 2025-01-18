@@ -118,6 +118,8 @@ class ProgrammeClass {
                 programmeName: row.ProgrammeName,
                 originalFee: row.originalFee,
                 promotionID: row.PromotionID || null,
+                discountType: row.DiscountType || null,
+                discountValue: row.DiscountValue || null,
                 discountedFee: row.discountedFee,
                 promotionName: row.PromotionName || null,
                 discountType: row.DiscountType || null,

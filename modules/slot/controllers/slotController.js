@@ -62,7 +62,9 @@ const createSlotAndPayment = async (req, res) => {
         childID, 
         paymentAmount, 
         paymentMethod, 
-        paymentImage, // Expecting an array of binary data here
+        verified,
+        purchaseTier,
+        //paymentImage, // Expecting an array of binary data here
         promotionID,
         userEmail,
         programmeName,
@@ -72,7 +74,7 @@ const createSlotAndPayment = async (req, res) => {
 
     try {
         // Convert the paymentImage array back to binary for database storage
-        const paymentImageBuffer = Buffer.from(paymentImage);
+        //const paymentImageBuffer = Buffer.from(paymentImage);
 
         // Create the slot with the additional payment details, passing arguments individually
         const { slotID, paymentID } = await Slot.createSlotAndPayment(
@@ -83,8 +85,10 @@ const createSlotAndPayment = async (req, res) => {
             childID,
             paymentAmount,
             paymentMethod,
-            paymentImageBuffer,
-            promotionID
+            verified,
+            purchaseTier,
+            //paymentImageBuffer,
+            promotionID,
              // Include user email
         );
 
