@@ -99,7 +99,7 @@ class Payment {
         `;
 
     const getCurrentTierQuery = `
-            SELECT Tier 
+            SELECT Membership 
             FROM Parent 
             WHERE AccountID = ?;
         `;
@@ -107,18 +107,18 @@ class Payment {
     const updateTierQuery = `
             UPDATE Parent
             SET 
-                TierStartDate = CASE 
-                    WHEN Tier = (
+                StartDate = CASE 
+                    WHEN Membership = (
                         SELECT t.Tier
                         FROM TierCriteria t
                         WHERE t.MinPurchases <= ?
                         ORDER BY t.MinPurchases DESC
                         LIMIT 1
                     ) THEN CURRENT_DATE
-                    ELSE TierStartDate
+                    ELSE StartDate
                 END,
-                Tier = CASE 
-                    WHEN Tier <> (
+                Membership = CASE 
+                    WHEN Membership <> (
                         SELECT t.Tier
                         FROM TierCriteria t
                         WHERE t.MinPurchases <= ?
@@ -131,7 +131,7 @@ class Payment {
                         ORDER BY t.MinPurchases DESC
                         LIMIT 1
                     )
-                    ELSE Tier
+                    ELSE Membership
                 END
             WHERE AccountID = ?;
         `;
@@ -148,7 +148,7 @@ class Payment {
       const [currentTierResult] = await pool.query(getCurrentTierQuery, [
         accountID,
       ]);
-      const currentTier = currentTierResult[0]?.Tier;
+      const currentTier = currentTierResult[0]?.Membership;
 
       // Step 3: Update the tier and/or TierStartDate
       await pool.query(updateTierQuery, [
@@ -162,13 +162,13 @@ class Payment {
       const [updatedTierResult] = await pool.query(getCurrentTierQuery, [
         accountID,
       ]);
-      const updatedTier = updatedTierResult[0]?.Tier;
+      const updatedTier = updatedTierResult[0]?.Membership;
 
       // Step 5: Determine the status
       if (currentTier !== updatedTier) {
-        return { status: "upgraded", tier: updatedTier };
+        return { status: "upgraded", membership: updatedTier };
       } else {
-        return { status: "retained", tier: currentTier };
+        return { status: "retained", membership: currentTier };
       }
     } catch (error) {
       console.error("Error updating tier based on purchases:", error);

@@ -7,6 +7,7 @@ $(document).ready(function() {
     const userDetails = JSON.parse(localStorage.getItem('userDetails'));
     if (userDetails && userDetails.firstName) {
         displayWelcomeMessage(userDetails.firstName);
+        checkAndResetTierForAccount(userDetails.accountId);
     }
 });
 
@@ -32,3 +33,35 @@ function displayWelcomeMessage(firstName) {
     welcomeMessageContainer.textContent = `Welcome, ${firstName}!`;
     welcomeMessageContainer.classList.add('welcome-text'); // Add CSS class for styling
 }
+
+async function checkAndResetTierForAccount(accountId) {
+    try {
+      console.log("accountId:", accountId);
+      const response = await fetch(`/api/tier/${accountId}/checkMembership`, {
+        method: 'PUT',
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data.message);
+  
+        // Update localStorage if the tier was expired
+        if (data.expired) {
+          const updatedUserDetails = {
+            ...JSON.parse(localStorage.getItem("userDetails")),
+            membership: data.membership,
+          };
+          localStorage.setItem("userDetails", JSON.stringify(updatedUserDetails));
+  
+          // Display the message only if the tier was expired
+          alert(data.message);
+        }
+      } else {
+        console.error("Error resetting Membership for account:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error resetting Membership for account:", error);
+      alert("Error resetting Membership for account.");
+    }
+  }
+  
