@@ -97,6 +97,7 @@ CREATE TABLE ProgrammeClass (
 CREATE TABLE ProgrammeClassBatch (
     ProgrammeClassID INT NOT NULL,
     InstanceID INT AUTO_INCREMENT PRIMARY KEY,
+    MeetingLink VARCHAR(255) NULL, -- Link to the online meeting (if it's online)
     CONSTRAINT FK_ProgrammeClassBatch_ProgrammeClass FOREIGN KEY (ProgrammeClassID) REFERENCES ProgrammeClass(ProgrammeClassID)
 );
 
