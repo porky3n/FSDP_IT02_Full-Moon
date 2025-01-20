@@ -129,6 +129,13 @@ app.use("/api/meeting", meetingRoutes);
 
 // Route for handling chatbot interactions
 app.use('/api/chatbot', chatbotRoutes);
+
+
+// api for paymentintent
+// app.get("/api/payment-intent", async (req, res) => {
+//   const intent =  
+//   res.json({ client_secret: intent.client_secret });
+// });
 // app.get('/api/programme', programmeController.getAllProgrammes);
 // app.get('/api/programme/featuredProgramme', programmeController.getFeaturedProgrammes);
 // app.get('/api/programme/searchProgramme', programmeController.searchProgrammes);

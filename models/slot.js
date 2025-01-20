@@ -60,7 +60,8 @@ class Slot {
         childID,
         paymentAmount,
         paymentMethod,
-        paymentImageBase64,
+        verified,
+        purchaseTier,
         promotionID
     ) {
         const connection = await pool.getConnection(); 
@@ -130,17 +131,15 @@ class Slot {
             );
     
             const slotID = slotResult.insertId;
-    
-            const paymentImage = Buffer.from(paymentImageBase64, "base64");
-    
-            console.log("Inserting payment with parameters:", slotID, promotionID, paymentAmount, paymentMethod);
+        
+            console.log("Inserting payment with parameters:", slotID, promotionID, paymentAmount, paymentMethod, verified, purchaseTier);
     
             const [paymentResult] = await connection.query(
                 `
-                INSERT INTO Payment (SlotID, PromotionID, PaymentAmount, PaymentMethod, PaymentImage)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO Payment (SlotID, PromotionID, PaymentAmount, PaymentMethod, Verified, PurchaseTier)
+                VALUES (?, ?, ?, ?, ?, ?)
                 `,
-                [slotID, promotionID, paymentAmount, paymentMethod, paymentImage]
+                [slotID, promotionID, paymentAmount, paymentMethod, verified, purchaseTier]
             );
     
             await connection.commit();

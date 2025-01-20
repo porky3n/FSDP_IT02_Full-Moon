@@ -1,6 +1,6 @@
 // /models/accountModel.js
 const pool = require('../dbConfig'); // Using dbConfig for MySQL connection
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs'); // Using bcryptjs for password hashing
 
 // Insert a new account
 exports.createAccount = async (email, password, accountType) => {

@@ -1,6 +1,6 @@
 const pool = require("../../dbConfig");
 const Account = require("../../models/accountModel");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 exports.adminLogin = async (req, res) => {
@@ -109,10 +109,11 @@ exports.login = async (req, res) => {
     }
 
     const [parentData] = await pool.query(
-      "SELECT FirstName FROM Parent WHERE AccountID = ?",
+      "SELECT FirstName, Tier FROM Parent WHERE AccountID = ?",
       [account.AccountID]
     );
     const firstName = parentData[0]?.FirstName;
+    const tier = parentData[0]?.Tier;
 
     const token = jwt.sign(
       { accountId: account.AccountID, accountType: account.AccountType },
@@ -129,6 +130,7 @@ exports.login = async (req, res) => {
       message: "Login successful",
       firstName,
       email,
+      tier,
       accountId: account.AccountID,
     });
   } catch (error) {

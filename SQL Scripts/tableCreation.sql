@@ -12,6 +12,8 @@ DROP TABLE IF EXISTS Programme;
 DROP TABLE IF EXISTS Child;
 DROP TABLE IF EXISTS Parent;
 DROP TABLE IF EXISTS Account;
+DROP TABLE IF EXISTS TierCriteria;
+
 
 -- Create Account table
 CREATE TABLE Account (
@@ -22,7 +24,7 @@ CREATE TABLE Account (
     PasswordHashed VARCHAR(1000) NOT NULL
 );
 
--- Create Parent table  
+-- Create Parent table
 CREATE TABLE Parent (
     ParentID INT AUTO_INCREMENT PRIMARY KEY,
     AccountID INT NOT NULL UNIQUE,
@@ -31,11 +33,20 @@ CREATE TABLE Parent (
     DateOfBirth DATE NOT NULL,
     Gender ENUM('M', 'F') NOT NULL,
     ContactNumber VARCHAR(15) NOT NULL,
-    Membership ENUM('Member', 'Non-Member') DEFAULT 'Non-Member' NOT NULL,
-    MembershipExpirationDate DATE NULL,
     Dietary TEXT NULL,
     ProfilePicture MEDIUMBLOB NULL,
+    Tier ENUM('Non-Membership', 'Bronze', 'Silver', 'Gold') DEFAULT 'Non-Membership' NOT NULL,
+    TierStartDate DATE DEFAULT (CURRENT_DATE) NOT NULL,
     CONSTRAINT FK_Parent_Account FOREIGN KEY (AccountID) REFERENCES Account(AccountID)
+);  
+
+-- Create TierCriteria table
+CREATE TABLE TierCriteria (
+    Tier ENUM('Non-Membership', 'Bronze', 'Silver', 'Gold') PRIMARY KEY,
+    MinPurchases INT NOT NULL,
+    TierDuration INT NOT NULL, -- Duration in days
+    TierDiscount DECIMAL(5, 2) DEFAULT 0.00 NOT NULL, -- Discount percentage
+    Special BOOLEAN DEFAULT FALSE -- Indicates special benefits
 );
 
 -- Create Child table
@@ -156,8 +167,8 @@ CREATE TABLE Payment (
     PaymentAmount DECIMAL(10,2) CHECK (PaymentAmount > 0) NOT NULL,
     PaymentDate DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
     PaymentMethod VARCHAR(255) NOT NULL, -- PayNow for now,
-    PaymentImage MEDIUMBLOB NOT NULL, -- Binary data for the payment image
     Verified VARCHAR(255) DEFAULT 'Pending' NOT NULL, -- Pending, Verified, Rejected
+    PurchaseTier ENUM('Non-Membership', 'Bronze', 'Silver', 'Gold') NOT NULL DEFAULT 'Non-Membership',
     CONSTRAINT FK_Payment_Slot FOREIGN KEY (SlotID) REFERENCES Slot(SlotID),
     CONSTRAINT FK_Payment_Promotion FOREIGN KEY (PromotionID) REFERENCES Promotion(PromotionID)
 );

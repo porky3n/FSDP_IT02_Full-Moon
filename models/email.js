@@ -16,54 +16,49 @@ const transporter = nodemailer.createTransport({
  */
 
 const sendPaymentConfirmationEmail = async (userDetails) => {
-    const { userEmail, paymentID, programmeName, startDate, endDate, paymentAmount, paymentMethod } = userDetails;
-  
-    console.log(__dirname);
+  const { userEmail, paymentID, programmeName, startDate, endDate, paymentAmount, paymentMethod } = userDetails;
+
+  console.log("paymentAmount type:", typeof paymentAmount, "value:", paymentAmount);
+
+  try {
+    const numericPaymentAmount = Number(paymentAmount); // Convert to number
+    if (isNaN(numericPaymentAmount)) {
+      throw new Error("Invalid payment amount: not a number");
+    }
+
     let htmlContent = fs.readFileSync(path.join(__dirname, '../public/paymentReceipt.html'), 'utf-8');
     htmlContent = htmlContent
-    .replace("{{receiptDate}}", new Date().toDateString())
-    .replace("{{receiptNumber}}", paymentID)
-    .replace("{{programmeName}}", programmeName)
-    .replace("{{programmeAmount}}", paymentAmount.toFixed(2))
-    // .replace("{{paymentMethod}}", paymentMethod)
-    .replace("{{subTotal}}", paymentAmount.toFixed(2))
-    .replace("{{taxFee}}", (paymentAmount * 0.09).toFixed(2))
-    .replace("{{total}}", (paymentAmount * 1.09).toFixed(2))
-    .replace("{{startDate}}", startDate)
-    .replace("{{endDate}}", endDate)
-    
+      .replace("{{receiptDate}}", new Date().toDateString())
+      .replace("{{receiptNumber}}", paymentID)
+      .replace("{{programmeName}}", programmeName)
+      .replace("{{programmeAmount}}", numericPaymentAmount.toFixed(2))
+      // .replace("{{paymentMethod}}", paymentMethod)
+      .replace("{{subTotal}}", numericPaymentAmount.toFixed(2))
+      .replace("{{taxFee}}", (numericPaymentAmount * 0.09).toFixed(2))
+      .replace("{{total}}", (numericPaymentAmount * 1.09).toFixed(2))
+      .replace("{{startDate}}", startDate)
+      .replace("{{endDate}}", endDate);
+
     const mailOptions = {
-      from: "",
-      to: "vhernando_05@outlook.com",
+      from: "vincenth1025@gmail.com",
+      to: userEmail,
       subject: "Payment Confirmation and Slot Booking Successful",
-      // html: `
-      //   <div style="font-family: Arial, sans-serif; color: #333;">
-      //     <h2 style="color: #4CAF50;">Thank you for your payment!</h2>
-      //     <p>Your slot for <strong>${programmeName}</strong> has been successfully booked.</p>
-      //     <div style="border: 1px solid #ddd; padding: 10px; margin-top: 15px;">
-      //       <p><strong>Payment Details:</strong></p>
-      //       <p>Amount Paid: <span style="color: #4CAF50;">$${paymentAmount}</span></p>
-      //       <p>Payment Method: ${paymentMethod}</p>
-      //       <p>Programme Date: ${startDate} - ${endDate}</p>
-      //     </div>
-      //     <p style="margin-top: 20px;">We look forward to seeing you there!</p>
-      //   </div>
-      // `
       html: htmlContent,
-      attachments: [{
+      attachments: [
+        {
           filename: 'logo.png',
           path: path.join(__dirname, '../public/images/mindsphere-logo.png'),
-          cid: 'mindsphere-logo' //same cid value as in the html img src
-      }]
+          cid: 'mindsphere-logo', // same cid value as in the html img src
+        },
+      ],
     };
-  
-    try {
-      await transporter.sendMail(mailOptions);
-      console.log("Payment confirmation email sent successfully.");
-    } catch (error) {
-      console.error("Error sending payment confirmation email:", error);
-      throw error;
-    }
-  };
+
+    await transporter.sendMail(mailOptions);
+    console.log("Payment confirmation email sent successfully.");
+  } catch (error) {
+    console.error("Error sending payment confirmation email:", error);
+    throw error;
+  }
+};
   
   module.exports = { sendPaymentConfirmationEmail };
