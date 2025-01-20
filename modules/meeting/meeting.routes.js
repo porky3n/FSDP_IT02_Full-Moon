@@ -16,9 +16,11 @@ const meetingController = require("./controllers/meetingController");
 const meetingRoutes = express.Router();
 
 // ========== Routes ==========
-meetingRoutes.post('/new', meetingController.createMeeting);      
+// meetingRoutes.post('/new', meetingController.createMeeting);      
 
-meetingRoutes.get('/:id', meetingController.getMeetingById);   
+// meetingRoutes.get('/:id', meetingController.getMeetingById);  
+
+meetingRoutes.post('/create', meetingController.createMeeting);
 
 
 // ========== Export Route ==========

@@ -92,3 +92,46 @@ function createLinkWrapper(label, defaultValue) {
     return wrapper;
 }
 
+
+// Add event listeners to "Create Meeting" buttons
+async function createAndJoinMeeting(programmeClassID, endDateTime, instanceID) {
+    try {
+      // Send request to the backend to create/update the meeting link
+      const response = await fetch('/api/meeting/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ programmeClassID, endDateTime, instanceID }),
+      });
+  
+      // Handle the response
+      if (response.ok) {
+        const data = await response.json();
+  
+        if (data.hostMeetingLink) {
+          console.log("Meeting created successfully. Redirecting to the meeting...");
+  
+          // Automatically redirect the user to the meeting link
+          window.location.href = data.hostMeetingLink;
+        } else {
+          alert("Meeting link not returned. Please try again.");
+        }
+      } else {
+        console.error('Failed to create meeting:', response.statusText);
+        alert("Failed to create the meeting. Please contact support.");
+      }
+    } catch (error) {
+      console.error("Error creating/joining the meeting:", error);
+      alert("An error occurred while creating/joining the meeting.");
+    }
+  }
+  
+  // Example Usage
+//   const programmeClassID = 1; // Replace with actual ID
+//   const instanceID = 101; // Replace with actual instance ID
+//   const endDateTime = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 1-hour duration
+  
+  // Call the function
+//   createAndJoinMeeting(programmeClassID, endDateTime, instanceID);
+  
