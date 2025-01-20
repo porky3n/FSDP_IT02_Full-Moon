@@ -19,3 +19,5 @@ var featuredSlider = new Swiper('.featured-slider', {
     prevEl: '.swiper-button-prev',
   }
 });
+
+

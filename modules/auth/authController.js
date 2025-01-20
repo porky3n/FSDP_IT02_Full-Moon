@@ -109,11 +109,11 @@ exports.login = async (req, res) => {
     }
 
     const [parentData] = await pool.query(
-      "SELECT FirstName, Tier FROM Parent WHERE AccountID = ?",
+      "SELECT FirstName, Membership FROM Parent WHERE AccountID = ?",
       [account.AccountID]
     );
     const firstName = parentData[0]?.FirstName;
-    const tier = parentData[0]?.Tier;
+    const membership = parentData[0]?.Membership;
 
     const token = jwt.sign(
       { accountId: account.AccountID, accountType: account.AccountType },
@@ -130,7 +130,7 @@ exports.login = async (req, res) => {
       message: "Login successful",
       firstName,
       email,
-      tier,
+      membership,
       accountId: account.AccountID,
     });
   } catch (error) {
@@ -151,7 +151,7 @@ exports.getUsers = async (req, res) => {
           Parent.ContactNumber,
           Account.Email,
           Parent.Membership,
-          Parent.MembershipExpirationDate,
+          Parent.StartDate,
           Parent.Dietary,
           Account.CreatedAt AS DateJoined,
           IF(COUNT(Child.ChildID) > 0, 'true', 'false') AS HasChildren
