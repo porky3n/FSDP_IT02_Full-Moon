@@ -45,7 +45,7 @@ const pool = require("../dbConfig"); // Assumes you have a dbConfig for database
 require("dotenv").config();
 
 class ProgrammeClassBatchService {
-    static async createMeeting(programmeClassID, endDateTime, instanceID) {
+    static async createMeeting(programmeClassID, endDateTime) {
         const wherebyApiUrl = "https://api.whereby.dev/v1/meetings";
     
         try {
