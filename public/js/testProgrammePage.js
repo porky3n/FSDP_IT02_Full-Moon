@@ -1,71 +1,247 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // let programmes = getProgrammeInfo();
+    getProgrammeInfo();
     // displayProgrammeInfo(programmes);
 });
 
 async function getProgrammeInfo() {
-    try {
-        const response = await fetch('/api/programme');
-        const data = await response.json();
-        console.log(data);
-    } catch (error) {
-        console.error('Error fetching programme info:', error);
-    }
+  try {
+      const response = await fetch('/api/programme/upcoming');
+      
+      // Ensure the response is successful
+      if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Ensure data is an array before calling the display function
+      if (Array.isArray(data)) {
+          displayProgrammeInfo(data);
+      } else {
+          console.error('Data is not an array:', data);
+      }
+  } catch (error) {
+      console.error('Error fetching programme info:', error);
+  }
 }
+
+// function displayProgrammeInfo(programmes) {
+//     const container = document.querySelector('.upcoming-schedule'); // Correct container selector
+//     const h2 = document.createElement('h2');
+//     h2.innerHTML = 'Upcoming Classes';
+//     container.appendChild(h2);
+
+//     let row = document.createElement('div');
+//     row.classList.add('row');
+
+//     programmes.forEach((programme, index) => {
+//       console.log(programme.programmeClassID, programme.instanceID, programme.endDateTime);
+//         // Create a programme card
+//         const programmeInfo = document.createElement('div');
+//         programmeInfo.classList.add('col-md-4');
+//         programmeInfo.innerHTML = `
+//             <div class="schedule-card p-3 mb-4">
+//                 <h5 class="programme-name">${programme.programmeName}</h5>
+//                 <p class="start-date-time mb-2"><i class="bi bi-calendar-event"></i> ${programme.startDate}</p>
+//                 <p class="participants"><i class="bi bi-people-fill"></i> ${programme.participants}</p>
+//                 <button 
+//                     class="btn btn-primary mt-3 create-meeting-btn" 
+//                     data-programme-class-id="${programme.programmeClassID}"
+//                     data-instance-id="${programme.instanceID}"
+//                     data-end-datetime="${programme.endDateTime}"
+//                 >
+//                     Create Meeting
+//                 </button>
+//             </div>
+//         `;
+
+//         row.appendChild(programmeInfo);
+
+//         // Append the current row to the container and start a new row every 3 programmes
+//         if ((index + 1) % 3 === 0 || index === programmes.length - 1) {
+//             container.appendChild(row);
+//             row = document.createElement('div');
+//             row.classList.add('row');
+//         }
+//     });
+
+// }
 
 function displayProgrammeInfo(programmes) {
-    const container = document.querySelector('.upcoming-schedule'); // Correct container selector
-    const h2 = document.createElement('h2');
-    h2.innerHTML = 'Upcoming Classes';
-    container.appendChild(h2);
+  const container = document.querySelector('.upcoming-schedule'); 
+  container.innerHTML = ''; // Clear previous content
 
-    let row = document.createElement('div');
-    row.classList.add('row');
+  // Check if programmes is valid and not empty
+  if (!Array.isArray(programmes) || programmes.length === 0) {
+      container.innerHTML = '<p>No upcoming programmes found.</p>';
+      return;
+  }
 
-    programmes.forEach((programme, index) => {
-        // Create a programme card
-        const programmeInfo = document.createElement('div');
-        programmeInfo.classList.add('col-md-4');
-        programmeInfo.innerHTML = `
-            <div class="schedule-card p-3 mb-4">
-                <h5 class="programme-name">${programme.programmeName}</h5>
-                <p class="start-date-time mb-2"><i class="bi bi-calendar-event"></i> ${programme.startDate}</p>
-                <p class="participants"><i class="bi bi-people-fill"></i> ${programme.participants}</p>
-                <button class="btn btn-primary mt-3 create-meeting-btn">Create Meeting</button>
-            </div>
-        `;
+  // Add header
+  const h2 = document.createElement('h2');
+  h2.innerHTML = 'Upcoming Classes';
+  container.appendChild(h2);
 
-        row.appendChild(programmeInfo);
+  let row = document.createElement('div');
+  row.classList.add('row');
 
-        // Append the current row to the container and start a new row every 3 programmes
-        if ((index + 1) % 3 === 0 || index === programmes.length - 1) {
-            container.appendChild(row);
-            row = document.createElement('div');
-            row.classList.add('row');
-        }
-    });
+  programmes.forEach((programme, index) => {
+    console.log(programme);
+      // Create a programme card
+      const programmeInfo = document.createElement('div');
+      programmeInfo.classList.add('col-md-4');
+      programmeInfo.innerHTML = `
+          <div class="schedule-card p-3 mb-4">
+              <h5 class="programme-name">${programme.ProgrammeName || 'No Name'}</h5>
+              <p class="programme-description mb-2">${programme.Description || 'No description available'}</p>
+              <p class="start-date-time mb-2"><i class="bi bi-calendar-event"></i> ${programme.StartDateTime || 'N/A'}</p>
+              <p class="end-date-time mb-2"><i class="bi bi-calendar-check"></i> ${programme.EndDateTime || 'N/A'}</p>
+              <p class="programme-level mb-2"><i class="bi bi-mortarboard-fill"></i> ${programme.ProgrammeLevel || 'N/A'}</p>
+              <p class="programme-location mb-2"><i class="bi bi-geo-alt-fill"></i> ${programme.Location || 'N/A'}</p>
+              <button 
+                  class="btn btn-primary mt-3 create-meeting-btn" 
+                  data-programme-class-id="${programme.ProgrammeClassID || ''}"
+                  data-instance-iD="${programme.InstanceID || ''}"
+                  data-end-date-time="${programme.EndDateTime || ''}"
+              >
+                  Join Meeting
+              </button>
+          </div>
+      `;
 
+      row.appendChild(programmeInfo);
+
+      // Append the current row to the container and start a new row every 3 programmes
+      if ((index + 1) % 3 === 0 || index === programmes.length - 1) {
+          container.appendChild(row);
+          row = document.createElement('div');
+          row.classList.add('row');
+      }
+  });
 }
+
 
 // should be inside the function for displaying programme info
 // Add event listeners to "Create Meeting" buttons
-document.querySelectorAll('.create-meeting-btn').forEach((button) => {
-    button.addEventListener('click', function () {
-        // Hide the button
-        this.style.display = 'none';
+// document.querySelectorAll('.create-meeting-btn').forEach((button) => {
+//     // button.addEventListener('click', function () {
+//     //     // Hide the button
+//     //     this.style.display = 'none';
 
-        // Create the Host Link and Viewer Link textboxes with "Copy" buttons
-        const parent = this.parentElement;
+//     //     // Get the meeting links
 
-        const hostLinkWrapper = createLinkWrapper('Host Link', 'https://hostlink.exampleexampleexampleexampleexampleexample.com');
-        const viewerLinkWrapper = createLinkWrapper('Viewer Link', 'https://viewerlink.example.com');
 
-        // Append the textboxes to the card
-        parent.appendChild(hostLinkWrapper);
-        parent.appendChild(viewerLinkWrapper);
-    });
+
+//     //     // Create the Host Link and Viewer Link textboxes with "Copy" buttons
+//     //     const parent = this.parentElement;
+
+//     //     const hostLinkWrapper = createLinkWrapper('Host Link', 'https://hostlink.exampleexampleexampleexampleexampleexample.com');
+//     //     const viewerLinkWrapper = createLinkWrapper('Viewer Link', 'https://viewerlink.example.com');
+
+//     //     // Append the textboxes to the card
+//     //     parent.appendChild(hostLinkWrapper);
+//     //     parent.appendChild(viewerLinkWrapper);
+//     // });
+
+//     button.addEventListener('click', async function () {
+//       // Hide the button
+//       this.style.display = 'none';
+
+//       // Get the meeting links (assuming you have these values available in your context)
+//       const programmeClassID = this.dataset.programmeClassID;
+//       const instanceID = this.dataset.instanceID;
+//       const endDateTime = this.dataset.endDateTime; // You would need to set this somewhere
+
+//       console.log("programmeClassID:", programmeClassID);
+//       console.log("instanceID:", instanceID);
+//       console.log("endDateTime:", endDateTime);
+//       // Call the backend API to create the meeting
+//       try {
+//           const response = await fetch('/api/meeting/create', {
+//               method: 'POST',
+//               headers: {
+//                   'Content-Type': 'application/json',
+//               },
+//               body: JSON.stringify({
+//                   programmeClassID,
+//                   endDateTime,
+//                   instanceID,
+//               }),
+//           });
+
+//           const data = await response.json();
+
+//           if (response.ok) {
+//               // Create the Host Link and Viewer Link textboxes with "Copy" buttons
+//               const parent = this.parentElement;
+//               const hostLinkWrapper = createLinkWrapper('Host Link', data.hostMeetingLink);
+//               const viewerLinkWrapper = createLinkWrapper('Viewer Link', data.viewerMeetingLink);
+
+//               // Append the textboxes to the card
+//               parent.appendChild(hostLinkWrapper);
+//               parent.appendChild(viewerLinkWrapper);
+//           } else {
+//               console.error("Error creating meeting:", data.message);
+//               alert('Error creating meeting. Please try again.');
+//           }
+//       } catch (error) {
+//           console.error("Error creating meeting:", error);
+//           alert('Error creating meeting. Please try again.');
+//       }
+//   });
+// });
+
+document.querySelector('.upcoming-schedule').addEventListener('click', async (event) => {
+  if (event.target.classList.contains('create-meeting-btn')) {
+      const button = event.target;
+
+      // Hide the button
+      button.style.display = 'none';
+
+      // Get the meeting links (assuming you have these values available in your context)
+      const programmeClassID = button.dataset.programmeClassId;
+      const instanceID = button.dataset.instanceId;
+      const endDateTime = button.dataset.endDateTime;
+
+      console.log("programmeClassID:", programmeClassID);
+      console.log("instanceID:", instanceID);
+      console.log("endDateTime:", endDateTime);
+
+      // Call the backend API to create the meeting
+      try {
+          const response = await fetch('/api/meeting/create', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                  programmeClassID,
+                  endDateTime,
+                  instanceID,
+              }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+              // Create the Host Link and Viewer Link textboxes with "Copy" buttons
+              const parent = button.parentElement;
+              const hostLinkWrapper = createLinkWrapper('Host Link', data.hostMeetingLink);
+              const viewerLinkWrapper = createLinkWrapper('Viewer Link', data.viewerMeetingLink);
+
+              // Append the textboxes to the card
+              parent.appendChild(hostLinkWrapper);
+              parent.appendChild(viewerLinkWrapper);
+          } else {
+              console.error("Error creating meeting:", data.message);
+              alert('Error creating meeting. Please try again.');
+          }
+      } catch (error) {
+          console.error("Error creating meeting:", error);
+          alert('Error creating meeting. Please try again.');
+      }
+  }
 });
-
 
 // Helper function to create link textboxes with copy button
 function createLinkWrapper(label, defaultValue) {
@@ -94,38 +270,40 @@ function createLinkWrapper(label, defaultValue) {
 
 
 // Add event listeners to "Create Meeting" buttons
-async function createAndJoinMeeting(programmeClassID, endDateTime, instanceID) {
-    try {
-      // Send request to the backend to create/update the meeting link
-      const response = await fetch('/api/meeting/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ programmeClassID, endDateTime, instanceID }),
-      });
+// async function createAndJoinMeeting(programmeClassID, endDateTime, instanceID) {
+//     try {
+//       // Send request to the backend to create/update the meeting link
+//       const response = await fetch('/api/meeting/create', {
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify({ programmeClassID, endDateTime, instanceID }),
+//       });
   
-      // Handle the response
-      if (response.ok) {
-        const data = await response.json();
+//       // Handle the response
+//       if (response.ok) {
+//         const data = await response.json();
   
-        if (data.hostMeetingLink) {
-          console.log("Meeting created successfully. Redirecting to the meeting...");
+//         if (data.hostMeetingLink) {
+//           console.log("Meeting created successfully. Redirecting to the meeting...");
   
-          // Automatically redirect the user to the meeting link
-          window.location.href = data.hostMeetingLink;
-        } else {
-          alert("Meeting link not returned. Please try again.");
-        }
-      } else {
-        console.error('Failed to create meeting:', response.statusText);
-        alert("Failed to create the meeting. Please contact support.");
-      }
-    } catch (error) {
-      console.error("Error creating/joining the meeting:", error);
-      alert("An error occurred while creating/joining the meeting.");
-    }
-  }
+//           // Automatically redirect the user to the meeting link
+//           // window.location.href = data.hostMeetingLink;
+//           // Open the meeting link in a new tab
+//           window.open(data.hostMeetingLink, '_blank');
+//         } else {
+//           alert("Meeting link not returned. Please try again.");
+//         }
+//       } else {
+//         console.error('Failed to create meeting:', response.statusText);
+//         alert("Failed to create the meeting. Please contact support.");
+//       }
+//     } catch (error) {
+//       console.error("Error creating/joining the meeting:", error);
+//       alert("An error occurred while creating/joining the meeting.");
+//     }
+//   }
   
   // Example Usage
 //   const programmeClassID = 1; // Replace with actual ID

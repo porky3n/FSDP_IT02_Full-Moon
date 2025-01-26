@@ -355,8 +355,10 @@ exports.getEnrolledProgrammes = async (req, res) => {
     // Updated query without image-related fields
     const query = `
       WITH ProgrammeDates AS (
-        SELECT  
-          pcb.MeetingLink,
+        SELECT 
+          pcb.ProgrammeClassID,
+          pc.ProgrammeID,
+          pcb.ViewerMeetingLink,
           MIN(ps.StartDateTime) AS StartDateTime,
           MAX(ps.EndDateTime) AS EndDateTime
         FROM ProgrammeClassBatch pcb
@@ -371,7 +373,7 @@ exports.getEnrolledProgrammes = async (req, res) => {
             AND s.ProgrammeClassID = pcb.ProgrammeClassID
             AND s.InstanceID = pcb.InstanceID
         )
-        GROUP BY pcb.ProgrammeClassID, pc.ProgrammeID, ps.InstanceID
+        GROUP BY pcb.ProgrammeClassID, pc.ProgrammeID, pcb.ViewerMeetingLink
       )
       SELECT 
         p.ProgrammeID,
@@ -379,8 +381,7 @@ exports.getEnrolledProgrammes = async (req, res) => {
         p.Description,
         pc.Location,
         pc.ProgrammeLevel,
-        pd.ProgrammeClassID,
-        pd.InstanceID,
+        pd.ViewerMeetingLink,
         pd.StartDateTime,
         pd.EndDateTime,
         CASE 
@@ -403,7 +404,6 @@ exports.getEnrolledProgrammes = async (req, res) => {
       JOIN ProgrammeDates pd 
         ON pc.ProgrammeID = pd.ProgrammeID
         AND pc.ProgrammeClassID = pd.ProgrammeClassID
-        AND s.InstanceID = pd.InstanceID
       LEFT JOIN Child c 
         ON s.ChildID = c.ChildID
       LEFT JOIN Parent par 
@@ -415,10 +415,9 @@ exports.getEnrolledProgrammes = async (req, res) => {
         p.Description,
         pc.Location,
         pc.ProgrammeLevel,
-        pd.ProgrammeClassID,
-        pd.InstanceID,
         pd.StartDateTime,
         pd.EndDateTime,
+        pd.ViewerMeetingLink,
         EnrolledFirstName,
         EnrolledLastName,
         EnrolledType

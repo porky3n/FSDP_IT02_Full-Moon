@@ -298,7 +298,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const isOnline = prog.Location === "Online";
         const isNear =
         ((startTime - currentTime) / (1000 * 60) <= 5) || // Within 5 minutes of startTime
-        (currentTime < endTime); // Current time is before endTime
+        ((currentTime < endTime) && (currentTime > startTime)); // Current time is before endTime
 
         return `
           <div class="col-md-6 col-lg-4 mb-4">
