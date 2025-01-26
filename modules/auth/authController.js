@@ -26,7 +26,7 @@ exports.adminLogin = async (req, res) => {
     req.session.isAdmin = true;
 
     // Respond with JSON indicating a successful login
-    res.status(200).json({ message: "Admin login successful" });
+    res.status(200).json({ message: "Admin login successful", accountId: account.AccountID });
   } catch (error) {
     console.error("Error during admin login:", error);
     res
@@ -109,10 +109,11 @@ exports.login = async (req, res) => {
     }
 
     const [parentData] = await pool.query(
-      "SELECT FirstName FROM Parent WHERE AccountID = ?",
+      "SELECT FirstName, Tier FROM Parent WHERE AccountID = ?",
       [account.AccountID]
     );
     const firstName = parentData[0]?.FirstName;
+    const tier = parentData[0]?.Tier;
 
     const token = jwt.sign(
       { accountId: account.AccountID, accountType: account.AccountType },
@@ -129,6 +130,7 @@ exports.login = async (req, res) => {
       message: "Login successful",
       firstName,
       email,
+      tier,
       accountId: account.AccountID,
     });
   } catch (error) {

@@ -30,7 +30,14 @@ async function executeSQL() {
     console.log("Executing table creation script...");
     for (const query of tableQueries) {
       console.log(`Executing: ${query}`);
+      
+      // use this for creating tables
       await connection.query(query);
+      
+      // use this for getting all tables
+      // const [rows, fields] = await connection.query(query);
+      // console.log(rows);
+      // console.log("Fields: ", fields);
     }
     console.log("Table creation script executed successfully!");
 
