@@ -71,11 +71,12 @@ class ProgrammeClassBatchService {
             // const data = await response.json();
     
             const hostMeetingLink = response.data.hostRoomUrl;
-    
+            const viewerMeetingLink = response.data.viewerRoomUrl;
+
             // Step 2: Update the meeting link for the given ProgrammeClassID and InstanceID
             const updateQuery = `
                 UPDATE ProgrammeClassBatch
-                SET MeetingLink = ?
+                SET HostMeetingLink = ?, ViewerMeetingLink = ?
                 WHERE ProgrammeClassID = ? AND InstanceID = ?
             `;
             const [result] = await pool.query(updateQuery, [hostMeetingLink, programmeClassID, instanceID]);

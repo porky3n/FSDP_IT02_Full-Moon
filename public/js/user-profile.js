@@ -293,8 +293,8 @@ document.addEventListener("DOMContentLoaded", function () {
         // console.log(parseDate(startTime));
 
         console.log(currentTime);
-        meetingLink = prog.MeetingLink;
-        console.log("Meeting Link: ", prog.MeetingLink);
+        meetingLink = prog.ViewerMeetingLink;
+        console.log("Meeting Link: ", prog.ViewerMeetingLink);
         const isOnline = prog.Location === "Online";
         const isNear =
         ((startTime - currentTime) / (1000 * 60) <= 5) || // Within 5 minutes of startTime
@@ -367,8 +367,9 @@ document.addEventListener("DOMContentLoaded", function () {
       console.error("Error loading enrolled programmes:", error);
       const container = document.getElementById("programmesContainer");
       if (container) {
+        // '<div class="col-12"><p class="text-center text-danger">Please sign in to see enrolled programmes.</p></div>';
         container.innerHTML =
-          '<div class="col-12"><p class="text-center text-danger">Please sign in to see enrolled programmes.</p></div>';
+          '<div class="col-12"><p class="text-center text-danger">No programmes enrolled currently.</p></div>';
       }
     }
   };
