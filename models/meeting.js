@@ -75,7 +75,7 @@ class ProgrammeClassBatchService {
             console.log("API Response Data:", data);
 
             const hostMeetingLink = data.hostRoomUrl;
-            const viewerMeetingLink = data.viewerRoomUrl;
+            const viewerMeetingLink = data.roomUrl;
 
             // Step 2: Update the meeting link for the given ProgrammeClassID and InstanceID
             const updateQuery = `
