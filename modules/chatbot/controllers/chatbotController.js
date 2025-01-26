@@ -117,7 +117,7 @@ exports.handleAdminChat = async (req, res) => {
             userSessions[accountID].chatHistory = userSessions[accountID].chatHistory.slice(-MAX_HISTORY_LENGTH);
         }
 
-        res.json({ reply: botReply });
+        res.status(200).json({ reply: botReply });
 
     } catch (error) {
         console.error('Error in chatbotController:', error);
@@ -214,7 +214,7 @@ exports.handleUserChat = async (req, res) => {
             userSessions[accountID].chatHistory = userSessions[accountID].chatHistory.slice(-MAX_HISTORY_LENGTH);
         }
 
-        res.json({ reply: botReply });
+        res.status(200).json({ reply: botReply });
 
     } catch (error) {
         console.error('Error in chatbotController:', error);
@@ -222,4 +222,27 @@ exports.handleUserChat = async (req, res) => {
     }
 };
 
+// Fetch all prompts for rendering the page
+exports.getPrompts = async (req, res) => {
+    try {
+      const prompts = await ChatDataModel.getAllPrompts();
+      res.status(200).json(prompts); // Send data as JSON to the frontend
+    } catch (error) {
+      console.error("Error fetching prompts:", error);
+      res.status(500).send("Server Error");
+    }
+  };
+  
+// Update a specific chatbot prompt
+exports.updatePrompt = async (req, res) => {
+const { promptType, promptText } = req.body;
 
+try {
+    console.log(`Updating prompt for ${promptType}...`);
+    const result = await ChatDataModel.updatePrompt(promptType, promptText);
+    res.status(200).json({ success: true, message: "Prompt updated successfully" });
+} catch (error) {
+    console.error("Error updating prompt:", error);
+    res.status(500).send("Server Error");
+}
+};

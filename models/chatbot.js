@@ -313,7 +313,34 @@ class ChatDataModel {
             throw error;
         }
     }
-    
+
+    // Fetch all chatbot prompt types and their text
+    static async getAllPrompts() {
+        try {
+        const query = "SELECT PromptType, PromptText FROM ChatbotPrompts";
+        const [rows] = await pool.query(query);
+        return rows; // Return all chatbot types and texts
+        } catch (error) {
+        console.error("Error fetching chatbot prompts:", error);
+        throw error;
+        }
+    }
+
+    // Update a specific chatbot prompt
+    static async updatePrompt(promptType, promptText) {
+        try {
+        const query = `
+            UPDATE ChatbotPrompts
+            SET PromptText = ?
+            WHERE PromptType = ?
+        `;
+        const [result] = await pool.query(query, [promptText, promptType]);
+        return result; // Return query result for confirmation
+        } catch (error) {
+        console.error("Error updating chatbot prompt:", error);
+        throw error;
+        }
+    }
 }
 
 module.exports = ChatDataModel;
