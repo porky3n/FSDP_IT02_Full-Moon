@@ -97,7 +97,9 @@ CREATE TABLE ProgrammeClass (
 CREATE TABLE ProgrammeClassBatch (
     ProgrammeClassID INT NOT NULL,
     InstanceID INT AUTO_INCREMENT PRIMARY KEY,
-    MeetingLink VARCHAR(255) NULL, -- Link to the online meeting (if it's online)
+    HostMeetingLink TEXT NULL,
+    ViewerMeetingLink TEXT NULL,
+    MeetingID VARCHAR(20) NULL,
     CONSTRAINT FK_ProgrammeClassBatch_ProgrammeClass FOREIGN KEY (ProgrammeClassID) REFERENCES ProgrammeClass(ProgrammeClassID)
 );
 
@@ -215,3 +217,4 @@ CREATE TABLE BusinessEnquiries (
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, -- Timestamp for enquiry submission
     AdminNotes TEXT NULL                          -- Internal notes for admin reference (optional)
 );
+
