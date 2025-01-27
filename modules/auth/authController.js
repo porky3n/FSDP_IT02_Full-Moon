@@ -26,7 +26,7 @@ exports.adminLogin = async (req, res) => {
     req.session.isAdmin = true;
 
     // Respond with JSON indicating a successful login
-    res.status(200).json({ message: "Admin login successful" });
+    res.status(200).json({ message: "Admin login successful", accountId: account.AccountID });
   } catch (error) {
     console.error("Error during admin login:", error);
     res

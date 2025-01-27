@@ -10,3 +10,4 @@ SELECT * FROM Reviews;
 SELECT * FROM Promotion;
 SELECT * FROM Payment;
 SELECT * FROM Token;
+SELECT * FROM TierCriteria;
