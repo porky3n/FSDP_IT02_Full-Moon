@@ -24,6 +24,8 @@ const programmeScheduleRoutes = require('./modules/programmeSchedule/programmeSc
 const slotRoutes = require('./modules/slot/slot.routes');
 const paymentRoutes = require('./modules/payment/payment.routes');
 const chatbotRoutes = require("./modules/chatbot/chatbot.routes");
+const telegramRoutes = require('./modules/telegram/telegram.routes');
+
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
@@ -125,7 +127,7 @@ app.use("/api/payment", paymentRoutes);
 // Route for handling chatbot interactions
 app.use('/api/chatbot', chatbotRoutes);
 
-
+app.use('/api/telegram', telegramRoutes);
 // api for paymentintent
 // app.get("/api/payment-intent", async (req, res) => {
 //   const intent =  

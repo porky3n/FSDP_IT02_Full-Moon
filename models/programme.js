@@ -9,6 +9,18 @@ class Programme {
         this.description = description;
     }
 
+    static async getProgrammePictureByID(programmeID) {
+        try {
+            const sqlQuery = `SELECT ProgrammePicture FROM Programme WHERE ProgrammeID = ?`;
+            const [rows] = await pool.query(sqlQuery, [programmeID]);
+            return rows[0].ProgrammePicture;
+        
+        } catch (error) {
+            console.error("Error in getProgrammePictureByID:", error);
+            throw error;
+        }
+    }
+
     // Get a programme by its ID
     static async getProgrammeDetailsByID(programmeID) {
         try {

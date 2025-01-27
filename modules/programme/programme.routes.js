@@ -28,9 +28,6 @@ programmeRoutes.get("/all", programmeController.getAllProgrammeDetails);
 // Route to get fees for a specific programme by ID
 // programmeRoutes.get("/:id/fees", programmeController.getProgrammeFees);
 
-// Route to announce programmes using Telegram bot and ChatGPT 4 for formatting
-programmeRoutes.post('/announce', programmeController.sendFormattedProgramme);
-
 // Route to get all programmes by category
 programmeRoutes.get("/category/:category", programmeController.getProgrammesByCategory);
 
