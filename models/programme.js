@@ -395,66 +395,119 @@ class Programme {
     
     static async getUpcomingOnlineProgrammes() {
         try {
+            // const query = `
+            //   WITH ProgrammeDates AS (
+            //     SELECT 
+            //         pcb.ProgrammeClassID,
+            //         pcb.HostMeetingLink,
+            //         pcb.ViewerMeetingLink,
+            //         pcb.MeetingID,
+            //         pc.ProgrammeID,
+            //         pcb.InstanceID,
+            //         ps.StartDateTime,
+            //         ps.EndDateTime
+            //     FROM ProgrammeClassBatch pcb
+            //     JOIN ProgrammeSchedule ps 
+            //         ON pcb.InstanceID = ps.InstanceID
+            //     JOIN ProgrammeClass pc
+            //         ON pcb.ProgrammeClassID = pc.ProgrammeClassID
+            //     WHERE EXISTS (
+            //         SELECT 1
+            //         FROM Slot s
+            //         WHERE s.ProgrammeClassID = pcb.ProgrammeClassID
+            //         AND s.InstanceID = pcb.InstanceID
+            //     )
+            // )
+            // SELECT 
+            //     p.ProgrammeID,
+            //     p.ProgrammeName,
+            //     p.Description,
+            //     pc.Location,
+            //     pc.ProgrammeLevel,
+            //     pd.ProgrammeClassID,
+            //     pd.HostMeetingLink,
+            //     pd.ViewerMeetingLink,
+            //     pd.MeetingID,
+            //     pd.InstanceID,
+            //     pd.StartDateTime,
+            //     pd.EndDateTime
+            // FROM ProgrammeDates pd
+            // JOIN Programme p 
+            //     ON pd.ProgrammeID = p.ProgrammeID
+            // JOIN ProgrammeClass pc 
+            //     ON pd.ProgrammeClassID = pc.ProgrammeClassID
+            // WHERE 
+            //     pc.Location = 'Online'
+            //     AND pd.StartDateTime > CURRENT_TIMESTAMP()
+            // GROUP BY 
+            //     pd.InstanceID, -- Ensure we group by InstanceID to separate instances
+            //     p.ProgrammeID,
+            //     p.ProgrammeName,
+            //     p.Description,
+            //     pc.Location,
+            //     pc.ProgrammeLevel,
+            //     pd.ProgrammeClassID,
+            //     pd.HostMeetingLink,
+            //     pd.ViewerMeetingLink,
+            //     pd.StartDateTime,
+            //     pd.EndDateTime
+            // ORDER BY pd.StartDateTime;
+
+            // `;
+    
             const query = `
               WITH ProgrammeDates AS (
                 SELECT 
-                    pcb.ProgrammeClassID,
-                    pcb.HostMeetingLink,
-                    pcb.ViewerMeetingLink,
-                    pcb.MeetingID,
-                    pc.ProgrammeID,
-                    pcb.InstanceID,
-                    ps.StartDateTime,
-                    ps.EndDateTime
+                  pcb.ProgrammeClassID,
+                  pc.ProgrammeID,
+                  pcb.InstanceID, -- Retrieve InstanceID instead of ViewerMeetingLink
+                  MIN(ps.StartDateTime) AS StartDateTime,
+                  MAX(ps.EndDateTime) AS EndDateTime
                 FROM ProgrammeClassBatch pcb
                 JOIN ProgrammeSchedule ps 
-                    ON pcb.InstanceID = ps.InstanceID
+                  ON pcb.InstanceID = ps.InstanceID
                 JOIN ProgrammeClass pc
-                    ON pcb.ProgrammeClassID = pc.ProgrammeClassID
+                  ON pcb.ProgrammeClassID = pc.ProgrammeClassID
                 WHERE EXISTS (
-                    SELECT 1
-                    FROM Slot s
-                    WHERE s.ProgrammeClassID = pcb.ProgrammeClassID
+                  SELECT 1 
+                  FROM Slot s
+                  WHERE s.ProgrammeClassID = pcb.ProgrammeClassID
                     AND s.InstanceID = pcb.InstanceID
                 )
-            )
-            SELECT 
+                GROUP BY pcb.ProgrammeClassID, pc.ProgrammeID, pcb.InstanceID
+              )
+              SELECT 
                 p.ProgrammeID,
                 p.ProgrammeName,
                 p.Description,
                 pc.Location,
                 pc.ProgrammeLevel,
-                pd.ProgrammeClassID,
-                pd.HostMeetingLink,
-                pd.ViewerMeetingLink,
-                pd.MeetingID,
-                pd.InstanceID,
+                pd.ProgrammeClassID, -- Include ProgrammeClassID in the final selection
+                pd.InstanceID, -- Include InstanceID in the final selection
                 pd.StartDateTime,
                 pd.EndDateTime
-            FROM ProgrammeDates pd
-            JOIN Programme p 
-                ON pd.ProgrammeID = p.ProgrammeID
-            JOIN ProgrammeClass pc 
-                ON pd.ProgrammeClassID = pc.ProgrammeClassID
-            WHERE 
+              FROM Slot s
+              JOIN Programme p 
+                ON s.ProgrammeID = p.ProgrammeID
+              JOIN ProgrammeClass pc 
+                ON s.ProgrammeClassID = pc.ProgrammeClassID
+              JOIN ProgrammeDates pd 
+                ON pc.ProgrammeID = pd.ProgrammeID
+                AND pc.ProgrammeClassID = pd.ProgrammeClassID
+              WHERE 
                 pc.Location = 'Online'
                 AND pd.StartDateTime > CURRENT_TIMESTAMP()
-            GROUP BY 
-                pd.InstanceID, -- Ensure we group by InstanceID to separate instances
+              GROUP BY 
                 p.ProgrammeID,
                 p.ProgrammeName,
                 p.Description,
                 pc.Location,
                 pc.ProgrammeLevel,
-                pd.ProgrammeClassID,
-                pd.HostMeetingLink,
-                pd.ViewerMeetingLink,
                 pd.StartDateTime,
-                pd.EndDateTime
-            ORDER BY pd.StartDateTime;
-
+                pd.EndDateTime,
+                pd.InstanceID -- Adjust grouping for InstanceID
+              ORDER BY pd.StartDateTime;
             `;
-    
             const [programmes] = await pool.query(query);
     
             // Return the formatted programmes

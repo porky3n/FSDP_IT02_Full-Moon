@@ -76,12 +76,11 @@ function displayProgrammeInfo(programmes) {
                     </div>
                 </div>
                 <button 
-                    class="btn btn-primary mt-3 delete-meeting-btn" 
+                    class="btn btn-danger mt-3 delete-meeting-btn" 
                     data-programme-class-id="${programme.ProgrammeClassID || ''}" 
                     data-instance-id="${programme.InstanceID || ''}" 
-                    data-meeting-id="${programme.MeetingID || ''}"
-                    onclick="deleteMeeting(this)">
-                        Delete Meeting
+                    data-meeting-id="${programme.MeetingID || ''}">
+                    Delete Meeting
                 </button>
               ` : `
                   
@@ -117,58 +116,121 @@ document.addEventListener('click', function (event) {
     }
 });
 
-
 document.querySelector('.upcoming-schedule').addEventListener('click', async (event) => {
-  if (event.target.classList.contains('create-meeting-btn')) {
+    if (event.target.classList.contains('create-meeting-btn')) {
       const button = event.target;
-
-      // Hide the button
+  
+      // Hide the create meeting button
       button.style.display = 'none';
-
-      // Get the meeting links (assuming you have these values available in your context)
+  
+      // Get the meeting details from the button's dataset
       const programmeClassID = button.dataset.programmeClassId;
       const instanceID = button.dataset.instanceId;
       const endDateTime = button.dataset.endDateTime;
-
+  
       console.log("programmeClassID:", programmeClassID);
       console.log("instanceID:", instanceID);
       console.log("endDateTime:", endDateTime);
-
+  
       // Call the backend API to create the meeting
       try {
-          const response = await fetch('/api/meeting/create', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                  programmeClassID,
-                  endDateTime,
-                  instanceID,
-              }),
-          });
-
-          const data = await response.json();
-
-          if (response.ok) {
-              // Create the Host Link and Viewer Link textboxes with "Copy" buttons
-              const parent = button.parentElement;
-              const hostLinkWrapper = createLinkWrapper('Host Link', data.hostMeetingLink);
-              const viewerLinkWrapper = createLinkWrapper('Viewer Link', data.viewerMeetingLink);
-
-              // Append the textboxes to the card
-              parent.appendChild(hostLinkWrapper);
-              parent.appendChild(viewerLinkWrapper);
-          } else {
-              console.error("Error creating meeting:", data.message);
-              alert('Error creating meeting. Please try again.');
-          }
-      } catch (error) {
-          console.error("Error creating meeting:", error);
+        const response = await fetch('/api/meeting/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            programmeClassID,
+            endDateTime,
+            instanceID,
+          }),
+        });
+  
+        const data = await response.json();
+  
+        if (response.ok) {
+          // Create the Host Link and Viewer Link textboxes with "Copy" buttons
+          const parent = button.parentElement;
+          const hostLinkWrapper = createLinkWrapper('Host Link', data.hostMeetingLink);
+          const viewerLinkWrapper = createLinkWrapper('Viewer Link', data.viewerMeetingLink);
+  
+          // Append the textboxes to the card
+          parent.appendChild(hostLinkWrapper);
+          parent.appendChild(viewerLinkWrapper);
+  
+          // Add a delete meeting button dynamically
+          const deleteButton = document.createElement('button');
+          deleteButton.className = 'btn btn-danger mt-3 delete-meeting-btn';
+          deleteButton.textContent = 'Delete Meeting';
+          deleteButton.dataset.programmeClassId = programmeClassID;
+          deleteButton.dataset.instanceId = instanceID;
+          deleteButton.dataset.meetingId = data.meetingID; // Assuming the created meeting ID is returned in `data.meetingId`
+  
+          parent.appendChild(deleteButton);
+        } else {
+          console.error("Error creating meeting:", data.message);
           alert('Error creating meeting. Please try again.');
+        }
+      } catch (error) {
+        console.error("Error creating meeting:", error);
+        alert('Error creating meeting. Please try again.');
       }
-  }
-});
+    }
+  
+    // Handle delete meeting button clicks
+    if (event.target.classList.contains('delete-meeting-btn')) {
+        const button = event.target;
+    
+        const programmeClassID = button.dataset.programmeClassId;
+        const instanceID = button.dataset.instanceId;
+        const meetingID = button.dataset.meetingId;
+    
+        if (!programmeClassID || !instanceID || !meetingID) {
+            alert("Missing data attributes. Cannot delete meeting.");
+            return;
+        }
+    
+        const confirmation = confirm("Are you sure you want to delete this meeting?");
+        if (!confirmation) return;
+    
+        try {
+            const response = await fetch('/api/meeting/delete', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ programmeClassID, instanceID, meetingID }),
+            });
+    
+            const result = await response.json();
+    
+            if (response.ok) {
+                alert(result.message);
+                
+    
+                const parent = button.parentElement;
+                if (!parent) {
+                    console.error("Parent element not found for the delete button.");
+                    return;
+                }
+    
+                // Remove the Host Link and Viewer Link fields
+                const hostLinkWrapper = parent.querySelector('.host-link-wrapper');
+                const viewerLinkWrapper = parent.querySelector('.viewer-link-wrapper');
+                if (hostLinkWrapper) hostLinkWrapper.remove();
+                if (viewerLinkWrapper) viewerLinkWrapper.remove();
+
+                button.remove();
+            } else {
+                alert(`Failed to delete meeting: ${result.message}`);
+            }
+        } catch (error) {
+            console.error("Error deleting meeting:", error);
+            alert("An error occurred while trying to delete the meeting.");
+        }
+    }
+    
+  });
 
 
 
@@ -177,9 +239,9 @@ document.querySelector('.upcoming-schedule').addEventListener('click', async (ev
 // Helper function to create link textboxes with copy button
 function createLinkWrapper(label, defaultValue) {
     const wrapper = document.createElement('div');
-    wrapper.classList.add('link-wrapper', 'mt-3');
+    const uniqueClass = label === 'Host Link' ? 'host-link-wrapper' : 'viewer-link-wrapper';
+    wrapper.classList.add('link-wrapper', uniqueClass, 'mt-3');
 
-    // Add label and textbox layout
     wrapper.innerHTML = `
         <label class="mb-1 d-block">${label}</label>
         <div class="d-flex align-items-center">
@@ -188,7 +250,6 @@ function createLinkWrapper(label, defaultValue) {
         </div>
     `;
 
-    // Add event listener to "Copy" button
     wrapper.querySelector('.copy-btn').addEventListener('click', function () {
         const input = wrapper.querySelector('input');
         input.select();
@@ -199,41 +260,42 @@ function createLinkWrapper(label, defaultValue) {
     return wrapper;
 }
 
-async function deleteMeeting(button) {
-    const programmeClassID = button.getAttribute("data-programme-class-id");
-    const instanceID = button.getAttribute("data-instance-id");
-    const meetingID = button.getAttribute("data-meeting-id");
+
+// async function deleteMeeting(button) {
+//     const programmeClassID = button.getAttribute("data-programme-class-iD");
+//     const instanceID = button.getAttribute("data-instance-iD");
+//     const meetingID = button.getAttribute("data-meeting-iD");
   
-    if (!programmeClassID || !instanceID || !meetingID) {
-      alert("Missing data attributes. Cannot delete meeting.");
-      return;
-    }
+//     if (!programmeClassID || !instanceID || !meetingID) {
+//       alert("Missing data attributes. Cannot delete meeting.");
+//       return;
+//     }
   
-    const confirmation = confirm("Are you sure you want to delete this meeting?");
-    if (!confirmation) return;
+//     const confirmation = confirm("Are you sure you want to delete this meeting?");
+//     if (!confirmation) return;
   
-    try {
-      const response = await fetch("/api/delete-meeting", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ programmeClassID, instanceID, meetingID }),
-      });
+//     try {
+//       const response = await fetch("/api/delete-meeting", {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({ programmeClassID, instanceID, meetingID }),
+//       });
   
-      const result = await response.json();
+//       const result = await response.json();
   
-      if (response.ok) {
-        alert(result.message);
-        button.disabled = true; // Optionally disable the button after deletion
-      } else {
-        alert(`Failed to delete meeting: ${result.message}`);
-      }
-    } catch (error) {
-      console.error("Error deleting meeting:", error);
-      alert("An error occurred while trying to delete the meeting.");
-    }
-  }
+//       if (response.ok) {
+//         alert(result.message);
+//         button.disabled = true; // Optionally disable the button after deletion
+//       } else {
+//         alert(`Failed to delete meeting: ${result.message}`);
+//       }
+//     } catch (error) {
+//       console.error("Error deleting meeting:", error);
+//       alert("An error occurred while trying to delete the meeting.");
+//     }
+//   }
   
 // Add event listeners to "Create Meeting" buttons
 // async function createAndJoinMeeting(programmeClassID, endDateTime, instanceID) {

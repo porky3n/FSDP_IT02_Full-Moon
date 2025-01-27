@@ -76,14 +76,15 @@ class ProgrammeClassBatchService {
 
             const hostMeetingLink = data.hostRoomUrl;
             const viewerMeetingLink = data.roomUrl;
+            const meetingID = data.meetingId;
 
             // Step 2: Update the meeting link for the given ProgrammeClassID and InstanceID
             const updateQuery = `
                 UPDATE ProgrammeClassBatch
-                SET HostMeetingLink = ?, ViewerMeetingLink = ?
+                SET HostMeetingLink = ?, ViewerMeetingLink = ?, MeetingID = ?
                 WHERE ProgrammeClassID = ? AND InstanceID = ?
             `;
-            const [result] = await pool.query(updateQuery, [hostMeetingLink, viewerMeetingLink, programmeClassID, instanceID]);
+            const [result] = await pool.query(updateQuery, [hostMeetingLink, viewerMeetingLink, meetingID, programmeClassID, instanceID]);
     
             if (result.affectedRows === 0) {
                 throw new Error("No matching row found to update. Ensure the ProgrammeClassID and InstanceID are correct.");
@@ -95,6 +96,7 @@ class ProgrammeClassBatchService {
                 viewerMeetingLink,
                 programmeClassID,
                 instanceID,
+                meetingID
             };
         } catch (error) {
             console.error("Error creating or updating meeting:", error);
@@ -102,23 +104,43 @@ class ProgrammeClassBatchService {
         }
     }
 
-    static async deleteMeeting(programmeClassID, instanceID) {
-        const updateQuery = `
-          UPDATE ProgrammeClassBatch
-          SET HostMeetingLink = NULL, ViewerMeetingLink = NULL, MeetingID = NULL
-          WHERE ProgrammeClassID = ? AND InstanceID = ?
-        `;
-    
+    static async deleteMeeting(programmeClassID, instanceID, meetingID) {
+        console.log("ProgrammeClassID:", programmeClassID);
+        console.log("InstanceID:", instanceID);
+        console.log("MeetingID:", meetingID);
         try {
+          // Step 1: Call Whereby API to delete the meeting
+          const wherebyResponse = await fetch(`https://api.whereby.dev/v1/meetings/${meetingID}`, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${process.env.MY_WHEREBY_API_KEY}`
+            },
+          });
+    
+          // If Whereby API call fails, throw an error with the response details
+          if (!wherebyResponse.ok) {
+            const errorDetails = await wherebyResponse.json();
+            console.error("Error from Whereby API:", errorDetails);
+            throw new Error(errorDetails.message || "Failed to delete meeting from Whereby.");
+          }
+    
+          // Step 2: Update the database to clear meeting links
+          const updateQuery = `
+            UPDATE ProgrammeClassBatch
+            SET HostMeetingLink = NULL, ViewerMeetingLink = NULL, MeetingID = NULL
+            WHERE ProgrammeClassID = ? AND InstanceID = ?
+          `;
           const [result] = await pool.query(updateQuery, [programmeClassID, instanceID]);
+    
           if (result.affectedRows === 0) {
             throw new Error("No matching row found to delete. Ensure the ProgrammeClassID and InstanceID are correct.");
           }
     
-          return { message: "Meeting links deleted successfully." };
+          return { message: "Meeting deleted successfully." };
         } catch (error) {
           console.error("Error deleting meeting:", error);
-          throw new Error("Unable to delete the meeting.");
+          throw new Error(error.message || "Unable to delete the meeting.");
         }
       }
 }
