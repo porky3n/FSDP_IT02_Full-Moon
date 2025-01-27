@@ -23,7 +23,7 @@ const OPENAI_API_KEY_part2="acrEBMeXcQ_-T3BlbkFJHiS1DaIKCY0QQkBCalzpbVl9EmtwthlQ
 const OPENAI_API_KEY = OPENAI_API_KEY_part1 + OPENAI_API_KEY_part2;
 
 // Create a new Telegram bot instance
-const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: false });
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
 
 // Configure OpenAI API
 const openai = new OpenAI({
@@ -354,6 +354,57 @@ const announceProgrammes = async (req, res) => {
     }
 };
 
+
+
+
+// Telegram Post
+// Function to fetch messages from the Telegram group
+const getUserMessage = async (req, res) => {
+    try {
+        // Make a GET request to the Telegram API to fetch updates
+        const response = await axios.get(
+            `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/getUpdates`
+        );
+
+        // Extract updates from the response
+        const updates = response.data.result;
+
+        if (updates.length === 0) {
+            return res.status(200).json({ message: "No new messages found." });
+        }
+
+        // Filter messages from the specific chat ID
+        const filteredMessages = updates
+            .filter(update => update.message && update.message.chat.id === -1002352524230)
+            .map(update => {
+                const message = update.message;
+                return {
+                    chatId: message.chat.id,
+                    chatTitle: message.chat.title,
+                    senderId: message.from.id,
+                    senderUsername: message.from.username,
+                    text: message.text,
+                    date: new Date(message.date * 1000).toISOString(), // Convert timestamp to readable date
+                };
+            });
+
+        if (filteredMessages.length === 0) {
+            return res.status(200).json({ message: "No messages found for the specified chat." });
+        }
+
+        // Send the filtered messages as a response
+        res.status(200).json({ messages: filteredMessages });
+    } catch (error) {
+        console.error("Error fetching user messages:", error);
+        res.status(500).json({ message: "Failed to fetch user messages" });
+    }
+};
+
+
+
+
+
+
 module.exports = {
     sendFormattedProgrammeToChatGPT,
     sendFormattedProgramme,
@@ -361,4 +412,295 @@ module.exports = {
     sendProgrammeImage,
     getProgrammeImages,
     sendProgrammeImageToTelegram,
+    getUserMessage,
 };
+
+
+// ===================== Telegram Bot Event Handlers ===================== //
+
+// Listen for the "/start" command
+// bot.onText(/\/start/, async (msg) => {
+//     const chatId = msg.chat.id;
+//     const messageId = msg.message_id;
+//     const userName = msg.from.first_name || 'there';
+
+//     // Send a welcome message to the user privately (via reply or direct message)
+//     bot.sendMessage(chatId, `Hello, ${userName}! Welcome to our Telegram bot. How can I assist you today?`, {
+//         reply_to_message_id: messageId,  // Optional: reply to the user's message
+//     });
+
+//     // Check if the message is from a group chat
+//     if (msg.chat.type === 'group' || msg.chat.type === 'supergroup') {
+//         // Delete the original /start message to hide it from others
+//         bot.deleteMessage(chatId, messageId).catch((error) => {
+//             console.error("Failed to delete message:", error);
+//         });
+//     }
+// });
+
+// Listen for the "/start" command
+bot.onText(/\/start/, (msg) => {
+    const chatId = msg.chat.id;
+    const userName = msg.from.first_name || 'there';
+
+    // Send a welcome message
+    bot.sendMessage(chatId, `Hello, ${userName}! Welcome to our Telegram bot. How can I assist you today?`);
+});
+
+// Handle other messages
+// const userCooldowns = {};  // To track user message timestamps
+// const spamCooldownSeconds = 60;  // Allow posting every 60 seconds
+
+// bot.on('message', async (msg) => {
+//     const chatId = msg.chat.id;
+//     const userId = msg.from.id;
+//     const userMessage = msg.text;
+//     const messageId = msg.message_id;
+
+//     // Ignore bot's own messages
+//     if (msg.from.is_bot) return;
+
+//     // Spam prevention: Check if user is posting too frequently
+//     if (userCooldowns[userId] && (Date.now() - userCooldowns[userId]) < spamCooldownSeconds * 1000) {
+//         bot.deleteMessage(chatId, messageId).catch(() => {});
+//         bot.sendMessage(userId, "You're sending messages too frequently. Please wait a while before posting again.");
+//         return;
+//     }
+
+//     // Save the current timestamp to prevent spam
+//     userCooldowns[userId] = Date.now();
+
+//     // Moderate the message via OpenAI (ChatGPT)
+//     try {
+//         const response = await openai.chat.completions.create({
+//             model: "gpt-4",
+//             messages: [
+//                 { role: "system", content: "You are a content moderator. Approve only relevant and polite messages." },
+//                 { role: "user", content: userMessage }
+//             ],
+//         });
+
+//         const moderationResult = response.choices[0].message.content.toLowerCase();
+
+//         if (moderationResult.includes('approve')) {
+//             bot.sendMessage(chatId, `${msg.from.first_name} posted:\n\n${userMessage}`);
+//         } else {
+//             bot.sendMessage(userId, "Your message was not approved. Please follow community guidelines.");
+//         }
+
+//         // Delete original message from group
+//         bot.deleteMessage(chatId, messageId).catch(() => {});
+//     } catch (error) {
+//         console.error("Error during moderation:", error);
+//         bot.sendMessage(userId, "An error occurred while processing your message. Please try again later.");
+//     }
+// });
+
+// Message handling logic with spam and moderation checks
+const userCooldowns = {}; // Store user cooldown timestamps
+const spamCooldownSeconds = 5; // Cooldown period in seconds
+
+bot.on('message', async (msg) => {
+    const chatId = msg.chat.id;
+    const userId = msg.from.id;
+    const messageId = msg.message_id;
+    const userMessage = msg.text;
+
+    // Ensure the message contains text
+    if (!userMessage) {
+        console.log('Received a non-text message, ignoring it.');
+        return;
+    }
+
+    // Spam prevention: Check if the user is posting too frequently
+    // if (userCooldowns[userId] && (Date.now() - userCooldowns[userId]) < spamCooldownSeconds * 1000) {
+    //     // Delete the user's message
+    //     bot.deleteMessage(chatId, messageId).catch(() => {}); // Ignore errors if the message was already deleted
+    //     bot.sendMessage(chatId, `@${msg.from.username || msg.from.first_name}, you're sending messages too frequently. Please wait a while before posting again.`, { parse_mode: "Markdown" });
+    //     return;
+    // }
+
+    // Save the current timestamp to track user activity
+    userCooldowns[userId] = Date.now();
+
+    // AI moderation
+    try {
+        const response = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+                { role: "system", content: "You are a moderator. Return `1` if the message is polite and relevant, even if it is short or simple. Return `2` only if the message is explicitly impolite, irrelevant, or inappropriate." },
+                { role: "user", content: userMessage }
+            ],
+        });
+    
+        console.log("Moderation response:", response.choices[0].message.content);
+        const moderationResult = response.choices[0].message.content.trim();
+    
+        if (moderationResult === '1') {
+            // Approved message
+            // bot.deleteMessage(chatId, messageId).catch(() => {});
+            // bot.sendMessage(chatId, `${mentionUser(msg.from)} posted:\n\n${userMessage}`, { parse_mode: "Markdown" });
+        } else if (moderationResult === '2') {
+            // Unapproved message
+            bot.deleteMessage(chatId, messageId).catch(() => {});
+            bot.sendMessage(chatId, `@${msg.from.username || msg.from.first_name}, Your message was not approved. Please follow the rules.`, { parse_mode: "Markdown" });
+            await restrictUser(chatId, userId, 1, msg.from);
+        } else {
+            console.error("Unexpected moderation result:", moderationResult);
+        }
+    } catch (error) {
+        console.error("Error during moderation:", error.message);
+    }
+    
+});
+
+
+// Function to mention the user by Telegram ID
+// const mentionUser = (user) => {
+//     if (user.username) {
+//         return `@${user.username}`;
+//     } else {
+//         return `[${user.first_name || 'User'}](tg://user?id=${user.username})`;
+//     }
+// };
+
+// Restrict user and start countdown for auto-unrestriction
+async function restrictUser(chatId, userId, durationMinutes, userInfo) {
+    try {
+        // Check if the user is the chat owner or an admin
+        const chatMember = await bot.getChatMember(chatId, userId);
+        const userStatus = chatMember.status;
+
+        // Skip restriction if user is owner or admin
+        if (userStatus === 'creator' || userStatus === 'administrator') {
+            console.log(`Cannot restrict user ${userId} as they are ${userStatus}.`);
+            return;
+        }
+
+        // Restrict user for the specified duration
+        const untilDate = Math.floor(Date.now() / 1000) + durationMinutes * 60;
+        await bot.restrictChatMember(chatId, userId, {
+            can_send_messages: false,
+            can_send_media_messages: false,
+            can_send_polls: false,
+            can_send_other_messages: false,
+            can_add_web_page_previews: false,
+            until_date: untilDate,
+        });
+
+        console.log(`${userInfo.first_name} has been restricted for ${durationMinutes} minutes.`);
+
+        // Schedule automatic unrestriction
+        setTimeout(async () => {
+            await unrestrictUser(chatId, userId);
+        }, durationMinutes * 60 * 1000);
+
+        //private dm
+        bot.sendMessage(chatId, `${userInfo.first_name} has been restricted for ${durationMinutes} minutes.`);
+    } catch (error) {
+        console.error(`Failed to restrict user: ${error.message}`);
+    }
+}
+
+
+// Function to unrestrict the user
+const unrestrictUser = async (chatId, userId) => {
+    try {
+        await bot.restrictChatMember(chatId, userId, {
+            permissions: {
+                can_send_messages: true,
+                can_send_media_messages: true,
+                can_send_other_messages: true,
+                can_add_web_page_previews: true,
+            }
+        });
+
+        bot.sendMessage(chatId, `[${userId}](tg://user?id=${userId}) is now unrestricted.`, { parse_mode: "Markdown" });
+    } catch (error) {
+        console.error("Failed to unrestrict user:", error);
+    }
+};
+
+
+const postComments = {}; // Temporary in-memory storage (use a database in production)
+
+bot.on('message', async (msg) => {
+    const chatId = msg.chat.id;
+    const userId = msg.from.id;
+    const messageId = msg.message_id;
+    const userMessage = msg.text;
+
+    // Check if it's a post (you can define what qualifies as a post)
+    if (!userMessage.startsWith('/')) {
+        // Treat this as a post
+        const postId = Object.keys(postComments).length + 1; // Generate a new post ID
+        postComments[postId] = { messageId, comments: [] };
+
+        bot.sendMessage(chatId, `Post created with ID: ${postId}. Users can comment using /comment ${postId}.`);
+        return;
+    }
+
+    // Handle commands
+    const [command, ...args] = userMessage.split(' ');
+
+    if (command === '/comment') {
+        const postId = args[0];
+        const commentText = args.slice(1).join(' ');
+
+        if (!postId || !postComments[postId]) {
+            bot.sendMessage(chatId, 'Invalid post ID. Please provide a valid post to comment on.');
+            return;
+        }
+
+        if (!commentText) {
+            bot.sendMessage(chatId, 'Please provide a comment.');
+            return;
+        }
+
+        // Add the comment to the post
+        postComments[postId].comments.push({ user: msg.from.first_name, text: commentText });
+
+        bot.sendMessage(chatId, `Your comment has been added to post ID: ${postId}.`);
+        return;
+    }
+
+    if (command === '/viewcomments') {
+        const postId = args[0];
+
+        if (!postId || !postComments[postId]) {
+            bot.sendMessage(chatId, 'Invalid post ID. Please provide a valid post ID to view comments.');
+            return;
+        }
+
+        const comments = postComments[postId].comments;
+        if (comments.length === 0) {
+            bot.sendMessage(chatId, `No comments yet for post ID: ${postId}.`);
+            return;
+        }
+
+        const commentsText = comments.map((c, i) => `${i + 1}. ${c.user}: ${c.text}`).join('\n');
+        bot.sendMessage(chatId, `Comments for post ID ${postId}:\n\n${commentsText}`);
+        return;
+    }
+});
+
+// Function to start countdown and update the user every minute
+// const startCountdown = (chatId, userId, durationMinutes) => {
+//     let remainingTime = durationMinutes;
+
+//     const countdownInterval = setInterval(async () => {
+//         remainingTime--;
+        
+//         if (remainingTime > 0) {
+//             bot.sendMessage(chatId, `User [${userId}](tg://user?id=${userId}) is restricted. ${remainingTime} minutes remaining.`, { parse_mode: "Markdown" });
+//         } else {
+//             clearInterval(countdownInterval);
+//             await unrestrictUser(chatId, userId);
+//         }
+//     }, 60 * 1000); // Run every 1 minute
+// };
+
+
+
+
+console.log('Bot is running...');

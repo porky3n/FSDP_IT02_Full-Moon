@@ -24,4 +24,7 @@ telegramRoutes.post('/announce', telegramController.sendFormattedProgramme);
 // Route to send the programme image to Telegram
 telegramRoutes.get("/sendProgrammeImage/:programmeID", telegramController.sendProgrammeImage);   
 
+// Route to get user message
+telegramRoutes.get("/getUserMessage", telegramController.getUserMessage);
+
 module.exports = telegramRoutes;
