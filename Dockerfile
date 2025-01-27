@@ -1,4 +1,4 @@
-FROM node:19-bullseye
+FROM node:18.17-bullseye
 
 # Install required tools and dependencies for glibc installation
 RUN apt-get update && apt-get install -y \
