@@ -47,6 +47,7 @@ CREATE TABLE Parent (
     ProfilePicture MEDIUMBLOB NULL,
     Membership ENUM('Non-Membership', 'Bronze', 'Silver', 'Gold') DEFAULT 'Non-Membership' NOT NULL,
     StartDate DATE DEFAULT (CURRENT_DATE) NOT NULL,
+    TelegramChatID VARCHAR(100) NULL, -- To store the Telegram chat ID
     ProfileDetails TEXT NULL,
     CONSTRAINT FK_Parent_Account FOREIGN KEY (AccountID) REFERENCES Account(AccountID),
     CONSTRAINT FK_Parent_TierCriteria FOREIGN KEY (Membership) REFERENCES TierCriteria(Tier)
