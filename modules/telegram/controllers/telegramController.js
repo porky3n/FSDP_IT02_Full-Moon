@@ -18,6 +18,18 @@ const openai = new OpenAI({
 // Telegram bot instance
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: false });
 
+// Create a clickable location link
+const createLocationLink = (location) => {
+    if (location.toLowerCase().includes("http")) {
+      // If the location is an online link (e.g., Zoom, Google Meet), return it as-is
+      return `[Join the Online Meeting](${location})`;
+    } else {
+      // Otherwise, treat it as a physical address and generate a Google Maps link
+      const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+      return `[Navigate to Location](${mapsLink})`;
+    }
+  };
+  
 // Save programme image to a temporary file
 const saveProgrammeImageToTemp = async (programmeID) => {
   try {
@@ -93,12 +105,19 @@ const cleanUpFiles = (files) => {
 const fetchFormattedDetails = async (programme) => {
     const currentDate = new Date().toLocaleDateString("en-SG", { timeZone: "Asia/Singapore" });
   
+    if (programme.DiscountValue === null || programme.DiscountValue === 0) {
+        programme.DiscountValue = "Free";
+    }
+
+
+    // Create a clickable location link
+    const locationLink = createLocationLink(programme.Location || "To be confirmed");
+
     // Format the details with Markdown-friendly styling
     const programmeDetails = `
-  🔍 *${programme.ProgrammeName}*
-  
+  🔍Name: *${programme.ProgrammeName}*
   💡 *Category*: ${programme.Category}
-  📍 *Location*: ${programme.Location || "To be confirmed"}
+  📍 *Location*: ${locationLink}
   ⏳ *Duration*: ${programme.Duration || "Not specified"}
   📅 *Date*: ${new Date(programme.EarliestStartDateTime).toLocaleString()} to ${new Date(
       programme.LatestEndDateTime
@@ -107,10 +126,18 @@ const fetchFormattedDetails = async (programme) => {
   🎯 *Level*: ${programme.ProgrammeLevel || "All levels"}
   
   📖 *Description*: ${programme.Description}
-  
+  Discount: ${programme.DiscountType === "Percentage" ? `${programme.DiscountValue}% off` : `$${programme.DiscountValue} off`}
+
   ⚠️ *Remarks*: ${programme.Remarks || "None"}
   🎟 *Slots Available*: ${programme.SlotsLeft || "Not specified"}
-  
+  Reviews: ${
+                programme.Reviews
+                    ? programme.Reviews.map(
+                          (review) =>
+                              `${review.ReviewerName} (${review.Rating}/5): "${review.ReviewText}"`
+                      ).join("\n")
+                    : "No reviews yet"
+            }
   📌 _Don't miss this chance! Reserve your spot today!_
     `;
   
@@ -205,9 +232,11 @@ const fetchFormattedDetails = async (programme) => {
   
       // this will only work if its a public server.
       //const programmeLink = `http://localhost:3000/userProgrammeInfoPage.html?programmeId=${programmeID}`;
-      const programmeLink = `https://mindsphere.sg/`
-      const clickableLink = `[mindSphere](${programmeLink})`;
-      formattedDetails += `\nClick here to view details on ${clickableLink}.`;
+    // Add a link to the programme details page
+    const programmeLink = `https://fsdpit02full-moon-production-b596.up.railway.app/userProgrammeInfoPage.html?programmeId=${programmeID}`;
+    const clickableLink = `[View More Details](${programmeLink})`;
+    formattedDetails += `\n\n${clickableLink}`;
+
   
       let imagePath;
   
