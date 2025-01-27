@@ -120,7 +120,6 @@ exports.login = async (req, res) => {
     
     const firstName = parentData[0]?.FirstName;
     const lastName = parentData[0]?.LastName;
-    const firstName = parentData[0]?.FirstName;
     const tier = parentData[0]?.Tier;
 
     const token = jwt.sign(

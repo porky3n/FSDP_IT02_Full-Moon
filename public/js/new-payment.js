@@ -213,7 +213,7 @@ async function createSlot() {
     paymentAmount: paymentAmount, // Use calculated payment amount from updateSummary
     paymentMethod: selectedPaymentMethod, // Retrieved from fetchProgrammeCartDetails
     verified: "Verified", // Set to "Verified" for now
-    purchaseTier: userDetails.tier, // Retrieve user tier from localStorage
+    purchaseTier: userDetails.membership, // Retrieve user tier from localStorage
     promotionID: promotionID,
     userEmail: userEmail, // Include user email
     programmeName: programmeName,
@@ -592,7 +592,7 @@ async function handleSubmit(event) {
 
 async function updateTierForAccount() {
   try {
-    console.log("Updating tier for account:", accountId);
+    console.log("Updating Membership for account:", accountId);
 
     // Call the API to update the tier
     const response = await fetch(`/api/payment/${accountId}/tier`, {
@@ -600,20 +600,20 @@ async function updateTierForAccount() {
     });
 
     if (!response.ok) {
-      throw new Error("Failed to update tier for account.");
+      throw new Error("Failed to update Membership for account.");
     }
 
     const data = await response.json();
 
     // Check if the tier was upgraded
-    if (data.tierUpdated) {
+    if (data.membershipUpdated) {
       // Update localStorage if the tier was upgraded
       const userDetails = JSON.parse(localStorage.getItem("userDetails")) || {};
       localStorage.setItem(
         "userDetails",
         JSON.stringify({
           ...userDetails,
-          tier: data.newTier, // Update the tier in localStorage
+          membership: data.newMembership, // Update the tier in localStorage
         })
       );
       alert(data.message);
@@ -621,8 +621,8 @@ async function updateTierForAccount() {
       alert(data.message); // Notify the user that the tier was retained
     }
   } catch (error) {
-    console.error("Error updating tier for account:", error);
-    alert(`Error updating tier for account: ${error.message}`);
+    console.error("Error updating Membership for account:", error);
+    alert(`Error updating Membership for account: ${error.message}`);
   }
 }
 

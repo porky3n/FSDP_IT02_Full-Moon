@@ -2,6 +2,7 @@
   "dependencies": {
     "ajax": "^0.0.4",
     "axios": "^1.7.7",
+    "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.3",
     "cloudinary": "^1.41.3",
@@ -10,6 +11,7 @@
     "express": "^4.21.1",
     "express-session": "^1.18.1",
     "file-type": "^16.5.4",
+    "form-data": "^4.0.1",
     "image-type": "^5.2.0",
     "jimp": "^1.6.0",
     "jsonwebtoken": "^9.0.2",

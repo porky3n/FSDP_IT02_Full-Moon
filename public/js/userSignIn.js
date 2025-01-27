@@ -29,7 +29,7 @@ document
             firstName: result.firstName, // Ensure the backend response includes firstName
             lastName: result.lastName,
             email: result.email,
-            tier: result.tier,
+            membership: result.membership,
           })
         );
 
