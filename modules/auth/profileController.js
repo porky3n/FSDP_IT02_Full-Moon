@@ -2,7 +2,7 @@ const pool = require("../../dbConfig");
 const fs = require("fs");
 
 exports.getProfile = async (req, res) => {
-  const accountId = req.session.accountId;
+  const accountId = req.session.accountId || req.query.accountId;
 
   if (!accountId) {
     return res.status(401).json({ message: "Unauthorized access" });
@@ -24,22 +24,18 @@ exports.getProfile = async (req, res) => {
       return res.status(404).json({ message: "Profile not found" });
     }
 
-    // Convert ProfilePicture buffer to base64 if it exists
     const profile = rows[0];
     if (profile.ProfilePicture) {
-      profile.ProfilePicture = `data:image/jpeg;base64,${profile.ProfilePicture.toString(
-        "base64"
-      )}`;
+      profile.ProfilePicture = `data:image/jpeg;base64,${profile.ProfilePicture.toString("base64")}`;
     }
 
     res.json(profile);
   } catch (error) {
     console.error("Error fetching profile data:", error);
-    res
-      .status(500)
-      .json({ message: "Internal server error", error: error.message });
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
+
 
 exports.updateProfile = async (req, res) => {
   const accountId = req.session.accountId;

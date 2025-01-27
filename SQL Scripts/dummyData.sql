@@ -1,4 +1,3 @@
-
 -- Insert data into ChatbotPrompts table
 INSERT INTO ChatbotPrompts (PromptType, PromptText)
 VALUES 
@@ -116,8 +115,6 @@ INSERT INTO Payment (SlotID, PromotionID, PaymentAmount, PaymentDate, PaymentMet
 VALUES 
 (1, 1, 25.50, NOW(), 'PayNow', 'Verified', 'Gold'), -- Slot with yoga promotion
 (2, 2, 125.00, NOW(), 'PayNow', 'Pending', 'Silver'); -- Slot with robotics promotion
-
-
 
 -- Insert data into BusinessEnquiries table
 INSERT INTO BusinessEnquiries (BusinessName, Industry, BusinessSize, ContactName, ContactJobTitle, EmailAddress, PhoneNumber, PreferredContactMethod, InterestAreas, AdditionalComments, Consent, Status, AdminNotes)

@@ -1,0 +1,59 @@
+.review-item {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+}
+
+.review-author {
+    font-weight: bold;
+    color: #333;
+}
+
+.review-date {
+    color: #777;
+    font-size: 0.9em;
+}
+
+.review-text {
+    margin: 10px 0;
+    font-size: 1em;
+}
+
+.review-rating {
+    color: #ffc107;
+    font-size: 1.2em;
+}
+
+.delete-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 0.9em;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+.table-hover th, .table-hover td {
+    vertical-align: middle;
+}
+
+#programmeSelect {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.text-end .btn {
+    font-size: 0.9rem;
+    padding: 5px 10px;
+}

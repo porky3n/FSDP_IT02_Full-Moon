@@ -103,3 +103,25 @@ body, html {
     font-size: 0.9rem;
     margin-top: 10px;
 }
+
+#profileDetails {
+    resize: none; /* Disable resizing */
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 15px; /* Increase padding for better readability */
+    font-size: 1.1rem; /* Slightly larger font size */
+    height: 150px; /* Increased height */
+    width: 100%; /* Full width for better responsiveness */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+}
+  
+#wordCount {
+    display: block;
+    text-align: right;
+    font-size: 0.9rem;
+    margin-top: 5px;
+    color: #666; /* Slightly muted color for word count */
+}
+  
+
+
