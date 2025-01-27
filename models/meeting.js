@@ -101,6 +101,26 @@ class ProgrammeClassBatchService {
             throw new Error("Unable to create or update the meeting link.");
         }
     }
+
+    static async deleteMeeting(programmeClassID, instanceID) {
+        const updateQuery = `
+          UPDATE ProgrammeClassBatch
+          SET HostMeetingLink = NULL, ViewerMeetingLink = NULL, MeetingID = NULL
+          WHERE ProgrammeClassID = ? AND InstanceID = ?
+        `;
+    
+        try {
+          const [result] = await pool.query(updateQuery, [programmeClassID, instanceID]);
+          if (result.affectedRows === 0) {
+            throw new Error("No matching row found to delete. Ensure the ProgrammeClassID and InstanceID are correct.");
+          }
+    
+          return { message: "Meeting links deleted successfully." };
+        } catch (error) {
+          console.error("Error deleting meeting:", error);
+          throw new Error("Unable to delete the meeting.");
+        }
+      }
 }
 
 

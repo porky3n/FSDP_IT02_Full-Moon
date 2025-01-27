@@ -46,6 +46,36 @@ const createMeeting = async (req, res) => {
     }
   };
 
+  const deleteMeeting = async (req, res) => {
+    const { programmeClassID, instanceID, meetingID } = req.body;
+  
+    if (!programmeClassID || !instanceID || !meetingID) {
+      return res.status(400).json({ message: "ProgrammeClassID, InstanceID, and MeetingID are required." });
+    }
+  
+    try {
+      // Call the Whereby API to delete the meeting
+      const wherebyResponse = await fetch(`https://api.whereby.dev/v1/meetings/${meetingID}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${process.env.WHEREBY_API_TOKEN}`,
+        },
+      });
+  
+      if (!wherebyResponse.ok) {
+        const errorDetails = await wherebyResponse.json();
+        return res.status(wherebyResponse.status).json({ message: errorDetails.message });
+      }
+  
+      // Delete meeting links from the database
+      const result = await ProgrammeClassBatch.deleteMeeting(programmeClassID, instanceID);
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error("Error in deleteMeeting controller:", error);
+      return res.status(500).json({ message: "Failed to delete meeting." });
+    }
+  };
+
 // module.exports = { 
 //     getMeetingById, 
 //     createMeeting 
@@ -53,4 +83,5 @@ const createMeeting = async (req, res) => {
 
 module.exports = {
     createMeeting,
+    deleteMeeting
   };

@@ -21,6 +21,7 @@ const meetingRoutes = express.Router();
 // meetingRoutes.get('/:id', meetingController.getMeetingById);  
 
 meetingRoutes.post('/create', meetingController.createMeeting);
+meetingRoutes.post('/delete', meetingController.deleteMeeting);
 
 
 // ========== Export Route ==========
