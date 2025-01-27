@@ -225,6 +225,7 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("Programme cards initialization will be implemented later");
   };
 
+
   // Initialize event listeners
   const initializeEventListeners = () => {
     if (editBtn) {

@@ -3,6 +3,7 @@ const express = require("express");
 const path = require("path");
 const session = require("express-session");
 const cors = require("cors");
+const passport = require('./modules/auth/passportConfig'); // Load passport setup
 const bodyParser = require("body-parser");
 const authRoutes = require("./modules/auth/authRoutes"); // Import auth routes
 const profileRoutes = require("./modules/auth/profileRoutes"); // Import profile routes
@@ -32,9 +33,13 @@ app.use(express.json());
 app.use(cors());
 app.use(
   session({
-    secret: "your_secret_key",
+    secret: "your-secret-key",
     resave: false,
     saveUninitialized: false,
+    cookie: {
+      secure: false, // Set to true if using HTTPS
+      httpOnly: true,
+    },
   })
 );
 
@@ -62,10 +67,11 @@ app.use(bodyParser.json({ limit: "50mb" })); // Adjust limit as needed
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 // Mount authentication routes at /auth
-app.use("/auth", authRoutes);
-app.use("/auth", userProfileRoutes);
 app.use("/auth/profile", profileRoutes); // Mount profile routes
 app.use("/api/children", childRoutes); // Mount child routes
+app.use("/auth", authRoutes);
+app.use("/auth", userProfileRoutes);
+
 
 // Mount programme-related routes
 // app.use("/api/programmes", programmeRoutes); // Programme routes
@@ -124,6 +130,10 @@ app.use("/api/payment", paymentRoutes);
 
 // Route for handling chatbot interactions
 app.use('/api/chatbot', chatbotRoutes);
+
+// Route for Google Auth
+app.use(passport.initialize());
+app.use(passport.session());
 
 
 // api for paymentintent

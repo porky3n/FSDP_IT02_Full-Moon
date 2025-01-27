@@ -5,6 +5,11 @@ const verifyToken = (req, res, next) => {
   try {
     // Check for token in Authorization header
     const authHeader = req.headers.authorization;
+
+    // Skip authorization if it's a Google-authenticated request
+    if (req.user && req.user.AccountID) {
+      return next();
+    }
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({ message: "No token provided" });
     }

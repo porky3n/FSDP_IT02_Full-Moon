@@ -27,6 +27,7 @@ document
           JSON.stringify({
             accountId: result.accountId,
             firstName: result.firstName, // Ensure the backend response includes firstName
+            lastName: result.lastName,
             email: result.email,
           })
         );
