@@ -41,7 +41,8 @@ const sendPaymentConfirmationEmail = async (userDetails) => {
 
     const mailOptions = {
       from: "vincenth1025@gmail.com",
-      to: userEmail,
+      // to: userEmail,
+      to: "vincenth1025@gmail.com",
       subject: "Payment Confirmation and Slot Booking Successful",
       html: htmlContent,
       attachments: [

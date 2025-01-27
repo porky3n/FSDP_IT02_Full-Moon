@@ -163,16 +163,16 @@ document.addEventListener("DOMContentLoaded", function () {
       if (guestContent) guestContent.style.display = "none";
 
       // Format the date
-      const formatDate = (dateStr) => {
-        if (!dateStr) return "Not provided";
-        const date = new Date(dateStr);
-        if (isNaN(date.getTime())) return "Not provided";
-        return date.toLocaleDateString("en-GB", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        });
-      };
+      // const formatDate = (dateStr) => {
+      //   if (!dateStr) return "Not provided";
+      //   const date = new Date(dateStr);
+      //   if (isNaN(date.getTime())) return "Not provided";
+      //   return date.toLocaleDateString("en-GB", {
+      //     day: "numeric",
+      //     month: "long",
+      //     year: "numeric",
+      //   });
+      // };
 
       // Format membership status based on the Membership column value
       const formatMembership = (status) => {
@@ -280,9 +280,27 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
   
+      let meetingLink = "";
+
       container.innerHTML = programmes
-        .map(
-          (prog) => `
+      .map((prog) => {
+        // Convert StartDateTime to a Date object
+        const currentTime = new Date();
+        const startTime = parseDate(prog.StartDateTime);
+        const endTime = parseDate(prog.StartDateTime);
+
+        // console.log(startTime);
+        // console.log(parseDate(startTime));
+
+        console.log(currentTime);
+        meetingLink = prog.ViewerMeetingLink;
+        console.log("Meeting Link: ", prog.ViewerMeetingLink);
+        const isOnline = prog.Location === "Online";
+        const isNear =
+        ((startTime - currentTime) / (1000 * 60) <= 5) || // Within 5 minutes of startTime
+        ((currentTime < endTime) && (currentTime > startTime)); // Current time is before endTime
+
+        return `
           <div class="col-md-6 col-lg-4 mb-4">
             <div class="programme-card h-100">
               <div class="programme-info p-3">
@@ -314,19 +332,44 @@ document.addEventListener("DOMContentLoaded", function () {
                       </p>
                     </div>
                   </div>
+                  ${
+                    isOnline
+                      ? 
+                      `<button 
+                        class="btn btn-primary mt-3 create-meeting-btn" 
+                        data-programme-id="${prog.ProgrammeID}" 
+                        ${isNear ? "" : "disabled"}>
+                        Join Meeting
+                      </button>
+                      `
+                      : ""
+                  }
                 </div>
               </div>
             </div>
           </div>
-        `
-        )
-        .join("");
+        `;
+      })
+      .join("");
+
+      // Add click event listeners to "Join Meeting" buttons
+      document.querySelectorAll(".create-meeting-btn").forEach((button) => {
+        button.addEventListener("click", (event) => {
+          if (meetingLink) {
+            window.open(meetingLink, "_blank");
+          } else {
+            alert("Meeting link not available");
+          }
+        });
+      });
+
     } catch (error) {
       console.error("Error loading enrolled programmes:", error);
       const container = document.getElementById("programmesContainer");
       if (container) {
+        // '<div class="col-12"><p class="text-center text-danger">Please sign in to see enrolled programmes.</p></div>';
         container.innerHTML =
-          '<div class="col-12"><p class="text-center text-danger">Please sign in to see enrolled programmes.</p></div>';
+          '<div class="col-12"><p class="text-center text-danger">No programmes enrolled currently.</p></div>';
       }
     }
   };
@@ -339,6 +382,40 @@ document.addEventListener("DOMContentLoaded", function () {
     await loadEnrolledProgrammes(); // Add this line
     initializeEventListeners();
   };
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "Not provided";
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return "Not provided";
+    return date.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  };
+
+  const parseDate = (dateStr) => {
+    // Example: "20 January 2025 at 11:53 pm"
+    const [day, month, year, hourMinute, period] = dateStr
+      .replace(" at ", " ")
+      .split(/[\s]+/); // Split by spaces only
+  
+    // Extract hours and minutes from hourMinute
+    const [hour, minute] = hourMinute.split(":").map(Number);
+  
+    // Convert month name to zero-based index
+    const monthIndex = new Date(`${month} 1, ${year}`).getMonth();
+  
+    // Adjust hours for 24-hour format
+    const adjustedHour = hour + (period.toLowerCase() === "pm" && hour !== 12 ? 12 : 0);
+  
+    // Handle midnight case (12 am is hour 0)
+    const finalHour = period.toLowerCase() === "am" && hour === 12 ? 0 : adjustedHour;
+  
+    // Return the Date object
+    return new Date(year, monthIndex, parseInt(day, 10), finalHour, minute);
+  };
+  
 
   // Start initialization
   initialize();

@@ -816,6 +816,29 @@ const updateProgramme = async (req, res) => {
     }
 };
 
+const getUpcomingOnlineProgrammes = async (req, res) => {
+    try {
+        // Call the model to fetch upcoming online programmes
+        const programmes = await Programme.getUpcomingOnlineProgrammes();
+
+        // If no programmes exist, return an empty array
+        if (!programmes || programmes.length === 0) {
+            return res.status(200).json([]);
+        }
+
+        // Return the formatted programmes
+        return res.status(200).json(programmes);
+    } catch (error) {
+        console.error("Error fetching upcoming online programmes:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Error retrieving programmes",
+            error: error.message,
+        });
+    }
+};
+
+
 module.exports = {
     sendFormattedProgrammeToChatGPT,
     sendFormattedProgramme,
@@ -831,4 +854,5 @@ module.exports = {
     deleteProgramme,
     updateProgramme,
     getProgrammeImages,
+    getUpcomingOnlineProgrammes
 };

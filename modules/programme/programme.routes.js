@@ -31,6 +31,9 @@ programmeRoutes.get("/all", programmeController.getAllProgrammeDetails);
 // Route to announce programmes using Telegram bot and ChatGPT 4 for formatting
 programmeRoutes.post('/announce', programmeController.sendFormattedProgramme);
 
+// Get upcoming online programmes
+programmeRoutes.get("/upcoming", programmeController.getUpcomingOnlineProgrammes);
+
 // Route to get all programmes by category
 programmeRoutes.get("/category/:category", programmeController.getProgrammesByCategory);
 
@@ -51,6 +54,8 @@ programmeRoutes.get("/search", programmeController.searchProgrammes);
 
 // Get a programme by its ID
 programmeRoutes.get("/:id", programmeController.getProgrammeByID);
+
+
 
 // Get all programmes
 programmeRoutes.get("/", programmeController.getAllProgrammes);
