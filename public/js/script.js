@@ -1,38 +1,57 @@
-$(document).ready(function() {
+$(document).ready(function () {
+    console.log("Script initialized");
+
     // Load the navbar and footer content dynamically
     $("#navbar-container").load("navbar.html");
     $("#footer-container").load("footer.html");
 
-    // Check for stored user details in localStorage
-    const userDetails = JSON.parse(localStorage.getItem('userDetails'));
-    if (userDetails && userDetails.firstName) {
-        displayWelcomeMessage(userDetails.firstName);
-        checkAndResetTierForAccount(userDetails.accountId);
-    }
+    // Directly check session and fetch user details
+    checkSessionAndDisplayWelcomeMessage();
 });
 
-document.addEventListener('DOMContentLoaded', async function() {
+// Check the session and display welcome message
+async function checkSessionAndDisplayWelcomeMessage() {
     try {
-        // Fetch session details to check if the user is logged in
-        const response = await fetch('/auth/check-session');
-        const data = await response.json();
+        // Fetch session details from the backend
+        const response = await fetch("/auth/check-session", {
+            method: "GET",
+            credentials: "include",
+            headers: {
+                Accept: "application/json",
+            },
+        });
 
-        if (data.isLoggedIn && data.firstName) {
-            displayWelcomeMessage(data.firstName);
+        const sessionData = await response.json();
+
+        if (sessionData.isLoggedIn && sessionData.firstName) {
+            // Store user details in localStorage
+            localStorage.setItem(
+                "userDetails",
+                JSON.stringify({
+                    accountId: sessionData.accountId,
+                    firstName: sessionData.firstName,
+                    email: sessionData.email,
+                })
+            );
+
+            // Update welcome message
+            displayWelcomeMessage(sessionData.firstName);
         } else {
-            displayWelcomeMessage('Guest');
+            displayWelcomeMessage("Guest");
         }
     } catch (error) {
-        console.error('Error fetching user session:', error);
-        displayWelcomeMessage('Guest');
+        console.error("Error checking session:", error);
+        displayWelcomeMessage("Guest");
     }
-});
+}
 
+
+// Display the welcome message
 function displayWelcomeMessage(firstName) {
     const welcomeMessageContainer = document.getElementById('welcomeMessage');
     welcomeMessageContainer.textContent = `Welcome, ${firstName}!`;
     welcomeMessageContainer.classList.add('welcome-text'); // Add CSS class for styling
-}
+};
 
 async function checkAndResetTierForAccount(accountId) {
     try {

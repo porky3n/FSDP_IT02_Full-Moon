@@ -65,3 +65,17 @@ body {
     height: 24px;
     object-fit: contain;
 }
+
+/* Profile Details Textarea */
+textarea.form-control {
+    resize: none;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+textarea.form-control:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+

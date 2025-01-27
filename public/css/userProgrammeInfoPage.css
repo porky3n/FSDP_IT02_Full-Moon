@@ -690,3 +690,61 @@ body {
     transform: scale(1.05);
 }
 
+.reviews-section {
+    background-color: #f8f9fa;
+    padding: 3% 5%;
+    border-radius: 8px;
+}
+
+.reviews-section h2 {
+    font-weight: bold;
+    font-size: 1.8rem;
+    color: #34495E;
+}
+
+.review-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.review-item:hover {
+    transform: scale(1.02);
+}
+
+.review-item .review-author {
+    font-weight: bold;
+    color: #333;
+}
+
+.review-item .review-date {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.review-item .review-text {
+    margin: 10px 0;
+    font-size: 1rem;
+    color: #555;
+}
+
+.review-item .review-rating {
+    color: #f39c12;
+    font-size: 1.2rem;
+}
+
+.add-review-container {
+    margin-top: 20px;
+}
+
+.add-review-container .btn {
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 8px;
+}
+
+

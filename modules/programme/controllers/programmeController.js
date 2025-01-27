@@ -231,6 +231,65 @@ const updateProgramme = async (req, res) => {
     }
 };
 
+// Get all reviews (admin view)
+const getAllReviews = async (req, res) => {
+    try {
+        const reviews = await Programme.getAllReviews(); // Assuming this method exists in the model
+        res.json(reviews);
+    } catch (error) {
+        console.error("Error fetching all reviews:", error);
+        res.status(500).json({ message: "Error fetching reviews" });
+    }
+};
+
+
+// Get all reviews for a specific programme
+const getReviewsByProgrammeID = async (req, res) => {
+    const { id: programmeID } = req.params;
+
+    try {
+        const reviews = await Programme.getReviewsByProgrammeID(programmeID);
+        res.json(reviews);
+    } catch (error) {
+        console.error("Error fetching reviews:", error);
+        res.status(500).json({ message: "Error fetching reviews" });
+    }
+};
+
+// Add a new review
+const addReview = async (req, res) => {
+    const { programmeID, accountID, rating, reviewText } = req.body;
+
+    try {
+        if (!programmeID || !accountID || !rating) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
+
+        const reviewID = await Programme.addReview({ programmeID, accountID, rating, reviewText });
+        res.status(201).json({ message: "Review added successfully", reviewID });
+    } catch (error) {
+        console.error("Error adding review:", error);
+        res.status(500).json({ message: "Error adding review" });
+    }
+};
+
+// Delete a review by ReviewID
+const deleteReviewByID = async (req, res) => {
+    const reviewID = req.params.id;
+
+    try {
+        const result = await Programme.deleteReviewByID(reviewID); // Adjust model method name if needed
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Review not found" });
+        }
+        res.status(200).json({ message: "Review deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting review:", error);
+        res.status(500).json({ message: "Error deleting review" });
+    }
+};
+
+
 const getUpcomingOnlineProgrammes = async (req, res) => {
     try {
         // Call the model to fetch upcoming online programmes
@@ -255,9 +314,6 @@ const getUpcomingOnlineProgrammes = async (req, res) => {
 
 
 module.exports = {
-    sendFormattedProgrammeToChatGPT,
-    sendFormattedProgramme,
-    announceProgrammes,
     getAllProgrammes,
     getAllProgrammeDetails,
     getFeaturedProgrammes,
@@ -268,5 +324,9 @@ module.exports = {
     createProgramme,
     deleteProgramme,
     updateProgramme,
-    getUpcomingOnlineProgrammes
+    getUpcomingOnlineProgrammes,
+    getAllReviews,
+    getReviewsByProgrammeID,
+    addReview,
+    deleteReviewByID
 };

@@ -1,0 +1,59 @@
+/* Google Button */
+.btn-google {
+    width: 100%;
+    max-width: 400px;
+    background-color: #f7f7f7; /* Light gray background */
+    color: #000000; /* Black text */
+    border: 1px solid #ddd; /* Light gray border */
+    border-radius: 10px;
+    height: 45px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-decoration: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.btn-google:hover {
+    background-color: #e6e6e6; /* Slightly darker gray on hover */
+    color: #000000; /* Keep text black */
+    text-decoration: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15); /* Stronger shadow on hover */
+}
+
+.btn-google img {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}
+
+
+.btn-google img {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}
+
+/* Back Button Container */
+.back-button-container {
+    position: absolute;
+    top: 5rem; /* Space below the navbar */
+    left: 2rem; /* Space from the left edge */
+    z-index: 1000; /* Ensure it appears above other elements */
+}
+
+.btn-outline-secondary {
+    font-size: 0.9rem;
+    padding: 6px 15px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #f2f2f2; /* Light gray hover effect */
+    color: #333;
+    text-decoration: none;
+}

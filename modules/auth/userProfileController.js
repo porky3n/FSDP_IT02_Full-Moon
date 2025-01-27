@@ -105,7 +105,7 @@ exports.getProfile = async (req, res) => {
 exports.updateChild = async (req, res) => {
   const accountId = req.session.accountId;
   if (!accountId) {
-    return res.status(401).json({ message: "Unauthorized access" });
+    return res.status(401).json({ message: "Unauthorized access abc" });
   }
 
   try {
@@ -309,7 +309,7 @@ exports.getEnrolledProgrammes = async (req, res) => {
     if (!accountId && !userEmail) {
       return res.status(401).json({
         success: false,
-        message: "Unauthorized access",
+        message: "Unauthorized access abc",
       });
     }
 

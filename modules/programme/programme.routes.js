@@ -17,7 +17,6 @@ const programmeController = require("./controllers/programmeController");
 const programmeRoutes = express.Router();
 
 // ========== Routes ==========
-
 // Route to get all programme details including classes, schedules, and batches
 programmeRoutes.get("/all", programmeController.getAllProgrammeDetails);
 
@@ -52,12 +51,22 @@ programmeRoutes.get("/search", programmeController.searchProgrammes);
 // Get a programme by its ID
 programmeRoutes.get("/:id", programmeController.getProgrammeByID);
 
+// Get all reviews for Admin
+programmeRoutes.get("/reviews", programmeController.getAllReviews);
+
+// Route to get reviews for a specific programme
+programmeRoutes.get("/:id/reviews", programmeController.getReviewsByProgrammeID);
+
+// Route to add a new review
+programmeRoutes.post("/:id/reviews", programmeController.addReview);
+
+// Delete a review
+programmeRoutes.delete("/reviews/:id", programmeController.deleteReviewByID);
+
 
 
 // Get all programmes
 programmeRoutes.get("/", programmeController.getAllProgrammes);
-
-
 
 // // Get schedules for a specific programme by ID
 // programmeRoutes.get("/:id/schedules", programmeController.getUpcomingSchedules);
