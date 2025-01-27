@@ -26,6 +26,9 @@ const paymentRoutes = require('./modules/payment/payment.routes');
 const chatbotRoutes = require("./modules/chatbot/chatbot.routes");
 const telegramRoutes = require('./modules/telegram/telegram.routes');
 
+const tierRoutes = require("./modules/tier/tier.routes");
+const meetingRoutes = require("./modules/meeting/meeting.routes");
+
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
@@ -82,6 +85,9 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
+app.get("/testPage", (req, res) => {  
+  res.sendFile(path.join(__dirname, "public", "testProgrammePage.html"));
+});
 // Route protected with middleware for admin access
 app.get("/adminHomePage.html", ensureAdminAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, "public", "adminHomePage.html"));
@@ -123,9 +129,11 @@ app.use("/api/programmeClass", programmeClassRoutes);
 app.use("/api/programmeSchedule", programmeScheduleRoutes);
 app.use("/api/slot", slotRoutes);
 app.use("/api/payment", paymentRoutes);
+app.use("/api/meeting", meetingRoutes);
 
 // Route for handling chatbot interactions
 app.use('/api/chatbot', chatbotRoutes);
+app.use('/api/tier', tierRoutes);
 
 app.use('/api/telegram', telegramRoutes);
 // api for paymentintent

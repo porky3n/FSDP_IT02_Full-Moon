@@ -70,22 +70,22 @@ const updateTierBasedOnPurchases = async (req, res) => {
 
     if (result.status === "upgraded") {
       res.status(200).json({ 
-        tierUpdated: true,
-        newTier: result.tier,
-        message: `Tier upgraded to ${result.tier}`
+        membershipUpdated: true,
+        newMembership: result.membership,
+        message: `Membership upgraded to ${result.membership}`
      });
     } else if (result.status === "retained") {
       res.status(200).json({
-        tierUpdated: false,
-        newTier: result.tier,
-        message: `Tier retained as ${result.tier}. TierStartDate updated.`,
+        membershipUpdated: false,
+        newMembership: result.membership,
+        message: `Membership retained as ${result.membership}. MembershipStartDate updated.`,
       });
     } else {
-      res.status(200).json({ message: "No changes to the tier." });
+      res.status(200).json({ message: "No changes to the Membership." });
     }
   } catch (error) {
-    console.error("Error updating tier based on purchases:", error);
-    res.status(500).json({ message: "Error updating tier based on purchases" });
+    console.error("Error updating Membership based on purchases:", error);
+    res.status(500).json({ message: "Error updating Membership based on purchases" });
   }
 };
 

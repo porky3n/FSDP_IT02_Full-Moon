@@ -28,6 +28,9 @@ programmeRoutes.get("/all", programmeController.getAllProgrammeDetails);
 // Route to get fees for a specific programme by ID
 // programmeRoutes.get("/:id/fees", programmeController.getProgrammeFees);
 
+// Get upcoming online programmes
+programmeRoutes.get("/upcoming", programmeController.getUpcomingOnlineProgrammes);
+
 // Route to get all programmes by category
 programmeRoutes.get("/category/:category", programmeController.getProgrammesByCategory);
 
@@ -48,6 +51,8 @@ programmeRoutes.get("/search", programmeController.searchProgrammes);
 
 // Get a programme by its ID
 programmeRoutes.get("/:id", programmeController.getProgrammeByID);
+
+
 
 // Get all programmes
 programmeRoutes.get("/", programmeController.getAllProgrammes);
