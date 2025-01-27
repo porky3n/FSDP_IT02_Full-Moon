@@ -1,3 +1,130 @@
+document.addEventListener("DOMContentLoaded", async () => {
+    const reviewsContainer = document.getElementById("reviews-container");
+    const addReviewBtn = document.getElementById("addReviewBtn");
+    const addReviewModal = new bootstrap.Modal(document.getElementById("addReviewModal"));
+    const addReviewForm = document.getElementById("addReviewForm");
+
+    // Get the programme ID dynamically from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const programmeID = urlParams.get("programmeId");
+    console.log("Programme ID:", programmeID);
+
+    // Check if the user is logged in
+    const userDetails = JSON.parse(localStorage.getItem("userDetails"));
+    const isLoggedIn = !!userDetails;
+
+    // Disable "Add Review" button if not logged in
+    if (!isLoggedIn) {
+        addReviewBtn.disabled = true;
+        addReviewBtn.textContent = "Log in to add a review";
+    }
+
+    // Handle "Add Review" button click
+    addReviewBtn.addEventListener("click", () => {
+        addReviewModal.show();
+    });
+
+    // Handle form submission for adding a review
+    addReviewForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const reviewText = document.getElementById("reviewText").value;
+        const reviewRating = document.getElementById("reviewRating").value;
+
+        if (!isLoggedIn) {
+            alert("You must be logged in to add a review.");
+            return;
+        }
+
+        try {
+            // Send the review to the backend
+            const response = await fetch(`/api/programme/${programmeID}/reviews`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem("token")}`, // Assuming JWT is stored in localStorage
+                },
+                body: JSON.stringify({
+                    programmeID,
+                    accountID: userDetails.accountId,
+                    rating: reviewRating,
+                    reviewText,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to add review");
+            }
+
+            const newReview = await response.json();
+
+            // Add the new review to the UI
+            addReviewToUI({
+                author: `${userDetails.firstName} ${userDetails.lastName || ""}`,
+                text: reviewText,
+                rating: reviewRating,
+                date: new Date().toLocaleDateString("en-GB"),
+            });
+
+            // Close the modal and reset the form
+            addReviewModal.hide();
+            addReviewForm.reset();
+        } catch (error) {
+            console.error("Error adding review:", error);
+            alert("An error occurred while adding the review. Please try again.");
+        }
+    });
+
+    // Function to add a review to the UI
+    const addReviewToUI = (review) => {
+        const reviewHTML = `
+            <div class="review-item">
+                <p class="review-author"><strong>${review.author}</strong></p>
+                <p class="review-date text-muted">${review.date}</p>
+                <p class="review-text">${review.text}</p>
+                <p class="review-rating text-warning">${"★".repeat(review.rating)}</p>
+            </div>
+            <hr />
+        `;
+        reviewsContainer.insertAdjacentHTML("beforeend", reviewHTML);
+    };
+
+    // Fetch and display existing reviews
+    const fetchReviews = async () => {
+        try {
+            const url = `/api/programme/${programmeID}/reviews`;
+
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch reviews");
+            }
+
+            const reviews = await response.json();
+            console.log("Fetched reviews:", reviews);
+
+            reviews.forEach((review) => {
+                addReviewToUI({
+                    author: review.ReviewerName,
+                    text: review.ReviewText,
+                    rating: review.Rating,
+                    date: new Date(review.ReviewDate).toLocaleDateString("en-GB"),
+                });
+            });
+        } catch (error) {
+            console.error("Error fetching reviews:", error);
+        }
+    };
+
+    fetchReviews(); // Fetch and display reviews on page load
+});
+
+
+
 // Function to extract the programme ID from the URL
 // Function to extract the programme ID from URL query parameters
 function getProgrammeIdFromUrl() {
@@ -145,8 +272,6 @@ async function getProgrammeSchedules(programmeId) {
         console.error("Error fetching schedules:", error);
     }
 }
-
-
 
 
 function generateDateItems(dates) {
@@ -301,3 +426,4 @@ if (programmeId) {
 //         console.error("Target section not found:", target);
 //     }
 // }
+

@@ -336,6 +336,50 @@
             
                 </div>
             </section>
+
+            <section class="reviews-section mt-5">
+                <h2 class="text-center mb-4">Reviews</h2>
+                <div class="container">
+                    <div id="reviews-container" class="mb-4">
+                        <!-- Reviews will be dynamically loaded here -->
+                    </div>
+                    <div class="add-review-container text-center">
+                        <button id="addReviewBtn" class="btn btn-primary">Add Review</button>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Add Review Modal -->
+            <div class="modal fade" id="addReviewModal" tabindex="-1" aria-labelledby="addReviewModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addReviewModalLabel">Add Review</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="addReviewForm">
+                                <div class="mb-3">
+                                    <label for="reviewText" class="form-label">Your Review</label>
+                                    <textarea id="reviewText" class="form-control" rows="4" required></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="reviewRating" class="form-label">Rating</label>
+                                    <select id="reviewRating" class="form-select" required>
+                                        <option value="" disabled selected>Choose a rating</option>
+                                        <option value="1">1 - Poor</option>
+                                        <option value="2">2 - Fair</option>
+                                        <option value="3">3 - Good</option>
+                                        <option value="4">4 - Very Good</option>
+                                        <option value="5">5 - Excellent</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">Submit Review</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
         </main>
     </body>

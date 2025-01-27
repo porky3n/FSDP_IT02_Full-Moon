@@ -97,8 +97,9 @@ CREATE TABLE ProgrammeClass (
 CREATE TABLE ProgrammeClassBatch (
     ProgrammeClassID INT NOT NULL,
     InstanceID INT AUTO_INCREMENT PRIMARY KEY,
-    HostMeetingLink VARCHAR(255) NULL,
-    ViewerMeetingLink VARCHAR(255) NULL,
+    HostMeetingLink TEXT NULL,
+    ViewerMeetingLink TEXT NULL,
+    MeetingID VARCHAR(20) NULL,
     CONSTRAINT FK_ProgrammeClassBatch_ProgrammeClass FOREIGN KEY (ProgrammeClassID) REFERENCES ProgrammeClass(ProgrammeClassID)
 );
 

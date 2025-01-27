@@ -9,6 +9,18 @@ class Programme {
         this.description = description;
     }
 
+    static async getProgrammePictureByID(programmeID) {
+        try {
+            const sqlQuery = `SELECT ProgrammePicture FROM Programme WHERE ProgrammeID = ?`;
+            const [rows] = await pool.query(sqlQuery, [programmeID]);
+            return rows[0].ProgrammePicture;
+        
+        } catch (error) {
+            console.error("Error in getProgrammePictureByID:", error);
+            throw error;
+        }
+    }
+
     // Get a programme by its ID
     static async getProgrammeDetailsByID(programmeID) {
         try {
@@ -335,6 +347,93 @@ class Programme {
             connection.release();
         }
     }
+
+    static async getAllReviews() {
+        try {
+            const sqlQuery = `
+                SELECT 
+                    r.ReviewID, 
+                    r.AccountID, 
+                    r.ProgrammeID, 
+                    r.Rating, 
+                    r.ReviewText, 
+                    r.ReviewDate, 
+                    CONCAT(p.FirstName, ' ', p.LastName) AS ReviewerName,
+                    pr.ProgrammeName
+                FROM Reviews r
+                JOIN Parent p ON r.AccountID = p.AccountID
+                JOIN Programme pr ON r.ProgrammeID = pr.ProgrammeID
+                ORDER BY r.ReviewDate DESC;
+            `;
+            const [rows] = await pool.query(sqlQuery);
+            return rows;
+        } catch (error) {
+            console.error("Error fetching all reviews:", error);
+            throw error;
+        }
+    }
+    
+
+    static async getReviewsByProgrammeID(programmeID) {
+        try {
+            const sqlQuery = `
+                SELECT 
+                    r.ReviewID, 
+                    r.AccountID, 
+                    r.ProgrammeID, 
+                    r.Rating, 
+                    r.ReviewText, 
+                    r.ReviewDate, 
+                    CONCAT(p.FirstName, ' ', p.LastName) AS ReviewerName
+                FROM Reviews r
+                JOIN Parent p ON r.AccountID = p.AccountID
+                WHERE r.ProgrammeID = ?
+                ORDER BY r.ReviewDate DESC;
+            `;
+            const [rows] = await pool.query(sqlQuery, [programmeID]);
+            return rows;
+        } catch (error) {
+            console.error("Error fetching reviews by programme ID:", error);
+            throw error;
+        }
+    }
+
+    // Add a new review for a programme
+    static async addReview({ programmeID, accountID, rating, reviewText }) {
+        try {
+            const sqlQuery = `
+                INSERT INTO Reviews (ProgrammeID, AccountID, Rating, ReviewText)
+                VALUES (?, ?, ?, ?);
+            `;
+            const [result] = await pool.query(sqlQuery, [
+                programmeID,
+                accountID,
+                rating,
+                reviewText,
+            ]);
+            return result.insertId;
+        } catch (error) {
+            console.error("Error adding review:", error);
+            throw error;
+        }
+    }
+
+    static async deleteReviewByID(reviewID) {
+        try {
+            const sqlQuery = `DELETE FROM Reviews WHERE ReviewID = ?`;
+            const [result] = await pool.query(sqlQuery, [reviewID]);
+    
+            if (result.affectedRows === 0) {
+                throw new Error("No review found with the given ID.");
+            }
+    
+            return { message: "Review deleted successfully." };
+        } catch (error) {
+            console.error("Error deleting review:", error);
+            throw error;
+        }
+    }
+    
     
 
     static async getUpcomingProgrammes() {

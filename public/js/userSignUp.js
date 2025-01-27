@@ -30,67 +30,82 @@ confirmPassword.addEventListener("input", function () {
 // Form submission handler
 // /public/js/userSignUp.js
 
-document
-  .getElementById("signUpForm")
-  .addEventListener("submit", async function (event) {
-    event.preventDefault(); // Prevent the default form submission
+// Track word count for the ProfileDetails textarea
+document.addEventListener("DOMContentLoaded", function () {
+  const profileDetails = document.getElementById("profileDetails");
+  const wordCount = document.getElementById("wordCount");
 
-    // Gather form data
-    const firstName = document.querySelector(
-      'input[placeholder="First Name"]'
-    ).value;
-    const lastName = document.querySelector(
-      'input[placeholder="Last Name"]'
-    ).value;
-    const email = document.querySelector('input[type="email"]').value;
-    const dob = document.getElementById("dob").value;
-    const countryCode = document.getElementById("countryCode").value;
-    const phoneNumber = document.querySelector('input[type="tel"]').value;
-    const password = document.getElementById("password").value;
-    const confirmPassword = document.getElementById("confirmPassword").value;
-    const termsAccepted = document.getElementById("terms").checked;
-    const passwordError = document.getElementById("passwordError");
+  profileDetails.addEventListener("input", function () {
+    const words = profileDetails.value.trim().split(/\s+/).filter(Boolean);
+    const wordLimit = 100;
 
-    // Validate password confirmation
-    if (password !== confirmPassword) {
-      passwordError.style.display = "block";
-      return;
-    } else {
-      passwordError.style.display = "none";
+    if (words.length > wordLimit) {
+      const trimmedWords = words.slice(0, wordLimit);
+      profileDetails.value = trimmedWords.join(" ");
     }
 
-    if (!termsAccepted) {
-      alert("Please accept the terms and privacy policy.");
-      return;
-    }
-
-    try {
-      // Send data to backend
-      const response = await fetch("/auth/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          firstName,
-          lastName,
-          email,
-          dob,
-          phoneNumber: countryCode + phoneNumber,
-          password,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        alert("Account created successfully! Redirecting to sign in.");
-        window.location.href = "/userSignIn.html"; // Redirect to sign-in page
-      } else {
-        alert(result.message || "Signup failed. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      alert("An error occurred during signup. Please try again.");
-    }
+    wordCount.textContent = `${words.length}/${wordLimit} words`;
   });
+});
+
+// Updated Form Submission Handler
+document.getElementById("signUpForm").addEventListener("submit", async function (event) {
+  event.preventDefault(); // Prevent the default form submission
+
+  // Gather form data
+  const firstName = document.querySelector('input[placeholder="First Name"]').value;
+  const lastName = document.querySelector('input[placeholder="Last Name"]').value;
+  const email = document.querySelector('input[type="email"]').value;
+  const dob = document.getElementById("dob").value;
+  const countryCode = document.getElementById("countryCode").value;
+  const phoneNumber = document.querySelector('input[type="tel"]').value;
+  const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+  const profileDetails = document.getElementById("profileDetails").value;
+  const termsAccepted = document.getElementById("terms").checked;
+  const passwordError = document.getElementById("passwordError");
+
+  // Validate password confirmation
+  if (password !== confirmPassword) {
+    passwordError.style.display = "block";
+    return;
+  } else {
+    passwordError.style.display = "none";
+  }
+
+  if (!termsAccepted) {
+    alert("Please accept the terms and privacy policy.");
+    return;
+  }
+
+  try {
+    // Send data to backend
+    const response = await fetch("/auth/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        firstName,
+        lastName,
+        email,
+        dob,
+        phoneNumber: countryCode + phoneNumber,
+        password,
+        profileDetails, // Include the profile details
+      }),
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      alert("Account created successfully! Redirecting to sign in.");
+      window.location.href = "/userSignIn.html"; // Redirect to sign-in page
+    } else {
+      alert(result.message || "Signup failed. Please try again.");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    alert("An error occurred during signup. Please try again.");
+  }
+});
