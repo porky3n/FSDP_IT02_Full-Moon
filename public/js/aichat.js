@@ -80,7 +80,7 @@ function loadChatbot() {
 
   // Function to send a message to the backend and get a response
   const sendMessageToBackend = (message, callback) => {
-    fetch('/api/chatbot/message', {
+    fetch('/api/chatbot/message/user', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

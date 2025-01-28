@@ -1,7 +1,7 @@
 // JavaScript for Sign-Up Page
 
-// Date of Birth (DOB) validation with date picker
 document.addEventListener("DOMContentLoaded", function () {
+  // Date of Birth (DOB) validation with date picker
   const dobInput = document.getElementById("dob");
   dobInput.addEventListener("focus", function () {
     dobInput.type = "date"; // Convert to date input on focus
@@ -12,47 +12,92 @@ document.addEventListener("DOMContentLoaded", function () {
       dobInput.placeholder = "Date of Birth (DD/MM/YYYY)";
     }
   });
-});
 
-// Password and Confirm Password validation
-const password = document.getElementById("password");
-const confirmPassword = document.getElementById("confirmPassword");
-const passwordError = document.getElementById("passwordError");
+  // Handle gender selection buttons
+  const genderButtons = document.querySelectorAll(".btn-gender");
+  const genderInput = document.getElementById("gender");
 
-confirmPassword.addEventListener("input", function () {
-  if (password.value !== confirmPassword.value) {
-    passwordError.style.display = "block";
+  genderButtons.forEach(button => {
+      button.addEventListener("click", function () {
+          // Remove active class from all buttons
+          genderButtons.forEach(btn => btn.classList.remove("active"));
+          // Add active class to selected button
+          this.classList.add("active");
+          // Set hidden input value
+          genderInput.value = this.getAttribute("data-gender");
+      });
+  });
+  
+  // Generate QR Code for Telegram bot
+  const qrCodeContainer = document.getElementById("qrCodeContainer");
+  const telegramBotLink = "https://t.me/mindSphereBot"; // Replace with your bot's username
+
+  if (qrCodeContainer) {
+    const canvas = document.createElement("canvas"); // Create a canvas element dynamically
+    qrCodeContainer.appendChild(canvas); // Append the canvas to the container
+
+    QRCode.toCanvas(canvas, telegramBotLink, { width: 200 }, function (error) {
+      if (error) {
+        console.error("Error generating QR Code:", error);
+      } else {
+        console.log("QR Code generated successfully.");
+      }
+    });
   } else {
-    passwordError.style.display = "none";
+    console.error("QR Code container not found.");
   }
-});
 
-// Form submission handler
-// /public/js/userSignUp.js
+  // Word count for the ProfileDetails textarea
+  const profileDetails = document.getElementById("profileDetails");
+  const wordCount = document.getElementById("wordCount");
+  profileDetails.addEventListener("input", function () {
+    const words = profileDetails.value.trim().split(/\s+/).filter(Boolean);
+    const wordLimit = 100;
 
-document
-  .getElementById("signUpForm")
-  .addEventListener("submit", async function (event) {
+    if (words.length > wordLimit) {
+      const trimmedWords = words.slice(0, wordLimit);
+      profileDetails.value = trimmedWords.join(" ");
+    }
+
+    wordCount.textContent = `${words.length}/${wordLimit} words`;
+  });
+
+  // Password and Confirm Password validation
+  const password = document.getElementById("password");
+  const confirmPassword = document.getElementById("confirmPassword");
+  const passwordError = document.getElementById("passwordError");
+
+  confirmPassword.addEventListener("input", function () {
+    if (password.value !== confirmPassword.value) {
+      passwordError.style.display = "block";
+    } else {
+      passwordError.style.display = "none";
+    }
+  });
+
+  // Form submission handler
+  document.getElementById("signUpForm").addEventListener("submit", async function (event) {
     event.preventDefault(); // Prevent the default form submission
 
     // Gather form data
-    const firstName = document.querySelector(
-      'input[placeholder="First Name"]'
-    ).value;
-    const lastName = document.querySelector(
-      'input[placeholder="Last Name"]'
-    ).value;
+    const firstName = document.querySelector('input[placeholder="First Name"]').value;
+    const lastName = document.querySelector('input[placeholder="Last Name"]').value;
     const email = document.querySelector('input[type="email"]').value;
     const dob = document.getElementById("dob").value;
+    const gender = document.getElementById("gender").value;
     const countryCode = document.getElementById("countryCode").value;
     const phoneNumber = document.querySelector('input[type="tel"]').value;
     const password = document.getElementById("password").value;
-    const confirmPassword = document.getElementById("confirmPassword").value;
+    const profileDetails = document.getElementById("profileDetails").value;
     const termsAccepted = document.getElementById("terms").checked;
-    const passwordError = document.getElementById("passwordError");
+
+    if (!gender) {
+      alert("Please select your gender.");
+      return;
+    }
 
     // Validate password confirmation
-    if (password !== confirmPassword) {
+    if (password !== confirmPassword.value) {
       passwordError.style.display = "block";
       return;
     } else {
@@ -76,8 +121,10 @@ document
           lastName,
           email,
           dob,
+          gender,
           phoneNumber: countryCode + phoneNumber,
           password,
+          profileDetails,
         }),
       });
 
@@ -94,3 +141,4 @@ document
       alert("An error occurred during signup. Please try again.");
     }
   });
+});

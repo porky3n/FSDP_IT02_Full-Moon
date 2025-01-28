@@ -1,0 +1,107 @@
+/* Custom styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+/* Header Section */
+.header-section {
+    background-color: #EDF2F7;
+    padding: 5% 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+    border-radius: 15px;
+}
+
+.header-text {
+    max-width: 50%;
+}
+
+.header-text h1 {
+    font-weight: bold;
+    color: #34495E;
+    margin-bottom: 20px;
+    font-size: 2rem;
+}
+
+.header-text p {
+    color: #666;
+    font-size: 1.325rem;
+    line-height: 1.5;
+}
+
+.header-text .badge {
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 20px;
+}
+
+.header-image img {
+    width: auto;
+    height: 400px; /* Adjust height for a longer image */
+    border-radius: 20px;
+    object-fit: cover;
+}
+
+.header-section button {
+    background-color: #DCAF27;
+    border-color: #DCAF27;
+}
+
+.header-section button:hover {
+    background-color: #2F455B;
+}
+
+/* Upcoming Schedule */
+/* General Layout */
+/* Upcoming Schedule Section */
+.upcoming-schedule {
+    padding: 3% 5%;
+    max-width: 100%;
+}
+
+.schedule-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    text-align: center;
+    min-height: 150px;
+}
+
+.schedule-card:hover {
+    background-color: #f8f9fa;
+    transform: scale(1.02);
+}
+
+.schedule-card .programme-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #34495E;
+    margin-bottom: 10px;
+}
+
+.schedule-card .start-date-time, 
+.schedule-card .participants {
+    font-size: 1rem;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.schedule-card .start-date-time i, 
+.schedule-card .participants i {
+    color: #0d6efd;
+    margin-right: 8px;
+}
+
+
+  
+

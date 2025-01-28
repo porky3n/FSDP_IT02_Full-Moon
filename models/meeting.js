@@ -47,55 +47,127 @@ require("dotenv").config();
 class ProgrammeClassBatchService {
     static async createMeeting(programmeClassID, endDateTime, instanceID) {
         const wherebyApiUrl = "https://api.whereby.dev/v1/meetings";
-    
+        
         try {
+            console.log("ProgrammeClassID:", programmeClassID);
+            console.log("End Date Time:", endDateTime);
+            console.log("InstanceID:", instanceID);
+            // Convert endDateTime to ISO format
+            const isoEndDateTime = convertToISO(endDateTime);
+            console.log("Converted ISO End Date Time:", isoEndDateTime);
+
             // Step 1: Create a meeting using the Whereby API
             const response = await fetch(wherebyApiUrl, {
                 method: 'POST',
                 headers: {
                   "Content-Type": "application/json",
-                  "Authorization": `${process.env.WHEREBY_API_KEY}`
+                  "Authorization": `Bearer ${process.env.MY_WHEREBY_API_KEY}`
                 },
-                body: JSON.stringify(
-                    {
-                        "isLocked": true,
-                        // "roomNamePrefix": "waiting-room-example-",
-                        // "roomNamePattern": "uuid",
-                        "roomMode": "normal", //normal
-                        "endDate": `${endDateTime}`,
-                        "fields": ["hostRoomUrl", "viewerRoomUrl"] //viewerRoomUrl
-                    }
-                ),
+                body: JSON.stringify({
+                    isLocked: true,
+                    roomMode: "normal", 
+                    endDate: isoEndDateTime,
+                    fields: ["hostRoomUrl", "viewerRoomUrl"]
+                }),
             });
 
-            // const data = await response.json();
-    
-            const hostMeetingLink = response.data.hostRoomUrl;
-    
+            const data = await response.json();
+            console.log("API Response Data:", data);
+
+            const hostMeetingLink = data.hostRoomUrl;
+            const viewerMeetingLink = data.roomUrl;
+            const meetingID = data.meetingId;
+
             // Step 2: Update the meeting link for the given ProgrammeClassID and InstanceID
             const updateQuery = `
                 UPDATE ProgrammeClassBatch
-                SET MeetingLink = ?
+                SET HostMeetingLink = ?, ViewerMeetingLink = ?, MeetingID = ?
                 WHERE ProgrammeClassID = ? AND InstanceID = ?
             `;
-            const [result] = await pool.query(updateQuery, [hostMeetingLink, programmeClassID, instanceID]);
+            const [result] = await pool.query(updateQuery, [hostMeetingLink, viewerMeetingLink, meetingID, programmeClassID, instanceID]);
     
-            // Check if the update was successful
             if (result.affectedRows === 0) {
-            throw new Error("No matching row found to update. Ensure the ProgrammeClassID and InstanceID are correct.");
+                throw new Error("No matching row found to update. Ensure the ProgrammeClassID and InstanceID are correct.");
             }
     
             return {
                 message: "Meeting link updated successfully.",
                 hostMeetingLink,
+                viewerMeetingLink,
                 programmeClassID,
                 instanceID,
+                meetingID
             };
         } catch (error) {
             console.error("Error creating or updating meeting:", error);
             throw new Error("Unable to create or update the meeting link.");
         }
     }
+
+    static async deleteMeeting(programmeClassID, instanceID, meetingID) {
+        console.log("ProgrammeClassID:", programmeClassID);
+        console.log("InstanceID:", instanceID);
+        console.log("MeetingID:", meetingID);
+        try {
+          // Step 1: Call Whereby API to delete the meeting
+          const wherebyResponse = await fetch(`https://api.whereby.dev/v1/meetings/${meetingID}`, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${process.env.MY_WHEREBY_API_KEY}`
+            },
+          });
+    
+          // If Whereby API call fails, throw an error with the response details
+          if (!wherebyResponse.ok) {
+            const errorDetails = await wherebyResponse.json();
+            console.error("Error from Whereby API:", errorDetails);
+            throw new Error(errorDetails.message || "Failed to delete meeting from Whereby.");
+          }
+    
+          // Step 2: Update the database to clear meeting links
+          const updateQuery = `
+            UPDATE ProgrammeClassBatch
+            SET HostMeetingLink = NULL, ViewerMeetingLink = NULL, MeetingID = NULL
+            WHERE ProgrammeClassID = ? AND InstanceID = ?
+          `;
+          const [result] = await pool.query(updateQuery, [programmeClassID, instanceID]);
+    
+          if (result.affectedRows === 0) {
+            throw new Error("No matching row found to delete. Ensure the ProgrammeClassID and InstanceID are correct.");
+          }
+    
+          return { message: "Meeting deleted successfully." };
+        } catch (error) {
+          console.error("Error deleting meeting:", error);
+          throw new Error(error.message || "Unable to delete the meeting.");
+        }
+      }
 }
+
+
+function convertToISO(endDateTime) {
+    // Example input: "3 February 2025 at 00:00 pm"
+    const dateParts = endDateTime.match(/^(\d+)\s([a-zA-Z]+)\s(\d{4})\sat\s(\d{1,2}):(\d{2})\s([apAP][mM])$/);
+    if (!dateParts) {
+        throw new Error("Invalid date format. Expected format: '3 February 2025 at 00:00 pm'");
+    }
+
+    const [_, day, month, year, hours, minutes, period] = dateParts;
+
+    // Convert the month to a zero-based index for the Date object
+    const monthIndex = new Date(`${month} 1`).getMonth();
+
+    // Adjust hours for AM/PM
+    let hour = parseInt(hours, 10);
+    if (period.toLowerCase() === "pm" && hour !== 12) hour += 12;
+    if (period.toLowerCase() === "am" && hour === 12) hour = 0;
+
+    // Create a Date object
+    const date = new Date(Date.UTC(parseInt(year, 10), monthIndex, parseInt(day, 10), hour, parseInt(minutes, 10)));
+
+    return date.toISOString();
+}
+
 
 module.exports = ProgrammeClassBatchService;

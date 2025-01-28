@@ -41,21 +41,21 @@ async function executeSQL() {
     }
     console.log("Table creation script executed successfully!");
 
-    // // Execute dummyData.sql
-    // const dummySqlPath = path.join(__dirname, "SQL Scripts/dummyData.sql");
-    // let dummySql = fs.readFileSync(dummySqlPath, "utf8");
-    // dummySql = dummySql.replace(/\r/g, "").trim(); // Sanitize
-    // const dummyQueries = dummySql
-    //   .split(";")
-    //   .map((q) => q.trim())
-    //   .filter((q) => q.length);
+    // Execute dummyData.sql
+    const dummySqlPath = path.join(__dirname, "SQL Scripts/dummyData.sql");
+    let dummySql = fs.readFileSync(dummySqlPath, "utf8");
+    dummySql = dummySql.replace(/\r/g, "").trim(); // Sanitize
+    const dummyQueries = dummySql
+      .split(";")
+      .map((q) => q.trim())
+      .filter((q) => q.length);
 
-    // console.log("Executing dummy data script...");
-    // for (const query of dummyQueries) {
-    //   console.log(`Executing: ${query}`);
-    //   await connection.query(query);
-    // }
-    // console.log("Dummy data script executed successfully!");
+    console.log("Executing dummy data script...");
+    for (const query of dummyQueries) {
+      console.log(`Executing: ${query}`);
+      await connection.query(query);
+    }
+    console.log("Dummy data script executed successfully!");
 
     // Close the connection
     await connection.end();

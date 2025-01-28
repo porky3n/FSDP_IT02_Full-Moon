@@ -26,7 +26,10 @@ exports.adminLogin = async (req, res) => {
     req.session.isAdmin = true;
 
     // Respond with JSON indicating a successful login
-    res.status(200).json({ message: "Admin login successful" });
+    res.status(200).json({
+      message: "Admin login successful",
+      accountId: account.AccountID,
+    });
   } catch (error) {
     console.error("Error during admin login:", error);
     res
@@ -37,55 +40,89 @@ exports.adminLogin = async (req, res) => {
 
 // Handle signup
 exports.signup = async (req, res) => {
-  const { firstName, lastName, email, dob, phoneNumber, password } = req.body;
+  const { firstName, lastName, email, dob, gender, phoneNumber, password, profileDetails } = req.body;
 
   try {
-    // Check if account already exists
-    const existingAccount = await Account.findAccountByEmail(email);
-    if (existingAccount) {
+    // Check if an account already exists with the provided email
+    const [existingAccount] = await pool.query(
+      `SELECT * FROM Account WHERE Email = ?`,
+      [email]
+    );
+    if (existingAccount.length > 0) {
       return res.status(400).json({ message: "Email already exists" });
     }
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Begin a transaction to insert into Account and Parent tables
+    // Get a database connection
     const connection = await pool.getConnection();
     await connection.beginTransaction();
 
     try {
-      // Insert into Account table
-      const [accountResult] = await connection.query(
-        "INSERT INTO Account (Email, PasswordHashed, AccountType) VALUES (?, ?, ?)",
-        [email, hashedPassword, "P"] // 'P' for Parent
+      // Fetch the Telegram ID from the TemporaryTelegramIDs table
+      const [telegramResult] = await connection.query(
+        `SELECT telegram_id FROM TemporaryTelegramIDs WHERE token = ?`,
+        [email]
       );
 
-      // Get the generated AccountID for use in the Parent table
+      let telegramId = null;
+      if (telegramResult.length > 0) {
+        telegramId = telegramResult[0].telegram_id;
+
+        // Delete the row from the TemporaryTelegramIDs table
+        await connection.query(`DELETE FROM TemporaryTelegramIDs WHERE token = ?`, [email]);
+      }
+
+      // Insert a new account into the Account table
+      const [accountResult] = await connection.query(
+        `INSERT INTO Account (Email, PasswordHashed, AccountType) VALUES (?, ?, ?)`,
+        [email, hashedPassword, "P"]
+      );
       const accountId = accountResult.insertId;
 
-      // Insert into Parent table
-      await connection.query(
-        "INSERT INTO Parent (AccountID, FirstName, LastName, DateOfBirth, ContactNumber) VALUES (?, ?, ?, ?, ?)",
-        [accountId, firstName, lastName, dob, phoneNumber]
+      // Insert into the Parent table
+      const [parentResult] = await connection.query(
+        `INSERT INTO Parent (AccountID, FirstName, LastName, DateOfBirth, Gender, ContactNumber, TelegramChatID, ProfileDetails)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          accountId,
+          firstName,
+          lastName,
+          dob,
+          gender,
+          phoneNumber,
+          telegramId, // Add the TelegramChatID if it exists
+          profileDetails,
+        ]
       );
 
       // Commit the transaction
       await connection.commit();
-      res.status(201).json({ message: "Account created successfully" });
+
+      // Delete the row from the TemporaryTelegramIDs table
+      await connection.query(`DELETE FROM TemporaryTelegramIDs WHERE token = ?`, [email]);
+      
+      // Respond with success
+      res.status(201).json({
+        message: "Account created successfully",
+        accountId,
+        parentId: parentResult.insertId,
+      });
     } catch (error) {
-      // Rollback if any error occurs during the transaction
+      // Rollback the transaction on error
       await connection.rollback();
       throw error;
     } finally {
+      // Release the connection back to the pool
       connection.release();
     }
   } catch (error) {
     console.error("Error during signup:", error);
-    res
-      .status(500)
-      .json({ message: "Error creating account", error: error.message });
+    res.status(500).json({ message: "Error creating account", error: error.message });
   }
 };
+
 
 exports.login = async (req, res) => {
   console.log(req.body);
@@ -108,11 +145,14 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
+    // Fetch both FirstName and LastName from Parent table
     const [parentData] = await pool.query(
-      "SELECT FirstName, Membership FROM Parent WHERE AccountID = ?",
+      "SELECT FirstName, LastName, Membership FROM Parent WHERE AccountID = ?",
       [account.AccountID]
     );
+
     const firstName = parentData[0]?.FirstName;
+    const lastName = parentData[0]?.LastName;
     const membership = parentData[0]?.Membership;
 
     const token = jwt.sign(
@@ -125,10 +165,11 @@ exports.login = async (req, res) => {
     req.session.accountId = account.AccountID;
     req.session.accountType = account.AccountType;
 
-    // Send the response with the first name
+    // Include both FirstName and LastName in the response
     res.json({
       message: "Login successful",
       firstName,
+      lastName, // Add lastName to the response
       email,
       membership,
       accountId: account.AccountID,
@@ -142,46 +183,46 @@ exports.login = async (req, res) => {
 exports.getUsers = async (req, res) => {
   try {
     const [parentData] = await pool.query(`
-      SELECT 
-          Parent.ParentID,
-          Parent.FirstName,
-          Parent.LastName,
-          Parent.DateOfBirth,
-          Parent.Gender,
-          Parent.ContactNumber,
-          Account.Email,
-          Parent.Membership,
-          Parent.StartDate,
-          Parent.Dietary,
-          Account.CreatedAt AS DateJoined,
-          IF(COUNT(Child.ChildID) > 0, 'true', 'false') AS HasChildren
-      FROM Parent
-      JOIN Account ON Parent.AccountID = Account.AccountID
-      LEFT JOIN Child ON Parent.ParentID = Child.ParentID
-      GROUP BY Parent.ParentID;
-    `);
+          SELECT 
+              Parent.ParentID,
+              Parent.FirstName,
+              Parent.LastName,
+              Parent.DateOfBirth,
+              Parent.Gender,
+              Parent.ContactNumber,
+              Account.Email,
+              Parent.Membership,
+              Parent.StartDate AS MembershipStartDate, -- Fetch Membership Start Date
+              Parent.Dietary,
+              Parent.ProfileDetails,
+              Account.CreatedAt AS DateJoined,
+              IF(COUNT(Child.ChildID) > 0, 'true', 'false') AS HasChildren
+          FROM Parent
+          JOIN Account ON Parent.AccountID = Account.AccountID
+          LEFT JOIN Child ON Parent.ParentID = Child.ParentID
+          GROUP BY Parent.ParentID;
+      `);
 
     const [childData] = await pool.query(`
-      SELECT 
-          Child.ChildID,
-          Child.ParentID,
-          Child.FirstName,
-          Child.LastName,
-          Child.DateOfBirth,
-          Child.School,
-          Child.Dietary,
-          Child.Relationship,
-          Child.SpecialNeeds,
-          Child.Gender
-      FROM Child;
-    `);
+          SELECT 
+              Child.ChildID,
+              Child.ParentID,
+              Child.FirstName,
+              Child.LastName,
+              Child.DateOfBirth,
+              Child.School,
+              Child.Dietary,
+              Child.Relationship,
+              Child.HealthDetails,
+              Child.Gender,
+              Child.ProfileDetails
+          FROM Child;
+      `);
 
     res.json({ parentData, childData });
   } catch (error) {
-    console.error("Error fetching user data:", error);
-    res
-      .status(500)
-      .json({ message: "Internal server error", error: error.message });
+      console.error("Error fetching user data:", error);
+      res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
 
@@ -250,13 +291,49 @@ exports.deleteChild = async (req, res) => {
 
 exports.updateParent = async (req, res) => {
   const { id } = req.params;
-  const { firstName, lastName, dob, contactNumber, dietary, gender } = req.body; // Include gender in destructuring
+  const { 
+      firstName, 
+      lastName, 
+      dob, 
+      contactNumber, 
+      dietary, 
+      gender, 
+      profileDetails, 
+      membership, 
+      membershipStartDate 
+  } = req.body;
 
   try {
-    const result = await pool.query(
-      `UPDATE Parent SET FirstName = ?, LastName = ?, DateOfBirth = ?, ContactNumber = ?, Dietary = ?, Gender = ? WHERE ParentID = ?`, // Update query to include Gender
-      [firstName, lastName, dob, contactNumber, dietary, gender, id] // Pass gender in parameters
-    );
+      // Ensure membershipStartDate is not null
+      const startDate = membershipStartDate || null;
+
+      const query = `
+          UPDATE Parent 
+          SET 
+              FirstName = ?, 
+              LastName = ?, 
+              DateOfBirth = ?, 
+              ContactNumber = ?, 
+              Dietary = ?, 
+              Gender = ?, 
+              ProfileDetails = ?, 
+              Membership = ?, 
+              StartDate = ?
+          WHERE ParentID = ?;
+      `;
+
+      const result = await pool.query(query, [
+          firstName, 
+          lastName, 
+          dob, 
+          contactNumber, 
+          dietary, 
+          gender, 
+          profileDetails, 
+          membership, 
+          startDate, 
+          id,
+      ]);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: "Parent not found" });
@@ -269,6 +346,7 @@ exports.updateParent = async (req, res) => {
   }
 };
 
+
 exports.updateChild = async (req, res) => {
   const { id } = req.params;
   const {
@@ -278,15 +356,16 @@ exports.updateChild = async (req, res) => {
     school,
     dietary,
     relationship,
-    specialNeeds,
+    healthDetails,
     gender,
+    profileDetails,
   } = req.body;
 
   try {
     const result = await pool.query(
       `UPDATE Child 
-       SET FirstName = ?, LastName = ?, DateOfBirth = ?, School = ?, Dietary = ?, Relationship = ?, SpecialNeeds = ?, Gender = ?
-       WHERE ChildID = ?`,
+           SET FirstName = ?, LastName = ?, DateOfBirth = ?, School = ?, Dietary = ?, Relationship = ?, HealthDetails = ?, Gender = ?, ProfileDetails = ? 
+           WHERE ChildID = ?`,
       [
         firstName,
         lastName,
@@ -294,8 +373,9 @@ exports.updateChild = async (req, res) => {
         school,
         dietary,
         relationship,
-        specialNeeds,
+        healthDetails,
         gender,
+        profileDetails,
         id,
       ]
     );
@@ -315,7 +395,7 @@ exports.getParentById = async (req, res) => {
   const { id } = req.params;
   try {
     const [parent] = await pool.query(
-      "SELECT * FROM Parent WHERE ParentID = ?",
+      `SELECT * FROM Parent WHERE ParentID = ?`,
       [id]
     );
     res.json(parent[0]);
@@ -328,7 +408,7 @@ exports.getParentById = async (req, res) => {
 exports.getChildById = async (req, res) => {
   const { id } = req.params;
   try {
-    const [child] = await pool.query("SELECT * FROM Child WHERE ChildID = ?", [
+    const [child] = await pool.query(`SELECT * FROM Child WHERE ChildID = ?`, [
       id,
     ]);
     res.json(child[0]);
@@ -339,27 +419,31 @@ exports.getChildById = async (req, res) => {
 };
 
 exports.checkSession = async (req, res) => {
-  if (req.session.isLoggedIn && req.session.accountId) {
+  if (req.session.accountId) {
     try {
-      const [parentData] = await pool.query(
-        "SELECT FirstName FROM Parent WHERE AccountID = ?",
-        [req.session.accountId]
-      );
-      const firstName = parentData.length > 0 ? parentData[0].FirstName : null;
+      // Fetch user's name or other details if not already in session
+      if (!req.session.firstName) {
+        const [rows] = await pool.query(
+          `SELECT FirstName FROM Parent WHERE AccountID = ?`,
+          [req.session.accountId]
+        );
+        if (rows.length > 0) {
+          req.session.firstName = rows[0].FirstName;
+        }
+      }
 
-      return res.json({
+      res.json({
         isLoggedIn: true,
-        firstName: firstName || "Guest",
-        email: req.session.email,
+        accountId: req.session.accountId,
+        firstName: req.session.firstName || "Guest",
+        email: req.session.email || "",
       });
     } catch (error) {
-      console.error("Error fetching session details:", error);
-      return res
-        .status(500)
-        .json({ isLoggedIn: false, message: "Error fetching session details" });
+      console.error("Error in checkSession:", error);
+      res.status(500).json({ isLoggedIn: false, message: "Server error" });
     }
   } else {
-    return res.json({ isLoggedIn: false });
+    res.json({ isLoggedIn: false });
   }
 };
 

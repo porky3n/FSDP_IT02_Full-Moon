@@ -9,6 +9,84 @@ class Programme {
         this.description = description;
     }
 
+    // Fetch all programme details, including images, reviews, and promotions
+    static async getProgrammeFullDetailsByID(programmeID) {
+        try {
+            const sqlQuery = `
+                SELECT 
+                    p.ProgrammeID, 
+                    p.ProgrammeName, 
+                    p.Category, 
+                    p.ProgrammePicture, 
+                    p.Description,
+                    pc.Location, 
+                    pc.Fee, 
+                    pc.ProgrammeLevel, 
+                    pc.Remarks,
+                    MIN(ps.StartDateTime) AS EarliestStartDateTime, 
+                    MAX(ps.EndDateTime) AS LatestEndDateTime,
+                    (pc.MaxSlots - COUNT(s.SlotID)) AS SlotsLeft,
+                    pr.PromotionName, 
+                    pr.DiscountType, 
+                    pr.DiscountValue,
+                    r.Rating, 
+                    r.ReviewText, 
+                    CONCAT(pa.FirstName, ' ', pa.LastName) AS ReviewerName,
+                    pi.Image AS AdditionalImage
+                FROM Programme p
+                LEFT JOIN ProgrammeClass pc ON p.ProgrammeID = pc.ProgrammeID
+                LEFT JOIN ProgrammeClassBatch pcb ON pc.ProgrammeClassID = pcb.ProgrammeClassID
+                LEFT JOIN ProgrammeSchedule ps ON pcb.InstanceID = ps.InstanceID
+                LEFT JOIN Slot s ON pcb.InstanceID = s.InstanceID
+                LEFT JOIN Promotion pr ON p.ProgrammeID = pr.ProgrammeID
+                LEFT JOIN Reviews r ON p.ProgrammeID = r.ProgrammeID
+                LEFT JOIN Parent pa ON r.AccountID = pa.AccountID
+                LEFT JOIN ProgrammeImages pi ON p.ProgrammeID = pi.ProgrammeID
+                WHERE p.ProgrammeID = ?
+                GROUP BY 
+                    p.ProgrammeID, p.ProgrammeName, p.Category, p.ProgrammePicture, p.Description, 
+                    pc.Location, pc.Fee, pc.ProgrammeLevel, pc.Remarks, pc.MaxSlots, 
+                    pr.PromotionName, pr.DiscountType, pr.DiscountValue, 
+                    r.Rating, r.ReviewText, ReviewerName, pi.Image;
+            `;
+
+            const [rows] = await pool.query(sqlQuery, [programmeID]);
+            if (rows.length === 0) return null;
+
+            // Organize reviews and images into arrays
+            const programmeDetails = {
+                ...rows[0],
+                Reviews: rows
+                    .filter((row) => row.Rating && row.ReviewText)
+                    .map((row) => ({
+                        Rating: row.Rating,
+                        ReviewText: row.ReviewText,
+                        ReviewerName: row.ReviewerName,
+                    })),
+                AdditionalImages: rows
+                    .filter((row) => row.AdditionalImage)
+                    .map((row) => row.AdditionalImage),
+            };
+
+            return programmeDetails;
+        } catch (error) {
+            console.error("Error in getProgrammeFullDetailsByID:", error);
+            throw error;
+        }
+    }
+
+    static async getProgrammePictureByID(programmeID) {
+        try {
+            const sqlQuery = `SELECT ProgrammePicture FROM Programme WHERE ProgrammeID = ?`;
+            const [rows] = await pool.query(sqlQuery, [programmeID]);
+            return rows[0].ProgrammePicture;
+        
+        } catch (error) {
+            console.error("Error in getProgrammePictureByID:", error);
+            throw error;
+        }
+    }
+
     // Get a programme by its ID
     static async getProgrammeDetailsByID(programmeID) {
         try {
@@ -333,6 +411,295 @@ class Programme {
             throw error;
         } finally {
             connection.release();
+        }
+    }
+
+    static async getAllReviews() {
+        try {
+            const sqlQuery = `
+                SELECT 
+                    r.ReviewID, 
+                    r.AccountID, 
+                    r.ProgrammeID, 
+                    r.Rating, 
+                    r.ReviewText, 
+                    r.ReviewDate, 
+                    CONCAT(p.FirstName, ' ', p.LastName) AS ReviewerName,
+                    pr.ProgrammeName
+                FROM Reviews r
+                JOIN Parent p ON r.AccountID = p.AccountID
+                JOIN Programme pr ON r.ProgrammeID = pr.ProgrammeID
+                ORDER BY r.ReviewDate DESC;
+            `;
+            const [rows] = await pool.query(sqlQuery);
+            return rows;
+        } catch (error) {
+            console.error("Error fetching all reviews:", error);
+            throw error;
+        }
+    }
+    
+
+    static async getReviewsByProgrammeID(programmeID) {
+        try {
+            const sqlQuery = `
+                SELECT 
+                    r.ReviewID, 
+                    r.AccountID, 
+                    r.ProgrammeID, 
+                    r.Rating, 
+                    r.ReviewText, 
+                    r.ReviewDate, 
+                    CONCAT(p.FirstName, ' ', p.LastName) AS ReviewerName
+                FROM Reviews r
+                JOIN Parent p ON r.AccountID = p.AccountID
+                WHERE r.ProgrammeID = ?
+                ORDER BY r.ReviewDate DESC;
+            `;
+            const [rows] = await pool.query(sqlQuery, [programmeID]);
+            return rows;
+        } catch (error) {
+            console.error("Error fetching reviews by programme ID:", error);
+            throw error;
+        }
+    }
+
+    // Add a new review for a programme
+    static async addReview({ programmeID, accountID, rating, reviewText }) {
+        try {
+            const sqlQuery = `
+                INSERT INTO Reviews (ProgrammeID, AccountID, Rating, ReviewText)
+                VALUES (?, ?, ?, ?);
+            `;
+            const [result] = await pool.query(sqlQuery, [
+                programmeID,
+                accountID,
+                rating,
+                reviewText,
+            ]);
+            return result.insertId;
+        } catch (error) {
+            console.error("Error adding review:", error);
+            throw error;
+        }
+    }
+
+    static async deleteReviewByID(reviewID) {
+        try {
+            const sqlQuery = `DELETE FROM Reviews WHERE ReviewID = ?`;
+            const [result] = await pool.query(sqlQuery, [reviewID]);
+    
+            if (result.affectedRows === 0) {
+                throw new Error("No review found with the given ID.");
+            }
+    
+            return { message: "Review deleted successfully." };
+        } catch (error) {
+            console.error("Error deleting review:", error);
+            throw error;
+        }
+    }
+    
+    
+
+    static async getUpcomingProgrammes() {
+        const query = 
+        `
+        WITH ProgrammeDates AS (
+            SELECT 
+                pcb.ProgrammeClassID,
+                pc.ProgrammeID,
+                pcb.ViewerMeetingLink,
+                MIN(ps.StartDateTime) AS StartDateTime,
+                MAX(ps.EndDateTime) AS EndDateTime
+            FROM ProgrammeClassBatch pcb
+            JOIN ProgrammeSchedule ps 
+                ON pcb.InstanceID = ps.InstanceID
+            JOIN ProgrammeClass pc
+                ON pcb.ProgrammeClassID = pc.ProgrammeClassID
+            WHERE EXISTS (
+                SELECT 1 
+                FROM Slot s
+                WHERE s.ProgrammeClassID = pcb.ProgrammeClassID
+                AND s.InstanceID = pcb.InstanceID
+            )
+            GROUP BY pcb.ProgrammeClassID, pc.ProgrammeID, pcb.ViewerMeetingLink
+            )
+            SELECT 
+            p.ProgrammeID,
+            p.ProgrammeName,
+            p.Description,
+            pc.Location,
+            pc.ProgrammeLevel,
+            pd.ViewerMeetingLink,
+            pd.StartDateTime,
+            pd.EndDateTime
+            FROM Slot s
+            JOIN Programme p 
+            ON s.ProgrammeID = p.ProgrammeID
+            JOIN ProgrammeClass pc 
+            ON s.ProgrammeClassID = pc.ProgrammeClassID
+            JOIN ProgrammeDates pd 
+            ON pc.ProgrammeID = pd.ProgrammeID
+            AND pc.ProgrammeClassID = pd.ProgrammeClassID
+            WHERE 
+            pc.Location = 'Online'
+            AND pd.StartDateTime > CURRENT_TIMESTAMP()
+            GROUP BY 
+            p.ProgrammeID,
+            p.ProgrammeName,
+            p.Description,
+            pc.Location,
+            pc.ProgrammeLevel,
+            pd.StartDateTime,
+            pd.EndDateTime,
+            pd.ViewerMeetingLink
+            ORDER BY pd.StartDateTime;
+        `;
+    }
+    
+    static async getUpcomingOnlineProgrammes() {
+        try {
+            // const query = `
+            //   WITH ProgrammeDates AS (
+            //     SELECT 
+            //         pcb.ProgrammeClassID,
+            //         pcb.HostMeetingLink,
+            //         pcb.ViewerMeetingLink,
+            //         pcb.MeetingID,
+            //         pc.ProgrammeID,
+            //         pcb.InstanceID,
+            //         ps.StartDateTime,
+            //         ps.EndDateTime
+            //     FROM ProgrammeClassBatch pcb
+            //     JOIN ProgrammeSchedule ps 
+            //         ON pcb.InstanceID = ps.InstanceID
+            //     JOIN ProgrammeClass pc
+            //         ON pcb.ProgrammeClassID = pc.ProgrammeClassID
+            //     WHERE EXISTS (
+            //         SELECT 1
+            //         FROM Slot s
+            //         WHERE s.ProgrammeClassID = pcb.ProgrammeClassID
+            //         AND s.InstanceID = pcb.InstanceID
+            //     )
+            // )
+            // SELECT 
+            //     p.ProgrammeID,
+            //     p.ProgrammeName,
+            //     p.Description,
+            //     pc.Location,
+            //     pc.ProgrammeLevel,
+            //     pd.ProgrammeClassID,
+            //     pd.HostMeetingLink,
+            //     pd.ViewerMeetingLink,
+            //     pd.MeetingID,
+            //     pd.InstanceID,
+            //     pd.StartDateTime,
+            //     pd.EndDateTime
+            // FROM ProgrammeDates pd
+            // JOIN Programme p 
+            //     ON pd.ProgrammeID = p.ProgrammeID
+            // JOIN ProgrammeClass pc 
+            //     ON pd.ProgrammeClassID = pc.ProgrammeClassID
+            // WHERE 
+            //     pc.Location = 'Online'
+            //     AND pd.StartDateTime > CURRENT_TIMESTAMP()
+            // GROUP BY 
+            //     pd.InstanceID, -- Ensure we group by InstanceID to separate instances
+            //     p.ProgrammeID,
+            //     p.ProgrammeName,
+            //     p.Description,
+            //     pc.Location,
+            //     pc.ProgrammeLevel,
+            //     pd.ProgrammeClassID,
+            //     pd.HostMeetingLink,
+            //     pd.ViewerMeetingLink,
+            //     pd.StartDateTime,
+            //     pd.EndDateTime
+            // ORDER BY pd.StartDateTime;
+
+            // `;
+    
+            const query = `
+              WITH ProgrammeDates AS (
+                SELECT 
+                  pcb.ProgrammeClassID,
+                  pc.ProgrammeID,
+                  pcb.InstanceID, -- Retrieve InstanceID instead of ViewerMeetingLink
+                  MIN(ps.StartDateTime) AS StartDateTime,
+                  MAX(ps.EndDateTime) AS EndDateTime
+                FROM ProgrammeClassBatch pcb
+                JOIN ProgrammeSchedule ps 
+                  ON pcb.InstanceID = ps.InstanceID
+                JOIN ProgrammeClass pc
+                  ON pcb.ProgrammeClassID = pc.ProgrammeClassID
+                WHERE EXISTS (
+                  SELECT 1 
+                  FROM Slot s
+                  WHERE s.ProgrammeClassID = pcb.ProgrammeClassID
+                    AND s.InstanceID = pcb.InstanceID
+                )
+                GROUP BY pcb.ProgrammeClassID, pc.ProgrammeID, pcb.InstanceID
+              )
+              SELECT 
+                p.ProgrammeID,
+                p.ProgrammeName,
+                p.Description,
+                pc.Location,
+                pc.ProgrammeLevel,
+                pd.ProgrammeClassID, -- Include ProgrammeClassID in the final selection
+                pd.InstanceID, -- Include InstanceID in the final selection
+                pd.StartDateTime,
+                pd.EndDateTime
+              FROM Slot s
+              JOIN Programme p 
+                ON s.ProgrammeID = p.ProgrammeID
+              JOIN ProgrammeClass pc 
+                ON s.ProgrammeClassID = pc.ProgrammeClassID
+              JOIN ProgrammeDates pd 
+                ON pc.ProgrammeID = pd.ProgrammeID
+                AND pc.ProgrammeClassID = pd.ProgrammeClassID
+              WHERE 
+                pc.Location = 'Online'
+                AND pd.StartDateTime > CURRENT_TIMESTAMP()
+              GROUP BY 
+                p.ProgrammeID,
+                p.ProgrammeName,
+                p.Description,
+                pc.Location,
+                pc.ProgrammeLevel,
+                pd.StartDateTime,
+                pd.EndDateTime,
+                pd.InstanceID -- Adjust grouping for InstanceID
+              ORDER BY pd.StartDateTime;
+            `;
+            const [programmes] = await pool.query(query);
+    
+            // Return the formatted programmes
+            return programmes.map((prog) => {
+                const formatDate = (dateString) => {
+                    const date = new Date(dateString);
+                    return date
+                        .toLocaleString("en-GB", {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                        })
+                        .replace(/,/, " at");
+                };
+    
+                return {
+                    ...prog,
+                    StartDateTime: formatDate(prog.StartDateTime),
+                    EndDateTime: formatDate(prog.EndDateTime),
+                };
+            });
+        } catch (error) {
+            console.error("Error fetching upcoming online programmes:", error);
+            throw new Error("Error retrieving programmes");
         }
     }
     

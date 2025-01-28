@@ -17,7 +17,6 @@ const programmeController = require("./controllers/programmeController");
 const programmeRoutes = express.Router();
 
 // ========== Routes ==========
-
 // Route to get all programme details including classes, schedules, and batches
 programmeRoutes.get("/all", programmeController.getAllProgrammeDetails);
 
@@ -28,8 +27,8 @@ programmeRoutes.get("/all", programmeController.getAllProgrammeDetails);
 // Route to get fees for a specific programme by ID
 // programmeRoutes.get("/:id/fees", programmeController.getProgrammeFees);
 
-// Route to announce programmes using Telegram bot and ChatGPT 4 for formatting
-programmeRoutes.post('/announce', programmeController.sendFormattedProgramme);
+// Get upcoming online programmes
+programmeRoutes.get("/upcoming", programmeController.getUpcomingOnlineProgrammes);
 
 // Route to get all programmes by category
 programmeRoutes.get("/category/:category", programmeController.getProgrammesByCategory);
@@ -52,10 +51,22 @@ programmeRoutes.get("/search", programmeController.searchProgrammes);
 // Get a programme by its ID
 programmeRoutes.get("/:id", programmeController.getProgrammeByID);
 
+// Get all reviews for Admin
+programmeRoutes.get("/reviews", programmeController.getAllReviews);
+
+// Route to get reviews for a specific programme
+programmeRoutes.get("/:id/reviews", programmeController.getReviewsByProgrammeID);
+
+// Route to add a new review
+programmeRoutes.post("/:id/reviews", programmeController.addReview);
+
+// Delete a review
+programmeRoutes.delete("/reviews/:id", programmeController.deleteReviewByID);
+
+
+
 // Get all programmes
 programmeRoutes.get("/", programmeController.getAllProgrammes);
-
-
 
 // // Get schedules for a specific programme by ID
 // programmeRoutes.get("/:id/schedules", programmeController.getUpcomingSchedules);

@@ -59,9 +59,9 @@ body, html {
 }
 
 .input-icon-img {
-    width: 20px; /* Adjust the size of the icons as needed */
+    width: 20px;
     height: 20px;
-    object-fit: cover; /* Make sure icons fit nicely */
+    object-fit: cover;
 }
 
 .btn-signin {
@@ -93,4 +93,58 @@ body, html {
 
 .signup-link a:hover {
     text-decoration: underline;
+}
+
+/* Divider for "Or Sign In With" */
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.divider span {
+    flex-grow: 1;
+    border-bottom: 1px solid #ddd;
+    margin: 0 10px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Google Button */
+.google-btn-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.btn-google {
+    width: 100%;
+    max-width: 400px;
+    background-color: #ffffff;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    height: 50px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-decoration: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-google:hover {
+    background-color: #f2f2f2;
+    border-color: #ccc;
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    text-decoration: none;
+}
+
+.btn-google img {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
 }
