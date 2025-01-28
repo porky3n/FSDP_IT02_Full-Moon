@@ -1,6 +1,30 @@
 const Slot = require("../../../models/slot");
 const { sendPaymentConfirmationEmail } = require("../../../models/email");
 
+// Get Slots
+const getSlots = async (req, res) => {
+    try {
+        const { programmeId, instanceId, programmeClassId } = req.body; // Use req.body instead of req.query
+
+        if (!programmeId || !instanceId || !programmeClassId) {
+            return res.status(400).json({ success: false, message: "Missing required parameters" });
+        }
+
+        const slots = await Slot.getSlots(programmeId, instanceId, programmeClassId);
+
+        if (slots.length === 0) {
+            return res.status(404).json({ success: false, message: "No slots found" });
+        }
+
+        res.status(200).json({ success: true, slots });
+    } catch (error) {
+        console.error("Error retrieving slots:", error);
+        res.status(500).json({ success: false, message: "Server error", error: error.message });
+    }
+};
+
+
+
 // Get slots for a specific programme
 const getSlotsByProgramme = async (req, res) => {
     const programmeID = req.params.id;
@@ -139,6 +163,7 @@ const deleteSlot = async (req, res) => {
 };
 
 module.exports = {
+    getSlots,
     getSlotsByProgramme,
     getSlotsByProgrammeClass,
     getParentSlots,

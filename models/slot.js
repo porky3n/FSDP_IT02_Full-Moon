@@ -12,12 +12,12 @@ class Slot {
 
     // Get all slots for a specific programme
     // not sure if needed
-    static async getSlots(programmeID) {
+    static async getSlots(programmeId, InstanceId, ProgrammeClassId) {
         const sqlQuery = `
             SELECT * FROM Slot 
-            WHERE ProgrammeID = ?
+            WHERE ProgrammeID = ? AND InstanceID = ? AND ProgrammeClassID = ?
         `;
-        const [rows] = await pool.query(sqlQuery, [programmeID]);
+        const [rows] = await pool.query(sqlQuery, [programmeId, InstanceId, ProgrammeClassId]);
         return rows.map(row => new Slot(row.SlotID, row.ProgrammeClassID, row.ProgrammeID, row.instanceID, row.ParentID, row.ChildID));
     }
 
