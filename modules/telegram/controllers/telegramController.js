@@ -1,7 +1,6 @@
 const Programme = require("../../../models/programme");
 const axios = require("axios");
 const FormData = require("form-data");
-const TelegramBot = require("node-telegram-bot-api");
 const OpenAI = require("openai");
 const path = require("path");
 const fs = require("fs");
@@ -9,18 +8,99 @@ const sharp = require("sharp");
 const fileType = require("file-type");
 require("dotenv").config();
 const mindSphereData = require("../../chatbot/data/mindSphereData");
+const pool = require("../../../dbConfig"); // Database connection
+const cron = require("node-cron");
+const { v4: uuidv4 } = require("uuid");
 
 // OpenAI API setup
 const openai = new OpenAI({
   apiKey: `${process.env.OPENAI_API_KEY}`,
 });
 
-// Telegram bot instance
-const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: false });
+// Telegram Bot Setup
+const TelegramBot = require("node-telegram-bot-api");
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
+const CHANNEL_ID = process.env.CHANNEL_ID; // Telegram Channel ID
+
+// Delete expired Telegram IDs from the database
+cron.schedule("0 0 * * *", async () => { // Every midnight
+    try {
+        await pool.query(`DELETE FROM TemporaryTelegramIDs WHERE expires_at <= NOW()`);
+        console.log("Expired tokens cleaned up.");
+    } catch (error) {
+        console.error("Error cleaning up expired tokens:", error);
+    }
+});
+
+
+// Handle `/start` command
+bot.onText(/\/start/, async (msg) => {
+  const chatId = msg.chat.id;
+  const firstName = msg.chat.first_name || "User";
+
+  // Step 1: Greet the user and ask for their email or phone number
+  bot.sendMessage(
+    chatId,
+    `Hi ${firstName}! 👋\n\nWelcome to MindSphere! Please reply with your *email address* so we can link your Telegram account during sign-up.`
+  );
+
+  // Step 2: Wait for the user's response
+  bot.once("message", async (response) => {
+    const identifier = response.text; // Assume the user replies with an email
+
+    try {
+      // Step 3: Save the chatId and identifier in the TemporaryTelegramIDs table
+      await pool.query(
+        `INSERT INTO TemporaryTelegramIDs (telegram_id, token, expires_at)
+         VALUES (?, ?, NOW() + INTERVAL 1 DAY)
+         ON DUPLICATE KEY UPDATE token = VALUES(token), expires_at = VALUES(expires_at)`,
+        [chatId, identifier]
+      );
+
+      bot.sendMessage(
+        chatId,
+        `Thank you! Your Telegram account has been linked with: ${identifier}. Please complete your sign-up on our website.`
+      );
+    } catch (error) {
+      console.error("Error saving Telegram ID and identifier:", error);
+      bot.sendMessage(chatId, "An error occurred. Please try again later.");
+    }
+  });
+});
+
+// // Handle `/link` command (optional if users can manually enter tokens)
+// bot.onText(/\/link/, async (msg) => {
+//   const chatId = msg.chat.id;
+
+//   try {
+//     // Retrieve the user token from the database
+//     const result = await pool.query(
+//       `SELECT token FROM TemporaryTelegramIDs WHERE telegram_id = $1 AND expires_at > NOW()`,
+//       [chatId]
+//     );
+
+//     if (result.rows.length === 0) {
+//       bot.sendMessage(
+//         chatId,
+//         "It seems we don't have your information. Please restart the bot by typing /start."
+//       );
+//       return;
+//     }
+
+//     const token = result.rows[0].token;
+//     bot.sendMessage(
+//       chatId,
+//       `Hi! Your Telegram token is: \`${token}\`. Please use this token during sign-up to link your Telegram account.`
+//     );
+//   } catch (error) {
+//     console.error("Error retrieving Telegram token:", error);
+//     bot.sendMessage(chatId, "An error occurred. Please try again later.");
+//   }
+// });
 
 // Create a clickable location link
 const createLocationLink = (location) => {
-    if (location.toLowerCase().includes("http")) {
+    if (location.toLowerCase().includes("http") || location.toLowerCase().includes("online")) {
       // If the location is an online link (e.g., Zoom, Google Meet), return it as-is
       return `[Join the Online Meeting](${location})`;
     } else {
@@ -311,7 +391,6 @@ const fetchFormattedDetails = async (programme) => {
   };
   
   
-  
 // Expose as API endpoint
 const sendProgramme = async (req, res) => {
   const { programmeID } = req.params;
@@ -319,10 +398,14 @@ const sendProgramme = async (req, res) => {
     await sendProgrammeToTelegram(programmeID);
     res.status(200).json({ message: "Programme sent to Telegram successfully." });
   } catch (error) {
-    res.status(500).json({ message: "Error sending programme to Telegram", error: error.message });
+    console.error("Error in sendProgramme:", error);
+    if (!res.headersSent) {
+        res.status(500).json({ message: "Error sending programme to Telegram", error: error.message });
+      }
   }
 };
 
 module.exports = {
   sendProgramme,
+  bot
 };
