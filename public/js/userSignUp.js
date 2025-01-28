@@ -13,6 +13,21 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
+  // Handle gender selection buttons
+  const genderButtons = document.querySelectorAll(".btn-gender");
+  const genderInput = document.getElementById("gender");
+
+  genderButtons.forEach(button => {
+      button.addEventListener("click", function () {
+          // Remove active class from all buttons
+          genderButtons.forEach(btn => btn.classList.remove("active"));
+          // Add active class to selected button
+          this.classList.add("active");
+          // Set hidden input value
+          genderInput.value = this.getAttribute("data-gender");
+      });
+  });
+  
   // Generate QR Code for Telegram bot
   const qrCodeContainer = document.getElementById("qrCodeContainer");
   const telegramBotLink = "https://t.me/mindSphereBot"; // Replace with your bot's username
@@ -69,11 +84,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const lastName = document.querySelector('input[placeholder="Last Name"]').value;
     const email = document.querySelector('input[type="email"]').value;
     const dob = document.getElementById("dob").value;
+    const gender = document.getElementById("gender").value;
     const countryCode = document.getElementById("countryCode").value;
     const phoneNumber = document.querySelector('input[type="tel"]').value;
     const password = document.getElementById("password").value;
     const profileDetails = document.getElementById("profileDetails").value;
     const termsAccepted = document.getElementById("terms").checked;
+
+    if (!gender) {
+      alert("Please select your gender.");
+      return;
+    }
 
     // Validate password confirmation
     if (password !== confirmPassword.value) {
@@ -100,6 +121,7 @@ document.addEventListener("DOMContentLoaded", function () {
           lastName,
           email,
           dob,
+          gender,
           phoneNumber: countryCode + phoneNumber,
           password,
           profileDetails,

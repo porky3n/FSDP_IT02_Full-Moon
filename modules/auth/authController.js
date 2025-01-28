@@ -77,7 +77,7 @@ exports.signup = async (req, res) => {
       // Insert a new account into the Account table
       const [accountResult] = await connection.query(
         `INSERT INTO Account (Email, PasswordHashed, AccountType) VALUES (?, ?, ?)`,
-        [email, hashedPassword, "Parent"]
+        [email, hashedPassword, "P"]
       );
       const accountId = accountResult.insertId;
 
@@ -100,6 +100,9 @@ exports.signup = async (req, res) => {
       // Commit the transaction
       await connection.commit();
 
+      // Delete the row from the TemporaryTelegramIDs table
+      await connection.query(`DELETE FROM TemporaryTelegramIDs WHERE token = ?`, [email]);
+      
       // Respond with success
       res.status(201).json({
         message: "Account created successfully",

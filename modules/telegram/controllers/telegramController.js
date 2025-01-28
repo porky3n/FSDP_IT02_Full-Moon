@@ -106,7 +106,7 @@ const createLocationLink = (location) => {
     } else {
       // Otherwise, treat it as a physical address and generate a Google Maps link
       const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
-      return `[Navigate to Location](${mapsLink})`;
+      return `[${location}](${mapsLink})`;
     }
   };
   

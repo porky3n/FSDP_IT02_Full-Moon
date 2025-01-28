@@ -66,6 +66,16 @@
                         </div>
                     </div>
 
+                    <!-- Gender Selection -->
+                    <div class="form-group">
+                        <label class="gender-label">Select Gender</label>
+                        <div class="gender-buttons">
+                            <button type="button" class="btn btn-gender" data-gender="M">Male</button>
+                            <button type="button" class="btn btn-gender" data-gender="F">Female</button>
+                        </div>
+                        <input type="hidden" id="gender" name="gender" required>
+                    </div>
+
                     <!-- Password -->
                     <div class="form-group">
                         <input type="password" id="password" class="form-control" placeholder="Password" required>
@@ -100,10 +110,6 @@
                         </div>                        
                     </div>                    
 
-                    <div class="form-group">
-                        <input type="text" id="telegramToken" class="form-control" placeholder="Enter Telegram Token (Optional)">
-                    </div>
-                    
                     <!-- Submit Button -->
                     <div class="form-group">
                         <button type="submit" class="btn btn-signup">Sign Up</button>
