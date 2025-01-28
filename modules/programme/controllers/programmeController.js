@@ -5,7 +5,6 @@ const ProgrammeClassBatch = require("../../../models/programmeClassBatch");
 const ProgrammeImages = require("../../../models/programmeImages");
 const axios = require('axios');
 const FormData = require('form-data');
-const TelegramBot = require('node-telegram-bot-api');
 // const { fromBuffer } = require('file-type');
 // const { fileTypeFromBuffer } = require('file-type');
 // const path = require('path');

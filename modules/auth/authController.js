@@ -39,74 +39,90 @@ exports.adminLogin = async (req, res) => {
 };
 
 // Handle signup
-// Handle signup
 exports.signup = async (req, res) => {
-  const {
-    firstName,
-    lastName,
-    email,
-    dob,
-    phoneNumber,
-    password,
-    profileDetails,
-  } = req.body;
+  const { firstName, lastName, email, dob, gender, phoneNumber, password, profileDetails } = req.body;
 
   try {
-    // Check if account already exists
-    const existingAccount = await Account.findAccountByEmail(email);
-    if (existingAccount) {
+    // Check if an account already exists with the provided email
+    const [existingAccount] = await pool.query(
+      `SELECT * FROM Account WHERE Email = ?`,
+      [email]
+    );
+    if (existingAccount.length > 0) {
       return res.status(400).json({ message: "Email already exists" });
     }
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Begin a transaction to insert into Account and Parent tables
+    // Get a database connection
     const connection = await pool.getConnection();
     await connection.beginTransaction();
 
     try {
-      // Insert into Account table
-      const [accountResult] = await connection.query(
-        "INSERT INTO Account (Email, PasswordHashed, AccountType) VALUES (?, ?, ?)",
-        [email, hashedPassword, "P"] // 'P' for Parent
+      // Fetch the Telegram ID from the TemporaryTelegramIDs table
+      const [telegramResult] = await connection.query(
+        `SELECT telegram_id FROM TemporaryTelegramIDs WHERE token = ?`,
+        [email]
       );
 
-      // Get the generated AccountID for use in the Parent table
+      let telegramId = null;
+      if (telegramResult.length > 0) {
+        telegramId = telegramResult[0].telegram_id;
+
+        // Delete the row from the TemporaryTelegramIDs table
+        await connection.query(`DELETE FROM TemporaryTelegramIDs WHERE token = ?`, [email]);
+      }
+
+      // Insert a new account into the Account table
+      const [accountResult] = await connection.query(
+        `INSERT INTO Account (Email, PasswordHashed, AccountType) VALUES (?, ?, ?)`,
+        [email, hashedPassword, "P"]
+      );
       const accountId = accountResult.insertId;
 
-      // Insert into Parent table, including ProfileDetails
-      await connection.query(
-        `INSERT INTO Parent 
-          (AccountID, FirstName, LastName, DateOfBirth, ContactNumber, ProfileDetails) 
-          VALUES (?, ?, ?, ?, ?, ?)`,
+      // Insert into the Parent table
+      const [parentResult] = await connection.query(
+        `INSERT INTO Parent (AccountID, FirstName, LastName, DateOfBirth, Gender, ContactNumber, TelegramChatID, ProfileDetails)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           accountId,
           firstName,
           lastName,
           dob,
+          gender,
           phoneNumber,
-          profileDetails || null,
-        ] // Include ProfileDetails if provided
+          telegramId, // Add the TelegramChatID if it exists
+          profileDetails,
+        ]
       );
 
       // Commit the transaction
       await connection.commit();
-      res.status(201).json({ message: "Account created successfully" });
+
+      // Delete the row from the TemporaryTelegramIDs table
+      await connection.query(`DELETE FROM TemporaryTelegramIDs WHERE token = ?`, [email]);
+      
+      // Respond with success
+      res.status(201).json({
+        message: "Account created successfully",
+        accountId,
+        parentId: parentResult.insertId,
+      });
     } catch (error) {
-      // Rollback if any error occurs during the transaction
+      // Rollback the transaction on error
       await connection.rollback();
       throw error;
     } finally {
+      // Release the connection back to the pool
       connection.release();
     }
   } catch (error) {
     console.error("Error during signup:", error);
-    res
-      .status(500)
-      .json({ message: "Error creating account", error: error.message });
+    res.status(500).json({ message: "Error creating account", error: error.message });
   }
 };
+
 
 exports.login = async (req, res) => {
   console.log(req.body);
