@@ -22,4 +22,6 @@ router.post("/logout", userProfileController.logout);
 
 router.get("/enrolled-programmes", userProfileController.getEnrolledProgrammes);
 
+router.get("/getTierDaysLeft", userProfileController.getTierDaysLeft);
+
 module.exports = router;
