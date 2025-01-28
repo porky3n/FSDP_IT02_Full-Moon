@@ -31,6 +31,7 @@ async function checkSessionAndDisplayWelcomeMessage() {
                     accountId: sessionData.accountId,
                     firstName: sessionData.firstName,
                     email: sessionData.email,
+                    membership: sessionData.membership,
                 })
             );
 

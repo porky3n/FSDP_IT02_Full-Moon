@@ -145,8 +145,9 @@ exports.updateProfilePicture = async (req, res) => {
 };
 
 exports.getProfilesByAccountId = async (req, res) => {
-  const accountId = req.params.id;
+  const accountId = req.params.accountId;
 
+  console.log("accountId:", accountId);
   try {
     // Query to get the parent profile by account ID
     const [parentResult] = await pool.query(

@@ -1,3 +1,4 @@
+const { rows } = require("mssql");
 const pool = require("../../dbConfig");
 const Account = require("../../models/accountModel");
 const bcrypt = require("bcryptjs");
@@ -424,11 +425,20 @@ exports.checkSession = async (req, res) => {
       // Fetch user's name or other details if not already in session
       if (!req.session.firstName) {
         const [rows] = await pool.query(
-          `SELECT FirstName FROM Parent WHERE AccountID = ?`,
+          `SELECT 
+            p.FirstName,
+            a.Email,
+            p.Membership
+          FROM Parent p
+          JOIN Account a ON p.AccountID = a.AccountID
+          WHERE p.AccountID = ?
+           `,
           [req.session.accountId]
         );
         if (rows.length > 0) {
           req.session.firstName = rows[0].FirstName;
+          req.session.email = rows[0].Email;
+          req.session.membership = rows[0].Membership;
         }
       }
 
@@ -436,7 +446,8 @@ exports.checkSession = async (req, res) => {
         isLoggedIn: true,
         accountId: req.session.accountId,
         firstName: req.session.firstName || "Guest",
-        email: req.session.email || "",
+        email: req.session.email || rows[0].Email,
+        membership: req.session.membership || rows[0].Membership,
       });
     } catch (error) {
       console.error("Error in checkSession:", error);
