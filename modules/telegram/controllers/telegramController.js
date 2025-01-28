@@ -497,18 +497,6 @@ const getUserMessage = async (req, res) => {
 };
 
 
-
-
-
-
-module.exports = {S
-    sendProgramme,
-    bot
-};
-
-
-
-
 // ===================== Telegram Bot Event Handlers ===================== //
 
 // Listen for the "/start" command
@@ -531,14 +519,14 @@ module.exports = {S
 //     }
 // });
 
-// Listen for the "/start" command
-bot.onText(/\/start/, (msg) => {
-    const chatId = msg.chat.id;
-    const userName = msg.from.first_name || 'there';
+// // Listen for the "/start" command
+// bot.onText(/\/start/, (msg) => {
+//     const chatId = msg.chat.id;
+//     const userName = msg.from.first_name || 'there';
 
-    // Send a welcome message
-    bot.sendMessage(chatId, `Hello, ${userName}! Welcome to our Telegram bot. How can I assist you today?`);
-});
+//     // Send a welcome message
+//     bot.sendMessage(chatId, `Hello, ${userName}! Welcome to our Telegram bot. How can I assist you today?`);
+// });
 
 // Handle other messages
 // const userCooldowns = {};  // To track user message timestamps
@@ -714,3 +702,9 @@ const unrestrictUser = async (chatId, userId) => {
     }
 };
 
+// Export the functions
+module.exports = {
+  getUserMessage,
+  sendProgramme,
+  bot
+};
