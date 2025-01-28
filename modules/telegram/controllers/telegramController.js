@@ -579,61 +579,83 @@ const getUserMessage = async (req, res) => {
 
 // Message handling logic with spam and moderation checks
 const userCooldowns = {}; // Store user cooldown timestamps
-const spamCooldownSeconds = 5; // Cooldown period in seconds
+// const spamCooldownSeconds = 5; // Cooldown period in seconds
+
+bot.onText(/\/rules/, (msg) => {
+  const chatId = msg.chat.id;
+
+  const rulesMessage = `
+📜 *Group Rules* 📜
+
+1️⃣ **Be Respectful** – Treat everyone with kindness and respect. No hate speech, harassment, or personal attacks.
+2️⃣ **No Spam** – Avoid flooding the chat with repeated messages, links, or promotions.
+3️⃣ **Stay On Topic** – Keep discussions relevant to the group’s purpose.
+4️⃣ **No NSFW Content** – Do not share explicit, violent, or inappropriate material.
+5️⃣ **Use Common Sense** – Be considerate and follow general etiquette.
+
+🚨 Violations may result in warnings, mutes, or bans.
+
+👮 *Admins have the final say on enforcing the rules.* 
+
+Thank you for being a part of mindSphere community! 😊
+`;
+
+  bot.sendMessage(chatId, rulesMessage, { parse_mode: "Markdown" });
+});
+
 
 bot.on('message', async (msg) => {
-    const chatId = msg.chat.id;
-    const userId = msg.from.id;
-    const messageId = msg.message_id;
-    const userMessage = msg.text;
+  const chatId = msg.chat.id;
+  const userId = msg.from.id;
+  const messageId = msg.message_id;
+  const userMessage = msg.text;
 
-    // Ensure the message contains text
-    if (!userMessage) {
-        console.log('Received a non-text message, ignoring it.');
-        return;
-    }
+  if (!userMessage) {
+      console.log('Received a non-text message, ignoring it.');
+      return;
+  }
 
-    // Spam prevention: Check if the user is posting too frequently
-    // if (userCooldowns[userId] && (Date.now() - userCooldowns[userId]) < spamCooldownSeconds * 1000) {
-    //     // Delete the user's message
-    //     bot.deleteMessage(chatId, messageId).catch(() => {}); // Ignore errors if the message was already deleted
-    //     bot.sendMessage(chatId, `@${msg.from.username || msg.from.first_name}, you're sending messages too frequently. Please wait a while before posting again.`, { parse_mode: "Markdown" });
-    //     return;
-    // }
+  // Save the current timestamp to track user activity
+  userCooldowns[userId] = Date.now();
 
-    // Save the current timestamp to track user activity
-    userCooldowns[userId] = Date.now();
+  // AI moderation
+  try {
+      const response = await openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [
+              {
+                  role: "system",
+                  content: `
+                      You are a moderator. Classify user messages into the following categories:
+                      - Return \`1\` if the message is polite, relevant, or a common social message (e.g., "hello", "good morning", "how are you").
+                      - Return \`2\` ONLY if the message is offensive, spam, or clearly inappropriate.
+                      - Return \`3\` if the message is neutral or ambiguous but not harmful.
 
-    // AI moderation
-    try {
-        const response = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            messages: [
-                { role: "system", content: "You are a moderator. Return `1` if the message is polite and relevant, even if it is short or simple. Return `2` only if the message is explicitly impolite, irrelevant, or inappropriate." },
-                { role: "user", content: userMessage }
-            ],
-        });
-    
-        console.log("Moderation response:", response.choices[0].message.content);
-        const moderationResult = response.choices[0].message.content.trim();
-    
-        if (moderationResult === '1') {
-            // Approved message
-            // bot.deleteMessage(chatId, messageId).catch(() => {});
-            // bot.sendMessage(chatId, `${mentionUser(msg.from)} posted:\n\n${userMessage}`, { parse_mode: "Markdown" });
-        } else if (moderationResult === '2') {
-            // Unapproved message
-            bot.deleteMessage(chatId, messageId).catch(() => {});
-            bot.sendMessage(chatId, `@${msg.from.username || msg.from.first_name}, Your message was not approved. Please follow the rules.`, { parse_mode: "Markdown" });
-            await restrictUser(chatId, userId, 1, msg.from);
-        } else {
-            console.error("Unexpected moderation result:", moderationResult);
-        }
-    } catch (error) {
-        console.error("Error during moderation:", error.message);
-    }
-    
+                      Avoid flagging normal or friendly interactions as violations.
+                  `
+              },
+              { role: "user", content: userMessage }
+          ],
+      });
+
+      console.log("Moderation response:", response.choices[0].message.content);
+      const moderationResult = response.choices[0].message.content.trim();
+
+      if (moderationResult === '1' || moderationResult === '3') {
+          // Approved message, do nothing
+      } else if (moderationResult === '2') {
+          // Unapproved message (offensive or spam)
+          bot.deleteMessage(chatId, messageId).catch(() => {});
+          bot.sendMessage(chatId, `@${msg.from.username || msg.from.first_name}, your message was not approved. Please follow the rules.`, { parse_mode: "Markdown" });
+          await restrictUser(chatId, userId, 1, msg.from);
+      } else {
+          console.error("Unexpected moderation result:", moderationResult);
+      }
+  } catch (error) {
+      console.error("Error during moderation:", error.message);
+  }
 });
+
 
 
 // Function to mention the user by Telegram ID
@@ -669,7 +691,7 @@ async function restrictUser(chatId, userId, durationMinutes, userInfo) {
             until_date: untilDate,
         });
 
-        console.log(`${userInfo.first_name} has been restricted for ${durationMinutes} minutes.`);
+        console.log(`${userInfo.username || userInfo.first_name} has been restricted for ${durationMinutes} minutes.`);
 
         // Schedule automatic unrestriction
         setTimeout(async () => {
@@ -677,7 +699,7 @@ async function restrictUser(chatId, userId, durationMinutes, userInfo) {
         }, durationMinutes * 60 * 1000);
 
         //private dm
-        bot.sendMessage(chatId, `${userInfo.first_name} has been restricted for ${durationMinutes} minutes.`);
+        bot.sendMessage(chatId, `${userInfo.username || userInfo.first_name} has been restricted for ${durationMinutes} minutes.`);
     } catch (error) {
         console.error(`Failed to restrict user: ${error.message}`);
     }
@@ -696,7 +718,7 @@ const unrestrictUser = async (chatId, userId) => {
             }
         });
 
-        bot.sendMessage(chatId, `[${userId}](tg://user?id=${userId}) is now unrestricted.`, { parse_mode: "Markdown" });
+        bot.sendMessage(chatId, `${userInfo.username || userInfo.first_name} is now unrestricted.`, { parse_mode: "Markdown" });
     } catch (error) {
         console.error("Failed to unrestrict user:", error);
     }
