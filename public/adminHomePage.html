@@ -1,56 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Portal - Mindsphere</title>
-    
+
     <!-- Google Fonts Link For Icons -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0" />
-    
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" >
-    <link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css" />
-        
-    <!-- Ensure AI Chatbot loads first -->
-    <script src="./js/adminAiChat.js" defer></script>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0"
+    />
 
+    <!-- Bootstrap CSS (using only the latest version) -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    />
 
-    <!-- Custom CSS for Navbar and Footer -->
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
+
+    <!-- Font Awesome for star ratings -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <!-- Swiper CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/swiper@8/swiper-bundle.min.css"
+    />
+
+    <!-- Chart.js (Add this for the dashboard charts) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="./css/navbar.css" />
     <link rel="stylesheet" href="./css/footer.css" />
-    <link rel="stylesheet" href="./css/aichat.css"> 
-</head>
-<body>
+    <link rel="stylesheet" href="./css/aichat.css" />
+
+    <!-- Ensure AI Chatbot loads first -->
+    <script src="./js/adminAiChat.js" defer></script>
+  </head>
+  <body>
     <!-- Navbar Section -->
     <header>
-        <div id="navbar-container"></div>
+      <div id="navbar-container"></div>
     </header>
 
     <!-- Main Content -->
     <main class="container mt-5">
-        <h1>Welcome to the Admin Portal</h1>
-        <p>This is the admin dashboard where you can manage users, programmes, and announcements.</p>
+      <h1>Welcome to the Admin Portal</h1>
+      <p>
+        This is the admin dashboard where you can manage users, programmes, and
+        announcements.
+      </p>
     </main>
 
     <!-- Footer Section -->
     <footer class="bg-dark text-white mt-5">
-        <div id="footer-container"></div>
+      <div id="footer-container"></div>
     </footer>
+
+    <!-- jQuery (required for Bootstrap) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Admin Dashboard JS (make sure this comes after Chart.js) -->
+    <script src="./js/adminDashboard.js"></script>
 
     <!-- Load the admin-specific navbar -->
     <script>
-        $(document).ready(function() {
-            $("#navbar-container").load("adminNavbar.html"); // Load the admin navbar
-            $("#footer-container").load("footer.html");
-        });
+      $(document).ready(function () {
+        $("#navbar-container").load("adminNavbar.html"); // Load the admin navbar
+        $("#footer-container").load("footer.html");
+      });
     </script>
-</body>
+  </body>
 </html>
