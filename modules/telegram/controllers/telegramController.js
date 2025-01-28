@@ -23,6 +23,11 @@ const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
 const CHANNEL_ID = process.env.CHANNEL_ID; // Telegram Channel ID
 const GROUP_ID = process.env.GROUP_ID; // Telegram Group ID
 
+// Log errors
+// bot.on("polling_error", (error) => {
+//   console.error("Polling error:", error);
+// });
+
 // Delete expired Telegram IDs from the database
 cron.schedule("0 0 * * *", async () => { // Every midnight
     try {
@@ -350,7 +355,7 @@ const fetchFormattedDetails = async (programme) => {
       // this will only work if its a public server.
       //const programmeLink = `http://localhost:3000/userProgrammeInfoPage.html?programmeId=${programmeID}`;
     // Add a link to the programme details page
-    const programmeLink = `https://fsdpit02full-moon-production-b596.up.railway.app/userProgrammeInfoPage.html?programmeId=${programmeID}`;
+    const programmeLink = `https://fsdpit02full-moon-production-2509.up.railway.app/userProgrammeInfoPage.html?programmeId=${programmeID}`;
     const clickableLink = `[View More Details](${programmeLink})`;
     formattedDetails += `\n\n${clickableLink}`;
 
