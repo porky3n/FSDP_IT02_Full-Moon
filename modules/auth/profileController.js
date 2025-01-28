@@ -11,8 +11,17 @@ exports.getProfile = async (req, res) => {
   try {
     const [rows] = await pool.query(
       `
-      SELECT p.FirstName, p.LastName, p.DateOfBirth, p.ContactNumber,
-             a.Email, p.Dietary, p.ProfilePicture, p.AccountID
+      SELECT 
+        p.FirstName, 
+        p.LastName, 
+        p.DateOfBirth, 
+        p.ContactNumber,
+        p.ProfileDetails,  
+        p.Membership,      
+        a.Email, 
+        p.Dietary, 
+        p.ProfilePicture, 
+        p.AccountID
       FROM Parent p
       JOIN Account a ON p.AccountID = a.AccountID
       WHERE p.AccountID = ?
@@ -29,6 +38,7 @@ exports.getProfile = async (req, res) => {
       profile.ProfilePicture = `data:image/jpeg;base64,${profile.ProfilePicture.toString("base64")}`;
     }
 
+    console.log("Profile being sent:", profile); // Debug log
     res.json(profile);
   } catch (error) {
     console.error("Error fetching profile data:", error);
@@ -39,7 +49,8 @@ exports.getProfile = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   const accountId = req.session.accountId;
-  const { firstName, lastName, email, contactNumber, dietary } = req.body;
+  const { firstName, lastName, email, contactNumber, dietary, profileDetails } =
+    req.body;
 
   if (!accountId) {
     return res.status(401).json({ message: "Unauthorized access" });
@@ -50,7 +61,6 @@ exports.updateProfile = async (req, res) => {
     await connection.beginTransaction();
 
     try {
-      // Update Parent table
       const updateFields = {};
 
       if (firstName !== undefined) updateFields.FirstName = firstName;
@@ -58,8 +68,9 @@ exports.updateProfile = async (req, res) => {
       if (contactNumber !== undefined)
         updateFields.ContactNumber = contactNumber;
       if (dietary !== undefined) updateFields.Dietary = dietary;
+      if (profileDetails !== undefined)
+        updateFields.ProfileDetails = profileDetails;
 
-      // Only proceed with update if there are fields to update
       if (Object.keys(updateFields).length > 0) {
         await connection.query("UPDATE Parent SET ? WHERE AccountID = ?", [
           updateFields,
@@ -67,7 +78,6 @@ exports.updateProfile = async (req, res) => {
         ]);
       }
 
-      // Update email if provided
       if (email !== undefined) {
         await connection.query(
           "UPDATE Account SET Email = ? WHERE AccountID = ?",
@@ -86,6 +96,7 @@ exports.updateProfile = async (req, res) => {
           email,
           contactNumber,
           dietary,
+          profileDetails,
         },
       });
     } catch (err) {

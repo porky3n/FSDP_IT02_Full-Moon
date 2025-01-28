@@ -12,8 +12,8 @@
 // };
 
 // Load environment variables from .env
-require('dotenv').config();
-const mysql = require('mysql2');
+require("dotenv").config();
+const mysql = require("mysql2");
 
 // Create a connection pool (recommended for production)
 const pool = mysql.createPool({
@@ -23,8 +23,8 @@ const pool = mysql.createPool({
   database: process.env.MYSQLDATABASE,
   port: process.env.MYSQLPORT,
   waitForConnections: true,
-  connectionLimit: 10,  // Adjust based on your usage
-  queueLimit: 0
+  connectionLimit: 10, // Adjust based on your usage
+  queueLimit: 0,
 });
 
 // Export the pool to use in other parts of your app

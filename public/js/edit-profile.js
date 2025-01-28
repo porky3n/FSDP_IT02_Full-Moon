@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
   fetch("footer.html")
     .then((response) => response.text())
     .then((data) => {
-      document.getElementById("footer-container").innerHTML = data;
+      //document.getElementById("footer-container").innerHTML = data;
     });
 
   let selectedProfilePicture = null;
@@ -56,16 +56,21 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       const profileData = await response.json();
+      console.log("Complete profile data:", profileData); // Debug log
 
-      // Populate form fields
+      // Explicitly check for ProfileDetails
+      const profileDetails =
+        profileData.ProfileDetails || profileData.profileDetails || "";
+
       document.getElementById("firstName").value = profileData.FirstName || "";
       document.getElementById("lastName").value = profileData.LastName || "";
       document.getElementById("email").value = profileData.Email || "";
       document.getElementById("phoneNumber").value =
         profileData.ContactNumber || "";
       document.getElementById("dietary").value = profileData.Dietary || "";
+      document.getElementById("profileDetails").value =
+        profileData.ProfileDetails || "";
 
-      // Set profile picture
       if (profileData.ProfilePicture) {
         profilePreview.src = profileData.ProfilePicture;
       } else {
@@ -79,6 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
         email: profileData.Email || "",
         contactNumber: profileData.ContactNumber || "",
         dietary: profileData.Dietary || "",
+        profileDetails: profileData.ProfileDetails || "",
         profilePicture:
           profileData.ProfilePicture || "/api/placeholder/400/320",
       };
@@ -167,6 +173,7 @@ document.addEventListener("DOMContentLoaded", function () {
       email: document.getElementById("email").value,
       contactNumber: document.getElementById("phoneNumber").value,
       dietary: document.getElementById("dietary").value,
+      profileDetails: document.getElementById("profileDetails").value,
       profilePicture:
         selectedProfilePicture || document.getElementById("profilePreview").src,
     };
@@ -189,16 +196,16 @@ document.addEventListener("DOMContentLoaded", function () {
         modal.style.display = "none";
 
         try {
-          // First update the profile data
           const formData = {
             firstName: document.getElementById("firstName").value,
             lastName: document.getElementById("lastName").value,
             email: document.getElementById("email").value,
             contactNumber: document.getElementById("phoneNumber").value,
             dietary: document.getElementById("dietary").value,
+            profileDetails: document.getElementById("profileDetails").value,
+            profilePicture: document.getElementById("profilePreview").src,
           };
 
-          console.log("Hello1");
           const profileResponse = await fetch("/auth/profile", {
             method: "PUT",
             headers: {
@@ -213,25 +220,15 @@ document.addEventListener("DOMContentLoaded", function () {
             throw new Error(`HTTP error! Status: ${profileResponse.status}`);
           }
 
-          console.log("Hello2");
-
-          // If there's a new profile picture, update it
           if (selectedProfilePicture) {
-            console.log("Hello3");
-
-            await handleProfilePictureUpload(e.target.files[0]);
+            await handleProfilePictureUpload(profPicture);
           }
 
           alert("Profile updated successfully");
-          // window.location.href = "./user-profile.html";
         } catch (error) {
           console.error("Error updating profile:", error);
           alert("Failed to update profile. Please try again later.");
         }
-      };
-
-      document.getElementById("cancelSave").onclick = function () {
-        modal.style.display = "none";
       };
     });
   }
@@ -305,6 +302,7 @@ document.addEventListener("DOMContentLoaded", function () {
           email: document.getElementById("email").value,
           contactNumber: document.getElementById("phoneNumber").value,
           dietary: document.getElementById("dietary").value,
+          profileDetails: document.getElementById("profileDetails").value,
           profilePicture: document.getElementById("profilePreview").src,
         };
 
