@@ -79,6 +79,14 @@ const adminController = {
                 LIMIT 5
             `;
 
+      const membershipCountQuery = `
+            SELECT 
+                Membership,
+                COUNT(*) as MemberCount
+            FROM Parent
+            GROUP BY Membership
+        `;
+
       // Execute all queries concurrently
       const [
         topSpenders,
@@ -87,13 +95,15 @@ const adminController = {
         monthlyRevenue,
         ratings,
         totalRevenue,
+        membershipCounts, // Add this line
       ] = await Promise.all([
         pool.query(topSpendersQuery),
         pool.query(activeParticipantsQuery),
         pool.query(popularProgrammesQuery),
-        pool.query(monthlyRevenueQuery, [selectedMonth + 1, year]), // Add 1 because MySQL months are 1-based
+        pool.query(monthlyRevenueQuery, [selectedMonth + 1, year]),
         pool.query(ratingsQuery),
         pool.query(totalRevenueQuery),
+        pool.query(membershipCountQuery),
       ]);
 
       metrics.topSpenders = topSpenders[0];
@@ -102,6 +112,7 @@ const adminController = {
       metrics.monthlyRevenue = monthlyRevenue[0];
       metrics.ratings = ratings[0];
       metrics.totalRevenue = totalRevenue[0];
+      metrics.membershipCounts = membershipCounts[0];
 
       res.json(metrics);
     } catch (error) {

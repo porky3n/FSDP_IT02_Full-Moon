@@ -186,6 +186,18 @@ function renderSummaryCards(metrics) {
       (sum, prog) => sum + parseFloat(prog.AverageRating),
       0
     ) / metrics.ratings.length;
+  const membershipCounts = metrics.membershipCounts.reduce(
+    (acc, item) => {
+      acc[item.Membership] = parseInt(item.MemberCount);
+      return acc;
+    },
+    {
+      Gold: 0,
+      Silver: 0,
+      Bronze: 0,
+      "Non-Membership": 0,
+    }
+  );
 
   return `
         <div class="col-sm-6 col-lg-3">
@@ -219,6 +231,31 @@ function renderSummaryCards(metrics) {
                     <h2 class="mt-2 mb-0">${
                       metrics.popularProgrammes.length
                     }</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Membership Status Count</h5>
+                    <div class="membership-counts">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-gold">Gold Members</span>
+                            <span>${membershipCounts["Gold"]}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-silver">Silver Members</span>
+                            <span>${membershipCounts["Silver"]}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-bronze">Bronze Members</span>
+                            <span>${membershipCounts["Bronze"]}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Non-Member</span>
+                            <span>${membershipCounts["Non-Membership"]}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

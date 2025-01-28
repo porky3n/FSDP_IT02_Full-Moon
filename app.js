@@ -10,7 +10,7 @@ const profileRoutes = require("./modules/auth/profileRoutes"); // Import profile
 const userProfileRoutes = require("./modules/auth/userProfileRoutes");
 const childRoutes = require("./modules/auth/addChildRoutes");
 const adminRoutes = require("./modules/admin/adminDashboardRoutes");
-const ensureAdminAuthenticated = require("./middlewares/auth");
+const { ensureAdminAuthenticated } = require("./middlewares/auth");
 
 // const programmeRoutes = require("./modules/programme/programmeRoutes"); // Import programme routes
 // const programmeClassRoutes = require("./modules/programmeClass/programmeClassRoutes"); // Import programme class routes
@@ -109,6 +109,8 @@ app.get("/programme", async (req, res) => {
     res.status(500).send("Database query failed");
   }
 });
+// Add this with your other app.use() statements
+app.use("/api/admin", adminRoutes);
 
 // app.get('/payment', async (req, res) => {
 //   try {

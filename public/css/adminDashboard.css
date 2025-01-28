@@ -44,6 +44,24 @@
   background-color: #e5e7eb;
   border-radius: 3px;
 }
+.text-gold {
+  color: #ffd700;
+  font-weight: bold;
+}
+
+.text-silver {
+  color: #c0c0c0;
+  font-weight: bold;
+}
+
+.text-bronze {
+  color: #cd7f32;
+  font-weight: bold;
+}
+
+.membership-counts {
+  font-size: 0.9rem;
+}
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
