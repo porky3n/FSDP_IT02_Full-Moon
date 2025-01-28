@@ -27,9 +27,16 @@ document
           JSON.stringify({
             accountId: result.accountId,
             firstName: result.firstName, // Ensure the backend response includes firstName
+            lastName: result.lastName,
             email: result.email,
+            membership: result.membership,
           })
         );
+
+        // Call updateAuthButton to update the login/logout button
+        if (typeof updateAuthButton === "function") {
+          updateAuthButton(); // Update the auth button immediately
+        }
 
         // Redirect the user to the home page or desired page
         window.location.href = "/index.html"; // Adjust this path based on your app's structure

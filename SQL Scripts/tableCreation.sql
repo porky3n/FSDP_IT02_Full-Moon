@@ -1,4 +1,5 @@
 -- Drop tables if they exist
+DROP TABLE IF EXISTS ChatbotPrompts;
 DROP TABLE IF EXISTS Token;
 DROP TABLE IF EXISTS Payment;
 DROP TABLE IF EXISTS Promotion;
@@ -12,6 +13,8 @@ DROP TABLE IF EXISTS Programme;
 DROP TABLE IF EXISTS Child;
 DROP TABLE IF EXISTS Parent;
 DROP TABLE IF EXISTS Account;
+DROP TABLE IF EXISTS TierCriteria;
+DROP TABLE IF EXISTS BusinessEnquiries;
 
 -- Create Account table
 CREATE TABLE Account (
@@ -22,7 +25,16 @@ CREATE TABLE Account (
     PasswordHashed VARCHAR(1000) NOT NULL
 );
 
--- Create Parent table  
+-- Create TierCriteria table
+CREATE TABLE TierCriteria (
+    Tier ENUM('Non-Membership', 'Bronze', 'Silver', 'Gold') PRIMARY KEY,
+    MinPurchases INT NOT NULL,
+    TierDuration INT NOT NULL, -- Duration in days
+    TierDiscount DECIMAL(5, 2) DEFAULT 0.00 NOT NULL, -- Discount percentage
+    Special BOOLEAN DEFAULT FALSE -- Indicates special benefits
+);
+
+-- Create Parent table
 CREATE TABLE Parent (
     ParentID INT AUTO_INCREMENT PRIMARY KEY,
     AccountID INT NOT NULL UNIQUE,
@@ -31,19 +43,22 @@ CREATE TABLE Parent (
     DateOfBirth DATE NOT NULL,
     Gender ENUM('M', 'F') NOT NULL,
     ContactNumber VARCHAR(15) NOT NULL,
-    Membership ENUM('Member', 'Non-Member') DEFAULT 'Non-Member' NOT NULL,
-    MembershipExpirationDate DATE NULL,
     Dietary TEXT NULL,
     ProfilePicture MEDIUMBLOB NULL,
-    CONSTRAINT FK_Parent_Account FOREIGN KEY (AccountID) REFERENCES Account(AccountID)
-);
+    Membership ENUM('Non-Membership', 'Bronze', 'Silver', 'Gold') DEFAULT 'Non-Membership' NOT NULL,
+    StartDate DATE DEFAULT (CURRENT_DATE) NOT NULL,
+    TelegramChatID VARCHAR(100) NULL, -- To store the Telegram chat ID
+    ProfileDetails TEXT NULL,
+    CONSTRAINT FK_Parent_Account FOREIGN KEY (AccountID) REFERENCES Account(AccountID),
+    CONSTRAINT FK_Parent_TierCriteria FOREIGN KEY (Membership) REFERENCES TierCriteria(Tier)
+);  
 
 -- Create Child table
 CREATE TABLE Child (
     ChildID INT AUTO_INCREMENT PRIMARY KEY,
     FirstName VARCHAR(100) NOT NULL,
     LastName VARCHAR(100) NOT NULL,
-    SpecialNeeds VARCHAR(255) NULL,
+    HealthDetails VARCHAR(255) NULL,
     Relationship VARCHAR(100) NOT NULL, -- Son, Daughter, Niece,etc
     EmergencyContactNumber VARCHAR(15) NOT NULL,
     School VARCHAR(100) NULL,
@@ -52,6 +67,7 @@ CREATE TABLE Child (
     Dietary TEXT NULL,
     ParentID INT NOT NULL,
     ProfilePicture MEDIUMBLOB NULL, -- Binary data for the profile picture
+    ProfileDetails TEXT NULL,
     CONSTRAINT FK_Child_Parent FOREIGN KEY (ParentID) REFERENCES Parent(ParentID)
 );
 
@@ -82,6 +98,9 @@ CREATE TABLE ProgrammeClass (
 CREATE TABLE ProgrammeClassBatch (
     ProgrammeClassID INT NOT NULL,
     InstanceID INT AUTO_INCREMENT PRIMARY KEY,
+    HostMeetingLink TEXT NULL,
+    ViewerMeetingLink TEXT NULL,
+    MeetingID VARCHAR(20) NULL,
     CONSTRAINT FK_ProgrammeClassBatch_ProgrammeClass FOREIGN KEY (ProgrammeClassID) REFERENCES ProgrammeClass(ProgrammeClassID)
 );
 
@@ -156,8 +175,8 @@ CREATE TABLE Payment (
     PaymentAmount DECIMAL(10,2) CHECK (PaymentAmount > 0) NOT NULL,
     PaymentDate DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
     PaymentMethod VARCHAR(255) NOT NULL, -- PayNow for now,
-    PaymentImage MEDIUMBLOB NOT NULL, -- Binary data for the payment image
     Verified VARCHAR(255) DEFAULT 'Pending' NOT NULL, -- Pending, Verified, Rejected
+    PurchaseTier ENUM('Non-Membership', 'Bronze', 'Silver', 'Gold') NOT NULL DEFAULT 'Non-Membership',
     CONSTRAINT FK_Payment_Slot FOREIGN KEY (SlotID) REFERENCES Slot(SlotID),
     CONSTRAINT FK_Payment_Promotion FOREIGN KEY (PromotionID) REFERENCES Promotion(PromotionID)
 );
@@ -171,3 +190,32 @@ CREATE TABLE Token (
     ExpiresAt DATETIME NOT NULL,
     CONSTRAINT FK_Tokens_Account FOREIGN KEY (AccountID) REFERENCES Account(AccountID)
 );
+
+-- Create ChatbotPrompts table
+-- used for storing chatbot prompts for admin configuration
+CREATE TABLE ChatbotPrompts (
+    PromptID INT AUTO_INCREMENT PRIMARY KEY,
+    PromptType VARCHAR(255) NOT NULL, -- E.g 'TelegramAnnouncement','TelegramDM','ChatbotUser','ChatbotAdmin'. AI Chatbot on user side, AI Chatbot on admin side, AI Chatbot for Telegram
+    PromptText MEDIUMTEXT NOT NULL
+);
+
+-- Create BusinessEnquiries table
+-- used for storing enquiries from businesses interested in collaboration (B2B)
+CREATE TABLE BusinessEnquiries (
+    EnquiryID INT AUTO_INCREMENT PRIMARY KEY, -- Unique identifier for each enquiry
+    BusinessName VARCHAR(255) NOT NULL,       -- Name of the business
+    Industry VARCHAR(255) NOT NULL,                    -- Industry of the business
+    BusinessSize ENUM('Small', 'Medium', 'Large') NOT NULL, -- Size of the business
+    ContactName VARCHAR(255) NOT NULL,        -- Full name of the primary contact
+    ContactJobTitle VARCHAR(255) NOT NULL,             -- Job title of the contact person
+    EmailAddress VARCHAR(255) NOT NULL,       -- Email address of the contact person
+    PhoneNumber VARCHAR(50) NULL,                  -- Phone number of the contact person (optional)
+    PreferredContactMethod ENUM('Email', 'Phone') DEFAULT 'Email' NOT NULL, -- Contact preference
+    InterestAreas TEXT NULL,                       -- Comma-separated list of interest areas (optional)
+    AdditionalComments TEXT NULL,                  -- Additional details or comments (optional)
+    Consent TINYINT(1) NOT NULL DEFAULT 0,    -- Whether the user has consented to terms (1 = Yes, 0 = No)
+    Status ENUM('New', 'In Progress', 'Completed', 'Rejected') DEFAULT 'New' NOT NULL, -- Status of the enquiry
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, -- Timestamp for enquiry submission
+    AdminNotes TEXT NULL                          -- Internal notes for admin reference (optional)
+);
+

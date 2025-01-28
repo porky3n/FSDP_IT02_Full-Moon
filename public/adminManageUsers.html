@@ -47,15 +47,18 @@
                     </div>
 
                     <!-- Member/Non-Member Dropdown -->
-                    <div class="dropdown me-2">
+                    <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="membershipDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             Membership
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="membershipDropdown">
-                            <li><a class="dropdown-item filter-option" href="#" data-filter="member">Member</a></li>
+                            <li><a class="dropdown-item filter-option" href="#" data-filter="gold">Gold</a></li>
+                            <li><a class="dropdown-item filter-option" href="#" data-filter="silver">Silver</a></li>
+                            <li><a class="dropdown-item filter-option" href="#" data-filter="bronze">Bronze</a></li>
                             <li><a class="dropdown-item filter-option" href="#" data-filter="non-member">Non-Member</a></li>
                         </ul>
                     </div>
+                    
 
                     <!-- Has Children/No Children Dropdown -->
                     <div class="dropdown">
@@ -75,12 +78,14 @@
                 <thead>
                     <tr class="table-header">
                         <th scope="col">Name</th>
+                        <th scope="col">Gender</th>
                         <th scope="col">DOB</th>
                         <th scope="col">Email</th>
                         <th scope="col">Phone Number</th>
                         <th scope="col">Date Joined</th>
                         <th scope="col">Membership</th>
                         <th scope="col">Dietary</th>
+                        <th scope="col">Profile Details</th>
                         <th scope="col" class="text-end">Actions</th>
                     </tr>
                 </thead>
@@ -135,6 +140,18 @@
                             <label for="editDietary" class="form-label">Dietary</label>
                             <input type="text" class="form-control" id="editDietary" name="dietary">
                         </div>
+                        <div class="mb-3">
+                            <label for="editGender" class="form-label">Gender</label>
+                            <select class="form-control" id="editGender" name="gender" required>
+                                <option value="M">Male</option>
+                                <option value="F">Female</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editProfileDetails" class="form-label">Profile Details</label>
+                            <textarea class="form-control" id="editProfileDetails" name="profileDetails" rows="4" maxlength="500"></textarea>
+                            <small class="form-text text-muted">Limit: 500 characters</small>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -175,6 +192,26 @@
                         <div class="mb-3">
                             <label for="editChildDietary" class="form-label">Dietary</label>
                             <input type="text" class="form-control" id="editChildDietary" name="dietary">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editChildRelationship" class="form-label">Relationship</label>
+                            <input type="text" class="form-control" id="editChildRelationship" name="relationship">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editChildHealthDetails" class="form-label">Health Details</label>
+                            <input type="text" class="form-control" id="editChildHealthDetails" name="healthDetails">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editChildGender" class="form-label">Gender</label>
+                            <select class="form-control" id="editChildGender" name="gender">
+                                <option value="M">Male</option>
+                                <option value="F">Female</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editChildProfileDetails" class="form-label">Profile Details</label>
+                            <textarea class="form-control" id="editChildProfileDetails" name="profileDetails" rows="4" maxlength="500"></textarea>
+                            <small class="form-text text-muted">Limit: 500 characters</small>
                         </div>
                     </div>
                     <div class="modal-footer">

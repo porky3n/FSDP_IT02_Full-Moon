@@ -20,6 +20,14 @@ async function handleAdminLogin(event) {
       const result = await response.json();
   
       if (response.ok && result.message === 'Admin login successful') {
+        // If login is successful, store user details in localStorage
+        localStorage.setItem(
+          "userDetails",
+          JSON.stringify({
+            accountId: result.accountId,
+          })
+        );
+
         // Successful login as admin, redirect
         window.location.href = 'adminHomePage.html';
       } else {

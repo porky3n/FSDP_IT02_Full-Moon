@@ -7,7 +7,7 @@
   font-family: "Poppins", sans-serif;
 }
 .chatbot-toggler {
-  z-index: 2;
+  z-index: 50;
   position: fixed;
   bottom: 30px;
   right: 35px;
@@ -42,6 +42,7 @@ body.show-chatbot .chatbot-toggler span:last-child {
   right: 35px;
   bottom: 90px;
   width: 420px;
+  z-index: 999;
   background: #fff;
   border-radius: 15px;
   overflow: hidden;
@@ -100,6 +101,7 @@ header h2 {
 }
 .chatbox .outgoing {
   margin: 20px 20px;
+  
   justify-content: flex-end;
   float: right;
   width: 100%;
@@ -127,6 +129,7 @@ header h2 {
 }
 .chatbox .outgoing p {
   max-width: 100%;
+  margin-left: 40px;
 }
 .chatbox .incoming p {
   border-radius: 10px 10px 10px 0;
@@ -175,7 +178,7 @@ header h2 {
 
 @media (max-width: 490px) {
   .show-chatbot {
-    z-index: 3;
+    z-index: 50;
   }
   .body-no-scroll {
     overflow: hidden;

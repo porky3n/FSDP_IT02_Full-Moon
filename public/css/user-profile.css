@@ -118,3 +118,45 @@ body {
   margin: 0;
   text-align: center;
 }
+
+/* Added css  (Overlapped with some) */
+/* Programme Cards with Ellipsis */
+/* Programme Cards with Ellipsis */
+.programme-card {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: white;
+}
+
+.programme-info {
+  padding: 1rem;
+}
+
+/* Truncate Programme Name to a Single Line */
+.programme-info .date {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Truncate Description to Two Lines */
+.programme-info .description {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Adjust line limit as needed */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+}
+
+
+.date {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+}
+

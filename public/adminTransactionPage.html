@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    
+    <!-- Custom CSS for Navbar and Footer -->
+    <link rel="stylesheet" href="./css/navbar.css" />
+    <link rel="stylesheet" href="./css/footer.css" />
+    <link rel="stylesheet" href="/css/adminTransactionPage.css" />
+
+    <title>Mindsphere</title>
+</head>
+<body>
+    <!-- Navbar Section -->
+    <header>
+        <div id="navbar-container"></div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container mt-5 table-container">
+            <h1 class="mb-4">All Payments</h1>
+
+            <!-- Search and Filters -->
+            <div class="d-flex justify-content-between mb-3">
+                <div class="input-group me-3" style="max-width: 300px;">
+                    <input type="text" id="paymentSearchInput" class="form-control" placeholder="Search by payment method...">
+                    <button class="btn" type="button" id="paymentSearchButton">
+                        <img src="./images/search_icon.jpg" alt="Search Icon" style="width: 24px; height: 24px;">
+                    </button>
+                </div>
+
+                <div class="d-flex">
+                    <!-- Date Range Filter -->
+                    <input type="date" id="startDate" class="form-control me-2" placeholder="Start Date">
+                    <input type="date" id="endDate" class="form-control me-2" placeholder="End Date">
+                    
+                    <!-- Minimum Amount Filter -->
+                    <input type="number" id="minAmount" class="form-control me-2" placeholder="Min Amount">
+                    
+                    <!-- Apply Filters Button -->
+                    <button class="btn btn-primary" id="applyFiltersButton">Apply</button>
+                </div>
+            </div>
+
+            <!-- Payments Table -->
+            <table class="table table-hover" id="paymentTable">
+                <thead>
+                    <tr class="table-header">
+                        <th scope="col">Payment ID</th>
+                        <th scope="col">Slot ID</th>
+                        <th scope="col">Promotion ID</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Method</th>
+                        <th scope="col">Receipt</th>
+                    </tr>
+                </thead>
+                <tbody id="payment-list">
+                    <!-- Dynamic data will be injected here -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <div id="imageModal" class="modal" style="display: none;">
+        <span id="closeModal" class="close">&times;</span>
+        <img id="modalImage" class="modal-content">
+    </div>
+
+    
+    <!-- Footer Section -->
+    <footer class="bg-dark text-white mt-5">
+        <div id="footer-container"></div>
+    </footer>
+
+    <!-- Bootstrap JS and other dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Load external navbar and footer into the template
+            $("#navbar-container").load("adminNavbar.html");
+            $("#footer-container").load("footer.html");
+        });
+    </script>
+    <script src="/js/adminTransactionPage.js"></script>
+</body>
+</html>

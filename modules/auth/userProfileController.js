@@ -105,7 +105,7 @@ exports.getProfile = async (req, res) => {
 exports.updateChild = async (req, res) => {
   const accountId = req.session.accountId;
   if (!accountId) {
-    return res.status(401).json({ message: "Unauthorized access" });
+    return res.status(401).json({ message: "Unauthorized access abc" });
   }
 
   try {
@@ -309,7 +309,7 @@ exports.getEnrolledProgrammes = async (req, res) => {
     if (!accountId && !userEmail) {
       return res.status(401).json({
         success: false,
-        message: "Unauthorized access",
+        message: "Unauthorized access abc",
       });
     }
 
@@ -354,55 +354,76 @@ exports.getEnrolledProgrammes = async (req, res) => {
 
     // Updated query without image-related fields
     const query = `
-    WITH ProgrammeDates AS (
+      WITH ProgrammeDates AS (
+        SELECT 
+          pcb.ProgrammeClassID,
+          pc.ProgrammeID,
+          pcb.ViewerMeetingLink,
+          MIN(ps.StartDateTime) AS StartDateTime,
+          MAX(ps.EndDateTime) AS EndDateTime
+        FROM ProgrammeClassBatch pcb
+        JOIN ProgrammeSchedule ps 
+          ON pcb.InstanceID = ps.InstanceID
+        JOIN ProgrammeClass pc
+          ON pcb.ProgrammeClassID = pc.ProgrammeClassID
+        WHERE EXISTS (
+          SELECT 1 
+          FROM Slot s
+          WHERE (s.ParentID = ? OR s.ChildID IN (?))
+            AND s.ProgrammeClassID = pcb.ProgrammeClassID
+            AND s.InstanceID = pcb.InstanceID
+        )
+        GROUP BY pcb.ProgrammeClassID, pc.ProgrammeID, pcb.ViewerMeetingLink
+      )
       SELECT 
-        s.ProgrammeID,
-        MIN(ps.StartDateTime) as StartDateTime,
-        MAX(ps.EndDateTime) as EndDateTime
+        p.ProgrammeID,
+        p.ProgrammeName,
+        p.Description,
+        pc.Location,
+        pc.ProgrammeLevel,
+        pd.ViewerMeetingLink,
+        pd.StartDateTime,
+        pd.EndDateTime,
+        CASE 
+          WHEN s.ChildID IS NOT NULL THEN c.FirstName
+          ELSE par.FirstName
+        END AS EnrolledFirstName,
+        CASE 
+          WHEN s.ChildID IS NOT NULL THEN c.LastName
+          ELSE par.LastName
+        END AS EnrolledLastName,
+        CASE 
+          WHEN s.ChildID IS NOT NULL THEN 'Child'
+          ELSE 'Parent'
+        END AS EnrolledType
       FROM Slot s
-      JOIN ProgrammeSchedule ps ON s.InstanceID = ps.InstanceID
+      JOIN Programme p 
+        ON s.ProgrammeID = p.ProgrammeID
+      JOIN ProgrammeClass pc 
+        ON s.ProgrammeClassID = pc.ProgrammeClassID
+      JOIN ProgrammeDates pd 
+        ON pc.ProgrammeID = pd.ProgrammeID
+        AND pc.ProgrammeClassID = pd.ProgrammeClassID
+      LEFT JOIN Child c 
+        ON s.ChildID = c.ChildID
+      LEFT JOIN Parent par 
+        ON s.ParentID = par.ParentID
       WHERE (s.ParentID = ? OR s.ChildID IN (?))
-      GROUP BY s.ProgrammeID
-    )
-    SELECT 
-      p.ProgrammeID,
-      p.ProgrammeName,
-      p.Description,
-      pc.Location,
-      pc.ProgrammeLevel,
-      pd.StartDateTime,
-      pd.EndDateTime,
-      CASE 
-        WHEN s.ChildID IS NOT NULL THEN c.FirstName
-        ELSE par.FirstName
-      END as EnrolledFirstName,
-      CASE 
-        WHEN s.ChildID IS NOT NULL THEN c.LastName
-        ELSE par.LastName
-      END as EnrolledLastName,
-      CASE 
-        WHEN s.ChildID IS NOT NULL THEN 'Child'
-        ELSE 'Parent'
-      END as EnrolledType
-    FROM Slot s
-    JOIN Programme p ON s.ProgrammeID = p.ProgrammeID
-    JOIN ProgrammeClass pc ON s.ProgrammeClassID = pc.ProgrammeClassID
-    JOIN ProgrammeDates pd ON p.ProgrammeID = pd.ProgrammeID
-    LEFT JOIN Child c ON s.ChildID = c.ChildID
-    LEFT JOIN Parent par ON s.ParentID = par.ParentID
-    WHERE (s.ParentID = ? OR s.ChildID IN (?))
-    GROUP BY 
-      p.ProgrammeID,
-      p.ProgrammeName,
-      p.Description,
-      pc.Location,
-      pc.ProgrammeLevel,
-      pd.StartDateTime,
-      pd.EndDateTime,
-      EnrolledFirstName,
-      EnrolledLastName,
-      EnrolledType
-    ORDER BY pd.StartDateTime`;
+      GROUP BY 
+        p.ProgrammeID,
+        p.ProgrammeName,
+        p.Description,
+        pc.Location,
+        pc.ProgrammeLevel,
+        pd.StartDateTime,
+        pd.EndDateTime,
+        pd.ViewerMeetingLink,
+        EnrolledFirstName,
+        EnrolledLastName,
+        EnrolledType
+      ORDER BY pd.StartDateTime;
+    `;
+
 
     // If there are no children, use only the parent ID for the query
     let queryParams;
