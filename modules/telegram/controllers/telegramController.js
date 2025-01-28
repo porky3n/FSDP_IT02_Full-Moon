@@ -21,6 +21,7 @@ const openai = new OpenAI({
 const TelegramBot = require("node-telegram-bot-api");
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
 const CHANNEL_ID = process.env.CHANNEL_ID; // Telegram Channel ID
+const GROUP_ID = process.env.GROUP_ID; // Telegram Group ID
 
 // Delete expired Telegram IDs from the database
 cron.schedule("0 0 * * *", async () => { // Every midnight
@@ -33,23 +34,22 @@ cron.schedule("0 0 * * *", async () => { // Every midnight
 });
 
 
-// Handle `/start` command
+// 📌 **Handle `/start` Command**
 bot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id;
   const firstName = msg.chat.first_name || "User";
 
-  // Step 1: Greet the user and ask for their email or phone number
+  // Send a welcome message and ask for email or phone
   bot.sendMessage(
     chatId,
-    `Hi ${firstName}! 👋\n\nWelcome to MindSphere! Please reply with your *email address* so we can link your Telegram account during sign-up.`
+    `Hi ${firstName}! 👋\n\nWelcome to *MindSphere*! 🚀\n\n✅ Before we continue, please reply with your *email address* so we can link your Telegram account.`
   );
 
-  // Step 2: Wait for the user's response
   bot.once("message", async (response) => {
     const identifier = response.text; // Assume the user replies with an email
 
     try {
-      // Step 3: Save the chatId and identifier in the TemporaryTelegramIDs table
+      // Save the chatId and identifier in the database
       await pool.query(
         `INSERT INTO TemporaryTelegramIDs (telegram_id, token, expires_at)
          VALUES (?, ?, NOW() + INTERVAL 1 DAY)
@@ -57,15 +57,52 @@ bot.onText(/\/start/, async (msg) => {
         [chatId, identifier]
       );
 
+      // Send invite links for the Telegram Channel and Group
       bot.sendMessage(
         chatId,
-        `Thank you! Your Telegram account has been linked with: ${identifier}. Please complete your sign-up on our website.`
+        `🎉 *Great! Now join our official Telegram communities:*\n\n` +
+        `🔹 [Join Our Channel](https://t.me/${CHANNEL_ID})\n` +
+        `🔹 [Join Our Group](https://t.me/${GROUP_ID})\n\n` +
+        `⚠️ *Once you've joined, type* /confirm *to verify your membership.*`
       );
     } catch (error) {
       console.error("Error saving Telegram ID and identifier:", error);
-      bot.sendMessage(chatId, "An error occurred. Please try again later.");
+      bot.sendMessage(chatId, "❌ An error occurred. Please try again later.");
     }
   });
+});
+
+// 📌 **Handle `/confirm` Command (Check if user joined)**
+bot.onText(/\/confirm/, async (msg) => {
+  const chatId = msg.chat.id;
+
+  try {
+    // Check if user is in the channel
+    const channelMember = await bot.getChatMember(CHANNEL_ID, chatId);
+    const groupMember = await bot.getChatMember(GROUP_ID, chatId);
+
+    if (
+      ["member", "administrator", "creator"].includes(channelMember.status) &&
+      ["member", "administrator", "creator"].includes(groupMember.status)
+    ) {
+      bot.sendMessage(
+        chatId,
+        `✅ *Thank you for joining our communities!* 🎉\n\nYou're all set! Stay tuned for updates and discussions in our group.`
+      );
+    } else {
+      bot.sendMessage(
+        chatId,
+        `⚠️ *It looks like you haven't joined both our Telegram Channel and Group.*\n\n` +
+        `Please make sure you've joined:\n` +
+        `🔹 [Join Our Channel](https://t.me/${CHANNEL_ID})\n` +
+        `🔹 [Join Our Group](https://t.me/${GROUP_ID})\n\n` +
+        `Once you've joined, type *"/confirm"* again.`
+      );
+    }
+  } catch (error) {
+    console.error("Error checking Telegram membership:", error);
+    bot.sendMessage(chatId, "❌ An error occurred while verifying your membership. Please try again.");
+  }
 });
 
 // // Handle `/link` command (optional if users can manually enter tokens)
