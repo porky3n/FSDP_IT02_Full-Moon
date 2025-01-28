@@ -21,10 +21,22 @@ document.addEventListener('DOMContentLoaded', async function () {
     function renderUserTable(parents, children) {
         userList.innerHTML = ''; // Clear existing data
         parents.forEach(parent => {
+            const membershipStartDate = parent.MembershipStartDate
+                ? new Date(parent.MembershipStartDate).toLocaleDateString()
+                : 'N/A';
+    
+            let membershipEndDate = 'N/A';
+            if (parent.MembershipStartDate) {
+                const endDate = new Date(parent.MembershipStartDate);
+                endDate.setFullYear(endDate.getFullYear() + 1);
+                membershipEndDate = endDate.toLocaleDateString();
+            }
+    
+            // Create parent row
             const row = document.createElement('tr');
             row.setAttribute('data-member', parent.Membership.toLowerCase());
             row.setAttribute('data-has-children', parent.HasChildren);
-
+    
             row.innerHTML = `
                 <td>${parent.FirstName} ${parent.LastName}</td>
                 <td>${parent.Gender === 'M' ? 'Male' : 'Female'}</td>
@@ -33,24 +45,24 @@ document.addEventListener('DOMContentLoaded', async function () {
                 <td>${parent.ContactNumber}</td>
                 <td>${new Date(parent.DateJoined).toLocaleDateString()}</td>
                 <td>${parent.Membership}</td>
+                <td>${membershipStartDate}</td>
+                <td>${membershipEndDate}</td>
                 <td>${parent.Dietary || 'N/A'}</td>
                 <td>${parent.ProfileDetails || 'N/A'}</td>
                 <td class="text-end">
                     <button class="btn btn-primary btn-sm edit-btn" data-parent-id="${parent.ParentID}">Edit</button>
                     <button class="btn btn-danger btn-sm delete-btn" data-parent-id="${parent.ParentID}">Delete</button>
                     ${parent.HasChildren === 'true' ? `
-                        <button class="btn expand-btn btn-footer-color">Expand</button>
+                        <button class="btn btn-secondary btn-sm expand-btn">Expand</button>
                         <div class="dropdown-content" style="display: none;">
                             ${children.filter(child => child.ParentID === parent.ParentID).map(child => `
                                 <div class="child-info-box" data-child-id="${child.ChildID}">
-                                    <p><strong>Child:</strong> ${child.FirstName} ${child.LastName}</p>
-                                    <p><strong>Relationship:</strong> ${child.Relationship || 'N/A'}</p>
-                                    <p><strong>Health Details:</strong> ${child.HealthDetails || 'N/A'}</p>
-                                    <p><strong>Gender:</strong> ${child.Gender === 'M' ? 'Male' : 'Female'}</p>
+                                    <p><strong>Name:</strong> ${child.FirstName} ${child.LastName}</p>
                                     <p><strong>DOB:</strong> ${new Date(child.DateOfBirth).toLocaleDateString()}</p>
+                                    <p><strong>Gender:</strong> ${child.Gender === 'M' ? 'Male' : 'Female'}</p>
                                     <p><strong>School:</strong> ${child.School || 'N/A'}</p>
                                     <p><strong>Dietary:</strong> ${child.Dietary || 'N/A'}</p>
-                                    <p><strong>Profile Details:</strong> ${child.ProfileDetails || 'N/A'}</p>
+                                    <p><strong>Health Details:</strong> ${child.HealthDetails || 'N/A'}</p>
                                     <button class="btn btn-primary btn-sm edit-child-btn" data-child-id="${child.ChildID}">Edit</button>
                                     <button class="btn btn-danger btn-sm delete-child-btn" data-child-id="${child.ChildID}">Delete</button>
                                 </div>
@@ -61,10 +73,10 @@ document.addEventListener('DOMContentLoaded', async function () {
             `;
             userList.appendChild(row);
         });
-
+    
         addEventListeners();
     }
-
+    
     function addEventListeners() {
         document.querySelectorAll('.edit-btn').forEach(btn => {
             btn.addEventListener('click', function () {
@@ -72,14 +84,15 @@ document.addEventListener('DOMContentLoaded', async function () {
                 openEditModal(parentId);
             });
         });
-
+    
         document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', function () {
                 const parentId = this.getAttribute('data-parent-id');
                 confirmDelete(parentId, 'parent');
             });
         });
-
+    
+        // Add expand button functionality
         document.querySelectorAll('.expand-btn').forEach(btn => {
             btn.addEventListener('click', function () {
                 const dropdownContent = this.nextElementSibling;
@@ -92,21 +105,22 @@ document.addEventListener('DOMContentLoaded', async function () {
                 }
             });
         });
-
+    
         document.querySelectorAll('.edit-child-btn').forEach(btn => {
             btn.addEventListener('click', function () {
                 const childId = this.getAttribute('data-child-id');
                 openEditChildModal(childId);
             });
         });
-
+    
         document.querySelectorAll('.delete-child-btn').forEach(btn => {
             btn.addEventListener('click', function () {
                 const childId = this.getAttribute('data-child-id');
                 confirmDelete(childId, 'child');
             });
         });
-
+    
+    
         document.getElementById('editParentForm').addEventListener('submit', handleEditParent);
         document.getElementById('editChildForm').addEventListener('submit', handleEditChild);
 
@@ -127,8 +141,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         try {
             const response = await fetch(`/auth/get-parent/${parentId}`);
             const parent = await response.json();
-
+    
             if (response.ok) {
+                // Populate parent data
                 document.getElementById('editParentID').value = parent.ParentID;
                 document.getElementById('editFirstName').value = parent.FirstName;
                 document.getElementById('editLastName').value = parent.LastName;
@@ -137,7 +152,23 @@ document.addEventListener('DOMContentLoaded', async function () {
                 document.getElementById('editDietary').value = parent.Dietary || '';
                 document.getElementById('editGender').value = parent.Gender || 'M';
                 document.getElementById('editProfileDetails').value = parent.ProfileDetails || '';
-
+                document.getElementById('editMembership').value = parent.Membership || 'Non-Membership';
+    
+                const startDateField = document.getElementById('editMembershipStartDate');
+                const endDateField = document.getElementById('editMembershipEndDate');
+    
+                const startDate = parent.StartDate
+                    ? new Date(parent.StartDate).toISOString().split('T')[0]
+                    : new Date().toISOString().split('T')[0];
+    
+                startDateField.value = startDate;
+    
+                // Calculate End Date: 1 year after Start Date
+                const defaultEndDate = new Date(startDate);
+                defaultEndDate.setFullYear(defaultEndDate.getFullYear() + 1);
+                endDateField.value = defaultEndDate.toISOString().split('T')[0];
+                endDateField.setAttribute('readonly', true); // Make End Date uneditable
+    
                 const editModal = new bootstrap.Modal(document.getElementById('editParentModal'));
                 editModal.show();
             } else {
@@ -147,12 +178,14 @@ document.addEventListener('DOMContentLoaded', async function () {
             console.error('Error fetching parent data:', error);
         }
     }
-
+    
+    
+    
     async function handleEditParent(event) {
         event.preventDefault();
         const formData = new FormData(event.target);
         const parentId = formData.get('parentID');
-
+    
         const payload = {
             firstName: formData.get('firstName'),
             lastName: formData.get('lastName'),
@@ -160,18 +193,21 @@ document.addEventListener('DOMContentLoaded', async function () {
             contactNumber: formData.get('contactNumber'),
             dietary: formData.get('dietary'),
             gender: formData.get('gender'),
-            profileDetails: formData.get('profileDetails')
+            profileDetails: formData.get('profileDetails'),
+            membership: formData.get('membership'),
+            membershipStartDate: formData.get('membershipStartDate'),
+            membershipEndDate: formData.get('membershipEndDate'), // Include editable end date
         };
-
+    
         try {
             const response = await fetch(`/auth/update-parent/${parentId}`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload),
             });
-
+    
             if (response.ok) {
                 alert('Parent updated successfully');
                 location.reload();
@@ -182,6 +218,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             console.error('Error updating parent:', error);
         }
     }
+    
+    
 
     async function openEditChildModal(childId) {
         try {
@@ -348,7 +386,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             const hasChildren = row.getAttribute('data-has-children'); // Whether the parent has children
     
             // Handle membership filtering
-            if (['gold', 'silver', 'bronze', 'non-member'].includes(filterType)) {
+            if (['gold', 'silver', 'bronze', 'non-membership'].includes(filterType)) {
                 row.style.display = (memberType === filterType) ? '' : 'none';
             }
     

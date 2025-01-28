@@ -176,8 +176,9 @@ exports.getUsers = async (req, res) => {
               Parent.ContactNumber,
               Account.Email,
               Parent.Membership,
+              Parent.StartDate AS MembershipStartDate, -- Fetch Membership Start Date
               Parent.Dietary,
-              Parent.ProfileDetails, -- Include ProfileDetails field
+              Parent.ProfileDetails,
               Account.CreatedAt AS DateJoined,
               IF(COUNT(Child.ChildID) > 0, 'true', 'false') AS HasChildren
           FROM Parent
@@ -198,16 +199,14 @@ exports.getUsers = async (req, res) => {
               Child.Relationship,
               Child.HealthDetails,
               Child.Gender,
-              Child.ProfileDetails -- Include ProfileDetails field
+              Child.ProfileDetails
           FROM Child;
       `);
 
     res.json({ parentData, childData });
   } catch (error) {
-    console.error("Error fetching user data:", error);
-    res
-      .status(500)
-      .json({ message: "Internal server error", error: error.message });
+      console.error("Error fetching user data:", error);
+      res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
 
@@ -276,32 +275,49 @@ exports.deleteChild = async (req, res) => {
 
 exports.updateParent = async (req, res) => {
   const { id } = req.params;
-  const {
-    firstName,
-    lastName,
-    dob,
-    contactNumber,
-    dietary,
-    gender,
-    profileDetails,
+  const { 
+      firstName, 
+      lastName, 
+      dob, 
+      contactNumber, 
+      dietary, 
+      gender, 
+      profileDetails, 
+      membership, 
+      membershipStartDate 
   } = req.body;
 
   try {
-    const result = await pool.query(
-      `UPDATE Parent 
-           SET FirstName = ?, LastName = ?, DateOfBirth = ?, ContactNumber = ?, Dietary = ?, Gender = ?, ProfileDetails = ? 
-           WHERE ParentID = ?`,
-      [
-        firstName,
-        lastName,
-        dob,
-        contactNumber,
-        dietary,
-        gender,
-        profileDetails,
-        id,
-      ]
-    );
+      // Ensure membershipStartDate is not null
+      const startDate = membershipStartDate || null;
+
+      const query = `
+          UPDATE Parent 
+          SET 
+              FirstName = ?, 
+              LastName = ?, 
+              DateOfBirth = ?, 
+              ContactNumber = ?, 
+              Dietary = ?, 
+              Gender = ?, 
+              ProfileDetails = ?, 
+              Membership = ?, 
+              StartDate = ?
+          WHERE ParentID = ?;
+      `;
+
+      const result = await pool.query(query, [
+          firstName, 
+          lastName, 
+          dob, 
+          contactNumber, 
+          dietary, 
+          gender, 
+          profileDetails, 
+          membership, 
+          startDate, 
+          id,
+      ]);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: "Parent not found" });
@@ -313,6 +329,7 @@ exports.updateParent = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 exports.updateChild = async (req, res) => {
   const { id } = req.params;
