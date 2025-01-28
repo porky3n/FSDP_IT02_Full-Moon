@@ -70,7 +70,7 @@ VALUES
 INSERT INTO ProgrammeClass (ProgrammeID, ShortDescription, Location, Fee, MaxSlots, ProgrammeLevel, Remarks)
 VALUES 
 (1, 'Intro to Programming', 'Online', 50.00, 30, 'Beginner', 'Materials are provided ~ Online-only ~ Interactive sessions'),
-(2, 'Painting Basics', 'Community Center', 75.00, 20, 'Intermediate', 'Materials provided ~ Lunch included');
+(2, 'Painting Basics', '535 Clementi Rd, Singapore 599489', 75.00, 20, 'Intermediate', 'Materials provided ~ Lunch included');
 
 -- Insert data into ProgrammeClassBatch table
 INSERT INTO ProgrammeClassBatch (ProgrammeClassID)
