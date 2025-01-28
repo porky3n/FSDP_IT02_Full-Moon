@@ -79,7 +79,8 @@ function displayProgrammeInfo(programmes) {
                     class="btn btn-danger mt-3 delete-meeting-btn" 
                     data-programme-class-id="${programme.ProgrammeClassID || ''}" 
                     data-instance-id="${programme.InstanceID || ''}" 
-                    data-meeting-id="${programme.MeetingID || ''}">
+                    data-meeting-id="${programme.MeetingID || ''}"
+                    data-end-date-time="${programme.EndDateTime || ''}">
                     Delete Meeting
                 </button>
               ` : `
@@ -90,7 +91,7 @@ function displayProgrammeInfo(programmes) {
                       data-instance-id="${programme.InstanceID || ''}"
                       data-end-date-time="${programme.EndDateTime || ''}"
                   >
-                      Join Meeting
+                      Create Meeting
                   </button>
               `}
           </div>
@@ -184,7 +185,8 @@ document.querySelector('.upcoming-schedule').addEventListener('click', async (ev
         const programmeClassID = button.dataset.programmeClassId;
         const instanceID = button.dataset.instanceId;
         const meetingID = button.dataset.meetingId;
-    
+        const endDateTime = button.dataset.endDateTime;
+
         if (!programmeClassID || !instanceID || !meetingID) {
             alert("Missing data attributes. Cannot delete meeting.");
             return;
@@ -208,19 +210,31 @@ document.querySelector('.upcoming-schedule').addEventListener('click', async (ev
                 alert(result.message);
                 
     
-                const parent = button.parentElement;
-                if (!parent) {
-                    console.error("Parent element not found for the delete button.");
+                const parentCard = button.closest('.schedule-card');
+                if (!parentCard) {
+                    console.error("Parent schedule card not found.");
                     return;
                 }
     
                 // Remove the Host Link and Viewer Link fields
-                const hostLinkWrapper = parent.querySelector('.host-link-wrapper');
-                const viewerLinkWrapper = parent.querySelector('.viewer-link-wrapper');
+                const hostLinkWrapper = parentCard.querySelector('.host-link-wrapper');
+                const viewerLinkWrapper = parentCard.querySelector('.viewer-link-wrapper');
                 if (hostLinkWrapper) hostLinkWrapper.remove();
                 if (viewerLinkWrapper) viewerLinkWrapper.remove();
 
                 button.remove();
+
+                // Add the Create Meeting button dynamically
+                const createMeetingBtn = document.createElement('button');
+                createMeetingBtn.className = 'btn btn-primary mt-3 create-meeting-btn';
+                createMeetingBtn.dataset.programmeClassId = programmeClassID;
+                createMeetingBtn.dataset.instanceId = instanceID;
+                createMeetingBtn.dataset.endDateTime = formatToISO8601(endDateTime);
+                createMeetingBtn.textContent = 'Create Meeting';
+
+                // Append the Create Meeting button to the card
+                parentCard.appendChild(createMeetingBtn);
+
             } else {
                 alert(`Failed to delete meeting: ${result.message}`);
             }
@@ -258,6 +272,21 @@ function createLinkWrapper(label, defaultValue) {
     });
 
     return wrapper;
+}
+
+
+function formatToISO8601(dateString) {
+    // Parse the input date
+    const parsedDate = new Date(dateString);
+
+    // Check if the date is valid
+    if (isNaN(parsedDate)) {
+        console.error("Invalid date format");
+        return null;
+    }
+
+    // Convert to ISO 8601 format
+    return parsedDate.toISOString();
 }
 
 

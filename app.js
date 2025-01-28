@@ -3,13 +3,14 @@ const express = require("express");
 const path = require("path");
 const session = require("express-session");
 const cors = require("cors");
-const passport = require('./modules/auth/passportConfig'); // Load passport setup
+const passport = require("./modules/auth/passportConfig"); // Load passport setup
 const bodyParser = require("body-parser");
 const authRoutes = require("./modules/auth/authRoutes"); // Import auth routes
 const profileRoutes = require("./modules/auth/profileRoutes"); // Import profile routes
 const userProfileRoutes = require("./modules/auth/userProfileRoutes");
 const childRoutes = require("./modules/auth/addChildRoutes");
-const ensureAdminAuthenticated = require("./middlewares/auth");
+const adminRoutes = require("./modules/admin/adminDashboardRoutes");
+const { ensureAdminAuthenticated } = require("./middlewares/auth");
 
 // const programmeRoutes = require("./modules/programme/programmeRoutes"); // Import programme routes
 // const programmeClassRoutes = require("./modules/programmeClass/programmeClassRoutes"); // Import programme class routes
@@ -19,16 +20,18 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // const programmeController = require("./modules/programme/programmeController");
-const programmeRoutes = require('./modules/programme/programme.routes');
-const programmeClassRoutes = require('./modules/programmeClass/programmeClass.routes');
-const programmeScheduleRoutes = require('./modules/programmeSchedule/programmeSchedule.routes');
-const slotRoutes = require('./modules/slot/slot.routes');
-const paymentRoutes = require('./modules/payment/payment.routes');
+const programmeRoutes = require("./modules/programme/programme.routes");
+const programmeClassRoutes = require("./modules/programmeClass/programmeClass.routes");
+const programmeScheduleRoutes = require("./modules/programmeSchedule/programmeSchedule.routes");
+const slotRoutes = require("./modules/slot/slot.routes");
+const paymentRoutes = require("./modules/payment/payment.routes");
 const chatbotRoutes = require("./modules/chatbot/chatbot.routes");
-const telegramRoutes = require('./modules/telegram/telegram.routes');
+const telegramRoutes = require("./modules/telegram/telegram.routes");
 
 const tierRoutes = require("./modules/tier/tier.routes");
 const meetingRoutes = require("./modules/meeting/meeting.routes");
+
+const { bot } = require("./modules/telegram/controllers/telegramController");
 
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
@@ -77,21 +80,20 @@ app.use("/api/children", childRoutes); // Mount child routes
 app.use("/auth", authRoutes);
 app.use("/auth", userProfileRoutes);
 
-
 // Mount programme-related routes
 // app.use("/api/programmes", programmeRoutes); // Programme routes
 // app.use("/api/programme-classes", programmeClassRoutes); // Programme class routes
 // app.use("/api/programme-schedules", programmeScheduleRoutes); // Programme schedule routes
 
 // Middleware to parse JSON bodies
-app.use(express.json({ limit: '50mb' }));
+app.use(express.json({ limit: "50mb" }));
 
 // Route for the index page
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-app.get("/testPage", (req, res) => {  
+app.get("/testPage", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "testProgrammePage.html"));
 });
 // Route protected with middleware for admin access
@@ -99,16 +101,18 @@ app.get("/adminHomePage.html", ensureAdminAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, "public", "adminHomePage.html"));
 });
 
-app.get('/programme', async (req, res) => {
+app.get("/programme", async (req, res) => {
   try {
-    res.sendFile(path.join(__dirname, 'public', 'userProgrammePage.html'));
+    res.sendFile(path.join(__dirname, "public", "userProgrammePage.html"));
     //const [rows] = await pool.query('SELECT * FROM Programme');  // Example query
     //res.json(rows);
   } catch (error) {
     console.error(error);
-    res.status(500).send('Database query failed');
+    res.status(500).send("Database query failed");
   }
 });
+// Add this with your other app.use() statements
+app.use("/api/admin", adminRoutes);
 
 // app.get('/payment', async (req, res) => {
 //   try {
@@ -138,17 +142,17 @@ app.use("/api/payment", paymentRoutes);
 app.use("/api/meeting", meetingRoutes);
 
 // Route for handling chatbot interactions
-app.use('/api/chatbot', chatbotRoutes);
-app.use('/api/tier', tierRoutes);
+app.use("/api/chatbot", chatbotRoutes);
+app.use("/api/tier", tierRoutes);
 
 // Route for Google Auth
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/api/telegram', telegramRoutes);
+app.use("/api/telegram", telegramRoutes);
 // api for paymentintent
 // app.get("/api/payment-intent", async (req, res) => {
-//   const intent =  
+//   const intent =
 //   res.json({ client_secret: intent.client_secret });
 // });
 // app.get('/api/programme', programmeController.getAllProgrammes);

@@ -51,26 +51,26 @@ VALUES
 -- Insert data into Parent table
 INSERT INTO Parent (AccountID, FirstName, LastName, DateOfBirth, Gender, ContactNumber, Membership, StartDate, Dietary, ProfilePicture, ProfileDetails)
 VALUES 
-(1, 'John', 'Doe', '1980-05-10', 'M', '1234567890', 'Gold', '2023-12-12', 'No beef', 'PLACEHOLDER_PROFILE_USER_1', "i am a passionate in learning art and music as my side hobbies."),
-(2, 'Jane', 'Smith', '1985-03-22', 'F', '0987654321', 'Silver', '2024-06-15', 'Vegetarian', 'PLACEHOLDER_PROFILE_USER_2', 'i work as a Software Engineer and I love coding.');
+(1, 'John', 'Doe', '1980-05-10', 'M', '1234567890', 'Gold', '2023-12-12', 'No beef', 'private-images/profile-pictures/user-1.jpg', "i am a passionate in learning art and music as my side hobbies."),
+(2, 'Jane', 'Smith', '1985-03-22', 'F', '0987654321', 'Silver', '2024-06-15', 'Vegetarian', 'private-images/profile-pictures/user-2.jpg', 'i work as a Software Engineer and I love coding.');
 
 -- Insert data into Child table
 INSERT INTO Child (FirstName, LastName, HealthDetails, Relationship, EmergencyContactNumber, School, DateOfBirth, Gender, Dietary, ParentID, ProfilePicture, ProfileDetails)
 VALUES 
-('Jack', 'Doe', 'Has mild autism', 'Son', '1234567890', 'Greenwood School', '2010-09-15', 'M', 'None', 1, 'PLACEHOLDER_PROFILE_CHILD_1', 'im very interested in computers, technology and the world. i love to learn new things and make new friends.'),
-('Ella', 'Smith', '', 'Daughter', '0987654321', 'Bluebell Academy', '2012-12-05', 'F', 'Dairy-Free', 2, 'PLACEHOLDER_PROFILE_CHILD_2', 'i love to draw and paint, and i enjoy playing with my friends.');
+('Jack', 'Doe', 'Has mild autism', 'Son', '1234567890', 'Greenwood School', '2010-09-15', 'M', 'None', 1, 'private-images/profile-pictures/child-1.jpg', 'im very interested in computers, technology and the world. i love to learn new things and make new friends.'),
+('Ella', 'Smith', '', 'Daughter', '0987654321', 'Bluebell Academy', '2012-12-05', 'F', 'Dairy-Free', 2, 'private-images/profile-pictures/child-2.jpg', 'i love to draw and paint, and i enjoy playing with my friends.');
 
 -- Insert data into Programme table
 INSERT INTO Programme (ProgrammeName, Category, ProgrammePicture, Description)
 VALUES 
-('Coding Workshop','Workshop','PLACEHOLDER_PROGRAMME_1','A hands-on workshop teaching basic coding skills.'),
-('Art Camp', 'Camp', 'PLACEHOLDER_PROGRAMME_2', 'An immersive art camp for young artists.');
+('Coding Workshop','Workshop','private-images/programme-pictures/programme-1.png','A hands-on workshop teaching basic coding skills.'),
+('Art Camp', 'Camp', 'private-images/programme-pictures/programme-2.png', 'An immersive art camp for young artists.');
 
 -- Insert data into ProgrammeClass table
 INSERT INTO ProgrammeClass (ProgrammeID, ShortDescription, Location, Fee, MaxSlots, ProgrammeLevel, Remarks)
 VALUES 
 (1, 'Intro to Programming', 'Online', 50.00, 30, 'Beginner', 'Materials are provided ~ Online-only ~ Interactive sessions'),
-(2, 'Painting Basics', 'Community Center', 75.00, 20, 'Intermediate', 'Materials provided ~ Lunch included');
+(2, 'Painting Basics', '535 Clementi Rd, Singapore 599489', 75.00, 20, 'Intermediate', 'Materials provided ~ Lunch included');
 
 -- Insert data into ProgrammeClassBatch table
 INSERT INTO ProgrammeClassBatch (ProgrammeClassID)
@@ -88,8 +88,8 @@ VALUES
 -- Insert data into ProgrammeImages table
 INSERT INTO ProgrammeImages (ProgrammeID, Image)
 VALUES 
-(1, 'PLACEHOLDER_PROGRAMME_1_CONTENT_1'),
-(2, 'PLACEHOLDER_PROGRAMME_2_CONTENT_1');
+(1, 'private-images/programme-pictures/programme-1-content-1.png'),
+(2, 'private-images/programme-pictures/programme-2-content-1.png');
 
 -- Insert data into Slot table
 INSERT INTO Slot (ProgrammeClassID, ProgrammeID, InstanceID, ParentID, ChildID)

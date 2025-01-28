@@ -123,5 +123,39 @@ body, html {
     color: #666; /* Slightly muted color for word count */
 }
   
+/* Gender Selection Styling */
+.gender-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.gender-buttons {
+    display: flex;
+    justify-content: space-around;
+}
+
+.btn-gender {
+    width: 45%;
+    padding: 10px 0;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border: 2px solid #2f3e50;
+    border-radius: 10px;
+    background-color: #ffffff;
+    color: #2f3e50;
+    transition: all 0.3s ease;
+}
+
+.btn-gender:hover {
+    background-color: #2f3e50;
+    color: white;
+}
+
+.btn-gender.active {
+    background-color: #2f3e50;
+    color: white;
+}
 
 

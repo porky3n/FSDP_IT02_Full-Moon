@@ -15,6 +15,7 @@ DROP TABLE IF EXISTS Parent;
 DROP TABLE IF EXISTS Account;
 DROP TABLE IF EXISTS TierCriteria;
 DROP TABLE IF EXISTS BusinessEnquiries;
+DROP TABLE IF EXISTS TemporaryTelegramIDs;
 
 -- Create Account table
 CREATE TABLE Account (
@@ -47,6 +48,7 @@ CREATE TABLE Parent (
     ProfilePicture MEDIUMBLOB NULL,
     Membership ENUM('Non-Membership', 'Bronze', 'Silver', 'Gold') DEFAULT 'Non-Membership' NOT NULL,
     StartDate DATE DEFAULT (CURRENT_DATE) NOT NULL,
+    TelegramChatID VARCHAR(100) NULL, -- To store the Telegram chat ID
     ProfileDetails TEXT NULL,
     CONSTRAINT FK_Parent_Account FOREIGN KEY (AccountID) REFERENCES Account(AccountID),
     CONSTRAINT FK_Parent_TierCriteria FOREIGN KEY (Membership) REFERENCES TierCriteria(Tier)
@@ -218,3 +220,10 @@ CREATE TABLE BusinessEnquiries (
     AdminNotes TEXT NULL                          -- Internal notes for admin reference (optional)
 );
 
+CREATE TABLE TemporaryTelegramIDs (
+    id SERIAL PRIMARY KEY,
+    token VARCHAR(255) NOT NULL UNIQUE, -- Unique token shared with the user
+    telegram_id VARCHAR(255) NOT NULL, -- Telegram chat ID
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL -- Expiry for cleanup
+);

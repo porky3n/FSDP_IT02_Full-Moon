@@ -9,6 +9,72 @@ class Programme {
         this.description = description;
     }
 
+    // Fetch all programme details, including images, reviews, and promotions
+    static async getProgrammeFullDetailsByID(programmeID) {
+        try {
+            const sqlQuery = `
+                SELECT 
+                    p.ProgrammeID, 
+                    p.ProgrammeName, 
+                    p.Category, 
+                    p.ProgrammePicture, 
+                    p.Description,
+                    pc.Location, 
+                    pc.Fee, 
+                    pc.ProgrammeLevel, 
+                    pc.Remarks,
+                    MIN(ps.StartDateTime) AS EarliestStartDateTime, 
+                    MAX(ps.EndDateTime) AS LatestEndDateTime,
+                    (pc.MaxSlots - COUNT(s.SlotID)) AS SlotsLeft,
+                    pr.PromotionName, 
+                    pr.DiscountType, 
+                    pr.DiscountValue,
+                    r.Rating, 
+                    r.ReviewText, 
+                    CONCAT(pa.FirstName, ' ', pa.LastName) AS ReviewerName,
+                    pi.Image AS AdditionalImage
+                FROM Programme p
+                LEFT JOIN ProgrammeClass pc ON p.ProgrammeID = pc.ProgrammeID
+                LEFT JOIN ProgrammeClassBatch pcb ON pc.ProgrammeClassID = pcb.ProgrammeClassID
+                LEFT JOIN ProgrammeSchedule ps ON pcb.InstanceID = ps.InstanceID
+                LEFT JOIN Slot s ON pcb.InstanceID = s.InstanceID
+                LEFT JOIN Promotion pr ON p.ProgrammeID = pr.ProgrammeID
+                LEFT JOIN Reviews r ON p.ProgrammeID = r.ProgrammeID
+                LEFT JOIN Parent pa ON r.AccountID = pa.AccountID
+                LEFT JOIN ProgrammeImages pi ON p.ProgrammeID = pi.ProgrammeID
+                WHERE p.ProgrammeID = ?
+                GROUP BY 
+                    p.ProgrammeID, p.ProgrammeName, p.Category, p.ProgrammePicture, p.Description, 
+                    pc.Location, pc.Fee, pc.ProgrammeLevel, pc.Remarks, pc.MaxSlots, 
+                    pr.PromotionName, pr.DiscountType, pr.DiscountValue, 
+                    r.Rating, r.ReviewText, ReviewerName, pi.Image;
+            `;
+
+            const [rows] = await pool.query(sqlQuery, [programmeID]);
+            if (rows.length === 0) return null;
+
+            // Organize reviews and images into arrays
+            const programmeDetails = {
+                ...rows[0],
+                Reviews: rows
+                    .filter((row) => row.Rating && row.ReviewText)
+                    .map((row) => ({
+                        Rating: row.Rating,
+                        ReviewText: row.ReviewText,
+                        ReviewerName: row.ReviewerName,
+                    })),
+                AdditionalImages: rows
+                    .filter((row) => row.AdditionalImage)
+                    .map((row) => row.AdditionalImage),
+            };
+
+            return programmeDetails;
+        } catch (error) {
+            console.error("Error in getProgrammeFullDetailsByID:", error);
+            throw error;
+        }
+    }
+
     static async getProgrammePictureByID(programmeID) {
         try {
             const sqlQuery = `SELECT ProgrammePicture FROM Programme WHERE ProgrammeID = ?`;

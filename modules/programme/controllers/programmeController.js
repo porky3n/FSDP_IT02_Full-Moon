@@ -5,7 +5,6 @@ const ProgrammeClassBatch = require("../../../models/programmeClassBatch");
 const ProgrammeImages = require("../../../models/programmeImages");
 const axios = require('axios');
 const FormData = require('form-data');
-const TelegramBot = require('node-telegram-bot-api');
 // const { fromBuffer } = require('file-type');
 // const { fileTypeFromBuffer } = require('file-type');
 // const path = require('path');
@@ -19,7 +18,7 @@ const sharp = require('sharp');
 const fileType = require('file-type');
 // Load environment variables from .env
 require('dotenv').config();
-
+const telegramController = require('../../telegram/controllers/telegramController');
 
 
 // Utility function to convert binary images to Base64
@@ -191,7 +190,8 @@ const createProgramme = async (req, res) => {
 
         // Send announcement to Telegram upon successful creation
         Programme.getProgrammeByID(programmeID).then(programme => {
-            sendFormattedProgrammeToChatGPT(programmeID, res);
+            const req = { params: { programmeID } };
+            telegramController.sendProgramme(req, res);
         });
 
         res.status(201).json({ message: "Programme created successfully", programmeID });
