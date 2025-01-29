@@ -260,10 +260,10 @@ async function createSlot() {
     const data = await response.json();
     console.log("Slot and payment created successfully:", data);
     updateTierForAccount();
-    alert("Slot and payment created successfully.");
+    // alert("Slot and payment created successfully.");
     return true; // Return true on successful slot creation
   } catch (error) {
-    alert(`Error creating slot and payment: ${error.message}`);
+    // alert(`Error creating slot and payment: ${error.message}`);
     console.error("Error creating slot and payment:", error);
     return false; // Return false on failure
   }
@@ -516,8 +516,10 @@ async function confirmPayment(clientSecret) {
       if (res.paymentIntent.status === "succeeded") {
         console.log("Payment successful via PayNow");
         createSlot();
+        $("#successModal").modal("show"); // Show Success Modal
       } else {
         console.log("PayNow payment cancelled");
+        $("#errorModal").modal("show"); // Show Error Modal
       }
     } else {
       console.error("Unknown payment method selected:", selectedPaymentMethod);
@@ -544,6 +546,26 @@ async function confirmPayment(clientSecret) {
   //   }
   // });
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+  // Load Success Animation
+  lottie.loadAnimation({
+    container: document.getElementById("lottie-success"),
+    renderer: "svg",
+    loop: false,
+    autoplay: true,
+    path: "https://lottie.host/84fbb595-5aa2-4928-a9ef-b11bc4bff43b/01Tesgyd7S.lottie", // Success Animation
+  });
+
+  // Load Error Animation
+  lottie.loadAnimation({
+    container: document.getElementById("lottie-error"),
+    renderer: "svg",
+    loop: false,
+    autoplay: true,
+    path: "https://lottie.host/2660d233-559f-443b-a80d-7b874ccb1ab0/wc6fgPdfWC.lottie", // Error Animation
+  });
+});
 
 // Handling form submission
 document.getElementById("paymentForm").addEventListener("submit", handleSubmit);
@@ -609,6 +631,42 @@ async function handleSubmit(event) {
 //   });
 // }
 
+// async function updateTierForAccount() {
+//   try {
+//     console.log("Updating Membership for account:", accountId);
+
+//     // Call the API to update the tier
+//     const response = await fetch(`/api/payment/${accountId}/tier`, {
+//       method: "PUT",
+//     });
+
+//     if (!response.ok) {
+//       throw new Error("Failed to update Membership for account.");
+//     }
+
+//     const data = await response.json();
+
+//     // Check if the tier was upgraded
+//     if (data.membershipUpdated) {
+//       // Update localStorage if the tier was upgraded
+//       const userDetails = JSON.parse(localStorage.getItem("userDetails")) || {};
+//       localStorage.setItem(
+//         "userDetails",
+//         JSON.stringify({
+//           ...userDetails,
+//           membership: data.newMembership, // Update the tier in localStorage
+//         })
+//       );
+//       alert(data.message);
+//     } else {
+//       // alert(data.message); // Notify the user that the tier was retained
+//     }
+//   } catch (error) {
+//     console.error("Error updating Membership for account:", error);
+//     // alert(`Error updating Membership for account: ${error.message}`);
+//   }
+// }
+
 async function updateTierForAccount() {
   try {
     console.log("Updating Membership for account:", accountId);
@@ -635,16 +693,29 @@ async function updateTierForAccount() {
           membership: data.newMembership, // Update the tier in localStorage
         })
       );
-      alert(data.message);
-    } else {
-      alert(data.message); // Notify the user that the tier was retained
+
+      // Set modal text based on tier
+      const tierName = document.getElementById("tierName");
+      const tierDisplay = document.getElementById("tierDisplay");
+
+      if (data.newMembership === "Gold") {
+        tierName.textContent = "Gold";
+        tierDisplay.className = "tier-display gold"; // Apply Gold background
+      } else if (data.newMembership === "Silver") {
+        tierName.textContent = "Silver";
+        tierDisplay.className = "tier-display silver"; // Apply Silver background
+      } else if (data.newMembership === "Bronze") {
+        tierName.textContent = "Bronze";
+        tierDisplay.className = "tier-display bronze"; // Apply Bronze background
+      }
+
+      // Show the modal
+      $("#tierUpgradeModal").modal("show");
     }
   } catch (error) {
     console.error("Error updating Membership for account:", error);
-    alert(`Error updating Membership for account: ${error.message}`);
   }
 }
 
 
 
-//update the localstorage

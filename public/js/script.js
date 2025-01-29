@@ -65,23 +65,62 @@ function displayWelcomeMessage(firstName) {
 
 
 // Function to check and display the tier expiration message
-function displayTierExpirationMessage() {
-  const tierMessage = localStorage.getItem("tierExpirationMessage");
+// function displayTierExpirationMessage() {
+//   const tierMessage = localStorage.getItem("tierExpirationMessage");
 
-  if (tierMessage) {
-      alert(tierMessage); // Display the message as an alert (you can change this to show in the UI)
+//   if (tierMessage) {
+//       alert(tierMessage); // Display the message as an alert (you can change this to show in the UI)
       
-      // Optionally, display in a designated container instead of an alert
-      // const messageContainer = document.getElementById("membershipMessage");
-      // if (messageContainer) {
-      //     messageContainer.textContent = tierMessage;
-      //     messageContainer.style.display = "block";
-      // }
+//       // Optionally, display in a designated container instead of an alert
+//       // const messageContainer = document.getElementById("membershipMessage");
+//       // if (messageContainer) {
+//       //     messageContainer.textContent = tierMessage;
+//       //     messageContainer.style.display = "block";
+//       // }
 
-      // Remove the message from storage after displaying to avoid repeated alerts
-      localStorage.removeItem("tierExpirationMessage");
-  }
+//       // Remove the message from storage after displaying to avoid repeated alerts
+//       localStorage.removeItem("tierExpirationMessage");
+//   }
+// }
+
+// Function to check and display the tier expiration message
+function displayTierExpirationMessage() {
+    const tierMessage = localStorage.getItem("tierExpirationMessage");
+
+    if (tierMessage) {
+        // Set message text
+        document.getElementById("tierMessageText").textContent = tierMessage;
+
+        // Show modal
+        document.getElementById("tierExpirationModal").style.display = "flex";
+
+        // Remove the message from storage after displaying
+        localStorage.removeItem("tierExpirationMessage");
+
+        // Load Lottie animation
+        loadLottieAnimation();
+    }
 }
+
+// Function to Load Lottie Animation
+function loadLottieAnimation() {
+    lottie.loadAnimation({
+        container: document.getElementById("lottie-container"),
+        renderer: "svg",
+        loop: true,
+        autoplay: true,
+        path: "https://lottie.host/2660d233-559f-443b-a80d-7b874ccb1ab0/wc6fgPdfWC.lottie" // Expired warning animation
+    });
+}
+
+// Event Listeners to Close Modal
+document.querySelector(".close").addEventListener("click", function () {
+    document.getElementById("tierExpirationModal").style.display = "none";
+});
+
+document.getElementById("closeModalBtn").addEventListener("click", function () {
+    document.getElementById("tierExpirationModal").style.display = "none";
+});
 
 
 // async function checkAndResetTierForAccount(accountId) {

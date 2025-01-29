@@ -151,6 +151,76 @@
       </div>
     </div>
 
+    <!-- ✅ Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center">
+          <div class="modal-header border-0">
+            <h5 class="modal-title" id="successModalLabel">Payment Successful!</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div id="lottie-success" class="mb-3">
+              <dotlottie-player src="https://lottie.host/28b6ad99-393d-4b26-8e66-4c4e116c87d1/3lPyy49ELi.lottie" background="transparent" speed="1" style="width: 300px; height: 300px" loop autoplay></dotlottie-player>
+            </div> <!-- Lottie animation -->
+            <p>Your payment has been successfully processed.</p>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn btn-success" data-bs-dismiss="modal">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ❌ Error Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center">
+          <div class="modal-header border-0">
+            <h5 class="modal-title text-danger" id="errorModalLabel">Payment Failed</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div id="lottie-error" class="mb-3">
+              <dotlottie-player src="https://lottie.host/ca506ff1-bdac-41fe-ac19-0455ccd2385f/oPzQIgZ2jU.lottie" background="transparent" speed="1" style="width: 300px; height: 300px" loop autoplay></dotlottie-player>
+            </div> <!-- Lottie animation -->
+            <p id="errorMessage">Something went wrong. Please try again.</p>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Try Again</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tier Upgrade Modal -->
+    <div class="modal fade" id="tierUpgradeModal" tabindex="-1" aria-labelledby="tierUpgradeModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center">
+          <div class="modal-header border-0">
+            <h5 class="modal-title" id="tierUpgradeModalLabel">Membership Upgraded!</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div id="lottie-tier" class="mb-3">
+              <dotlottie-player src="https://lottie.host/d5e23155-1935-4dcf-aabc-733aaf574826/EKSfBvyrwN.lottie" background="transparent" speed="1" style="width: 300px; height: 300px" loop autoplay></dotlottie-player>
+            </div> <!-- Lottie animation -->
+          
+            <!-- Tier Name Display -->
+            <div id="tierDisplay" class="tier-display">
+              <span id="tierName"></span>
+            </div>
+
+            <p id="tierUpgradeMessage">Your membership has been successfully upgraded!</p>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
     <!-- Footer Section -->
     <footer class="bg-dark text-white">
       <div id="footer-container"></div>
@@ -161,6 +231,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
+
     <script>
       $(document).ready(function () {
         // Load external navbar and footer into the template
