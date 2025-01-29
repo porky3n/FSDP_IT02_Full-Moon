@@ -1,133 +1,216 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sign Up - Mindsphere</title>
-    
+
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="./css/userSignUp.css">
+    <link rel="stylesheet" href="./css/userSignUp.css" />
     <!-- QR Code Library -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-</head>
-<body>
+    <link rel="stylesheet" href="path/to/translate.css" />
+    <script src="./js/translate.js"></script>
+  </head>
+  <body>
     <div class="container-fluid">
-        <div class="row h-100">
-            <!-- Left Section for Sign-up Form -->
-            <div class="col-lg-6 col-md-12 left-section">
-                <!-- Back Button -->
-                <div class="position-absolute top-0 start-0 m-3">
-                    <button onclick="history.back()" class="btn btn-outline-secondary">← Back</button>
+      <div class="row h-100">
+        <!-- Left Section for Sign-up Form -->
+        <div class="col-lg-6 col-md-12 left-section">
+          <!-- Back Button -->
+          <div class="position-absolute top-0 start-0 m-3">
+            <button onclick="history.back()" class="btn btn-outline-secondary">
+              ← Back
+            </button>
+          </div>
+
+          <div class="text-center mb-4">
+            <!-- Enlarged and Centered Logo -->
+            <img
+              src="./images/mindsphere-logo.png"
+              alt="Mindsphere Logo"
+              style="height: 100px"
+            />
+          </div>
+
+          <form id="signUpForm">
+            <!-- First and Last Name -->
+            <div class="form-group">
+              <div class="row">
+                <div class="col-md-6">
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="First Name"
+                    required
+                  />
                 </div>
-
-                <div class="text-center mb-4">
-                    <!-- Enlarged and Centered Logo -->
-                    <img src="./images/mindsphere-logo.png" alt="Mindsphere Logo" style="height: 100px;">
+                <div class="col-md-6">
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Last Name"
+                    required
+                  />
                 </div>
-                
-                <form id="signUpForm">
-                    <!-- First and Last Name -->
-                    <div class="form-group">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <input type="text" class="form-control" placeholder="First Name" required>
-                            </div>
-                            <div class="col-md-6">
-                                <input type="text" class="form-control" placeholder="Last Name" required>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Email -->
-                    <div class="form-group">
-                        <input type="email" class="form-control" placeholder="Enter your email" required>
-                    </div>
-
-                    <!-- Date of Birth -->
-                    <div class="form-group input-icon">
-                        <input type="text" id="dob" class="form-control" placeholder="Date of Birth (DD/MM/YYYY)" required>
-                        <i class="fas fa-calendar-alt"></i>
-                    </div>
-
-                    <!-- Phone Number with Country Code -->
-                    <div class="form-group">
-                        <div class="input-group">
-                            <select class="form-select" id="countryCode" required>
-                                <option value="+65">+65 (Singapore)</option>
-                                <option value="+1">+1 (USA)</option>
-                                <option value="+44">+44 (UK)</option>
-                                <option value="+61">+61 (Australia)</option>
-                                <option value="+91">+91 (India)</option>
-                                <option value="+86">+86 (China)</option>
-                            </select>
-                            <input type="tel" class="form-control" placeholder="Phone number" required>
-                        </div>
-                    </div>
-
-                    <!-- Gender Selection -->
-                    <div class="form-group">
-                        <label class="gender-label">Select Gender</label>
-                        <div class="gender-buttons">
-                            <button type="button" class="btn btn-gender" data-gender="M">Male</button>
-                            <button type="button" class="btn btn-gender" data-gender="F">Female</button>
-                        </div>
-                        <input type="hidden" id="gender" name="gender" required>
-                    </div>
-
-                    <!-- Password -->
-                    <div class="form-group">
-                        <input type="password" id="password" class="form-control" placeholder="Password" required>
-                    </div>
-
-                    <!-- Confirm Password -->
-                    <div class="form-group">
-                        <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm password" required>
-                        <small id="passwordError" class="text-danger" style="display:none;">Passwords do not match.</small>
-                    </div>
-
-                    <!-- More Details -->
-                    <div class="form-group">
-                        <label for="profileDetails">Tell Us More About Yourself</label>
-                        <textarea id="profileDetails" class="form-control" placeholder="This can help us tailor personalized and interesting programs for you!" maxlength="500" rows="4"></textarea>
-                        <small id="wordCount" class="text-muted">0/100 words</small>
-                    </div>
-
-                    <!-- Agree to Terms Checkbox -->
-                    <div class="form-group form-check">
-                        <input type="checkbox" class="form-check-input" id="terms" required>
-                        <label class="form-check-label" for="terms">I agree to all the <a href="userTC.html">Terms and Privacy policy</a></label>
-                    </div>
-
-                    <!-- Telegram Section -->
-                    <div class="form-group text-center">
-                        <p>Want updates via Telegram? Join our Telegram bot and channel:</p>
-                        <div class="qr-code-section">
-                            <p>Scan the QR code to interact with our Telegram bot:</p>
-                            <div id="qrCodeContainer"></div> <!-- Use a <div> instead of <canvas> -->
-                            <p>Or click here: <a href="https://t.me/mindSphereBot" target="_blank">mindSphere Bot</a></p>
-                        </div>                        
-                    </div>                    
-
-                    <!-- Submit Button -->
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-signup">Sign Up</button>
-                    </div>
-
-                    <!-- Already have an account -->
-                    <div class="text-center already-have-account">
-                        Already have an account? <a href="userSignIn.html">Sign in now</a>
-                    </div>
-                </form>
+              </div>
             </div>
 
-            <!-- Right Section with Image -->
-            <div class="col-lg-6 col-md-12 right-section">
-                <h2>Where Learning <br> Meets Achievement</h2>
-                <img src="./images/founders.png" alt="Founders">
+            <!-- Email -->
+            <div class="form-group">
+              <input
+                type="email"
+                class="form-control"
+                placeholder="Enter your email"
+                required
+              />
             </div>
+
+            <!-- Date of Birth -->
+            <div class="form-group input-icon">
+              <input
+                type="text"
+                id="dob"
+                class="form-control"
+                placeholder="Date of Birth (DD/MM/YYYY)"
+                required
+              />
+              <i class="fas fa-calendar-alt"></i>
+            </div>
+
+            <!-- Phone Number with Country Code -->
+            <div class="form-group">
+              <div class="input-group">
+                <select class="form-select" id="countryCode" required>
+                  <option value="+65">+65 (Singapore)</option>
+                  <option value="+1">+1 (USA)</option>
+                  <option value="+44">+44 (UK)</option>
+                  <option value="+61">+61 (Australia)</option>
+                  <option value="+91">+91 (India)</option>
+                  <option value="+86">+86 (China)</option>
+                </select>
+                <input
+                  type="tel"
+                  class="form-control"
+                  placeholder="Phone number"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Gender Selection -->
+            <div class="form-group">
+              <label class="gender-label">Select Gender</label>
+              <div class="gender-buttons">
+                <button type="button" class="btn btn-gender" data-gender="M">
+                  Male
+                </button>
+                <button type="button" class="btn btn-gender" data-gender="F">
+                  Female
+                </button>
+              </div>
+              <input type="hidden" id="gender" name="gender" required />
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+              <input
+                type="password"
+                id="password"
+                class="form-control"
+                placeholder="Password"
+                required
+              />
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="form-group">
+              <input
+                type="password"
+                id="confirmPassword"
+                class="form-control"
+                placeholder="Confirm password"
+                required
+              />
+              <small
+                id="passwordError"
+                class="text-danger"
+                style="display: none"
+                >Passwords do not match.</small
+              >
+            </div>
+
+            <!-- More Details -->
+            <div class="form-group">
+              <label for="profileDetails">Tell Us More About Yourself</label>
+              <textarea
+                id="profileDetails"
+                class="form-control"
+                placeholder="This can help us tailor personalized and interesting programs for you!"
+                maxlength="500"
+                rows="4"
+              ></textarea>
+              <small id="wordCount" class="text-muted">0/100 words</small>
+            </div>
+
+            <!-- Agree to Terms Checkbox -->
+            <div class="form-group form-check">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                id="terms"
+                required
+              />
+              <label class="form-check-label" for="terms"
+                >I agree to all the
+                <a href="userTC.html">Terms and Privacy policy</a></label
+              >
+            </div>
+
+            <!-- Telegram Section -->
+            <div class="form-group text-center">
+              <p>
+                Want updates via Telegram? Join our Telegram bot and channel:
+              </p>
+              <div class="qr-code-section">
+                <p>Scan the QR code to interact with our Telegram bot:</p>
+                <div id="qrCodeContainer"></div>
+                <!-- Use a <div> instead of <canvas> -->
+                <p>
+                  Or click here:
+                  <a href="https://t.me/mindSphereBot" target="_blank"
+                    >mindSphere Bot</a
+                  >
+                </p>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-group">
+              <button type="submit" class="btn btn-signup">Sign Up</button>
+            </div>
+
+            <!-- Already have an account -->
+            <div class="text-center already-have-account">
+              Already have an account? <a href="userSignIn.html">Sign in now</a>
+            </div>
+          </form>
         </div>
+
+        <!-- Right Section with Image -->
+        <div class="col-lg-6 col-md-12 right-section">
+          <h2>
+            Where Learning <br />
+            Meets Achievement
+          </h2>
+          <img src="./images/founders.png" alt="Founders" />
+        </div>
+      </div>
     </div>
 
     <!-- FontAwesome Icons -->
@@ -137,6 +220,5 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
     <!-- Custom JS for Validation and QR Code -->
     <script src="./js/userSignUp.js"></script>
-    
-</body>
+  </body>
 </html>
