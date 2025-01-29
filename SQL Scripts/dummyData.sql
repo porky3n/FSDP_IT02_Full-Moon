@@ -44,9 +44,9 @@ VALUES
 INSERT INTO TierCriteria (Tier, MinPurchases, TierDuration, TierDiscount, Special)
 VALUES 
 ('Non-Membership', 0, 0, 0.00, FALSE), -- Default tier with no benefits
-('Bronze', 2, 30, 5.00, FALSE),       -- Requires 5 purchases, 5% discount, valid for 30 days
-('Silver', 10, 90, 10.00, TRUE),      -- Requires 10 purchases, 10% discount, valid for 90 days, with special benefits
-('Gold', 20, 180, 20.00, TRUE);       -- Requires 20 purchases, 20% discount, valid for 180 days, with special benefits
+('Bronze', 1, 30, 5.00, FALSE),       -- Requires 5 purchases, 5% discount, valid for 30 days
+('Silver', 2, 90, 10.00, TRUE),      -- Requires 10 purchases, 10% discount, valid for 90 days, with special benefits
+('Gold', 5, 180, 20.00, TRUE);       -- Requires 20 purchases, 20% discount, valid for 180 days, with special benefits
 
 -- Insert data into Parent table
 INSERT INTO Parent (AccountID, FirstName, LastName, DateOfBirth, Gender, ContactNumber, Membership, StartDate, Dietary, ProfilePicture, ProfileDetails)
