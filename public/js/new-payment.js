@@ -51,7 +51,7 @@ async function fetchProgrammeCartDetails() {
     const dateData = await datesResponse.json();
 
     console.log("coursePrice:", document.getElementById("coursePrice"));
-
+    // console.log("cart response at new-payment.js:", cartData);
     // Update the summary box with programme details and dates
     updateSummary(cartData, dateData);
 
@@ -78,7 +78,8 @@ async function updateSummary(data, dates) {
   const userDetails = JSON.parse(userDetailsString);
   const userMembership = userDetails?.membership || "Non-Membership";
 
-  const programmeName = data.programmeName;
+  // const programmeName = data.programmeName;
+  programmeName = data.programmeName;
   const originalFee = parseFloat(data.originalFee);
   const discountType = data.discountType || "No discount available";
   const discountAmount = data.discountValue ? parseFloat(data.discountValue) : 0;
