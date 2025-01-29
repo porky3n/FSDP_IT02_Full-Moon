@@ -104,37 +104,74 @@ class Payment {
             WHERE AccountID = ?;
         `;
 
+    // User restars at gold if he was at gold
+    // const updateTierQuery = `
+    //         UPDATE Parent
+    //         SET 
+    //             StartDate = CASE 
+    //                 WHEN Membership = (
+    //                     SELECT t.Tier
+    //                     FROM TierCriteria t
+    //                     WHERE t.MinPurchases <= ?
+    //                     ORDER BY t.MinPurchases DESC
+    //                     LIMIT 1
+    //                 ) THEN CURRENT_DATE
+    //                 ELSE StartDate
+    //             END,
+    //             Membership = CASE 
+    //                 WHEN Membership <> (
+    //                     SELECT t.Tier
+    //                     FROM TierCriteria t
+    //                     WHERE t.MinPurchases <= ?
+    //                     ORDER BY t.MinPurchases DESC
+    //                     LIMIT 1
+    //                 ) THEN (
+    //                     SELECT t.Tier
+    //                     FROM TierCriteria t
+    //                     WHERE t.MinPurchases <= ?
+    //                     ORDER BY t.MinPurchases DESC
+    //                     LIMIT 1
+    //                 )
+    //                 ELSE Membership
+    //             END
+    //         WHERE AccountID = ?;
+    //     `;
+
+    console.log("accountID from payment.js:", accountID);
+    // user restarts from bronze if he was at gold
     const updateTierQuery = `
-            UPDATE Parent
-            SET 
-                StartDate = CASE 
-                    WHEN Membership = (
-                        SELECT t.Tier
-                        FROM TierCriteria t
-                        WHERE t.MinPurchases <= ?
-                        ORDER BY t.MinPurchases DESC
-                        LIMIT 1
-                    ) THEN CURRENT_DATE
-                    ELSE StartDate
-                END,
-                Membership = CASE 
-                    WHEN Membership <> (
-                        SELECT t.Tier
-                        FROM TierCriteria t
-                        WHERE t.MinPurchases <= ?
-                        ORDER BY t.MinPurchases DESC
-                        LIMIT 1
-                    ) THEN (
-                        SELECT t.Tier
-                        FROM TierCriteria t
-                        WHERE t.MinPurchases <= ?
-                        ORDER BY t.MinPurchases DESC
-                        LIMIT 1
-                    )
-                    ELSE Membership
-                END
-            WHERE AccountID = ?;
-        `;
+      UPDATE Parent
+      SET 
+          StartDate = CASE 
+              WHEN Membership = 'Non-Membership' THEN CURRENT_DATE -- Reset start date when rejoining
+              WHEN Membership = (
+                  SELECT t.Tier
+                  FROM TierCriteria t
+                  WHERE t.MinPurchases <= ?
+                  ORDER BY t.MinPurchases DESC
+                  LIMIT 1
+              ) THEN StartDate
+              ELSE CURRENT_DATE
+          END,
+          Membership = CASE 
+              WHEN Membership = 'Non-Membership' THEN 'Bronze' -- Restart from Bronze if previously Non-Membership
+              WHEN Membership <> (
+                  SELECT t.Tier
+                  FROM TierCriteria t
+                  WHERE t.MinPurchases <= ?
+                  ORDER BY t.MinPurchases DESC
+                  LIMIT 1
+              ) THEN (
+                  SELECT t.Tier
+                  FROM TierCriteria t
+                  WHERE t.MinPurchases <= ?
+                  ORDER BY t.MinPurchases DESC
+                  LIMIT 1
+              )
+              ELSE Membership
+          END
+      WHERE AccountID = ?;
+      `;
 
     try {
       // Step 1: Get the number of purchases
