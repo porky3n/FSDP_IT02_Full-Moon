@@ -67,87 +67,103 @@ async function fetchProgrammeCartDetails() {
  * @param {Object} data - Programme cart data returned from server
  * @param {Object} dates - Start and end dates for the programme schedule
  */
-function updateSummary(data, dates) {
+async function updateSummary(data, dates) {
   console.log("Programme cart data:", data);
   console.log("Programme schedule dates:", dates);
 
   console.log("coursePrice:", document.getElementById("coursePrice"));
-  console.log("coursePrice:", document.getElementById("coursePrice"));
 
-  programmeName = data.programmeName;
-  // programmeDescription = data.programmeDescription;
+  const userDetailsString = localStorage.getItem("userDetails");
+  console.log("userDetailsString:", userDetailsString);
+  const userDetails = JSON.parse(userDetailsString);
+  const userMembership = userDetails?.membership || "Non-Membership";
+
+  const programmeName = data.programmeName;
   const originalFee = parseFloat(data.originalFee);
   const discountType = data.discountType || "No discount available";
-  const discountAmount = data.discountValue
-    ? parseFloat(data.discountValue)
-    : 0;
-  const discountedFee = data.discountedFee
-    ? parseFloat(data.discountedFee)
-    : originalFee;
+  const discountAmount = data.discountValue ? parseFloat(data.discountValue) : 0;
+  let discountedFee = data.discountedFee ? parseFloat(data.discountedFee) : originalFee;
   const discountValue = originalFee - discountedFee;
   const promotionName = data.promotionName || "No promotion available";
 
-  // Set the payment amount to the discounted fee if available, otherwise to the original fee
-  paymentAmount = discountedFee;
+  let finalFee = discountedFee;
 
   // Update course name
   document.getElementById("courseName").firstChild.textContent = programmeName;
 
   // Update original price
-  document.getElementById(
-    "originalPrice"
-  ).textContent = `SGD ${originalFee.toFixed(2)}`;
-  document.getElementById(
-    "coursePrice"
-  ).textContent = `SGD ${originalFee.toFixed(2)}`;
+  document.getElementById("originalPrice").textContent = `SGD ${originalFee.toFixed(2)}`;
+  document.getElementById("coursePrice").textContent = `SGD ${originalFee.toFixed(2)}`;
 
   // Display discount section if there is a discount
   if (discountedFee < originalFee) {
     document.getElementById("discountSection").style.display = "block";
-    document.getElementById(
-      "discountLabel"
-    ).firstChild.textContent = `Discount (${promotionName}) `;
-    console.log(discountType);
+    document.getElementById("discountLabel").firstChild.textContent = `Discount (${promotionName}) `;
+
     if (discountType === "Percentage") {
-      document.getElementById(
-        "discountAmount"
-      ).textContent = `(${discountAmount}%)`;
+      document.getElementById("discountAmount").textContent = `(${discountAmount}%)`;
     } else {
       document.getElementById("discountAmount").textContent = null;
     }
-    document.getElementById(
-      "discountedPrice"
-    ).textContent = `SGD ${discountValue.toFixed(2)}`;
 
-    // Update total price (1)
-    // document.getElementById("totalPrice").textContent = `$${discountedFee.toFixed(2)}`;
+    document.getElementById("discountedPrice").textContent = `SGD ${discountValue.toFixed(2)}`;
   } else {
-    // Hide discount section if no discount
     document.getElementById("discountSection").classList.add("d-none");
   }
-  document.getElementById(
-    "subtotal"
-  ).textContent = `SGD ${discountedFee.toFixed(2)}`;
-  document.getElementById("total").textContent = `SGD ${discountedFee.toFixed(
-    2
-  )}`;
-  paymentAmount = discountedFee.toFixed(2);
-  console.log("discountedFee:", discountedFee.toFixed(2));
 
-  // Update total price (2)
-  // document.getElementById("totalPrice").textContent = `$${discountedFee.toFixed(2)}`;
+  // Apply Membership Discount if applicable
+  if (userMembership !== "Non-Membership") {
+    try {
+      const membershipDiscount = await fetchTierDiscount(userMembership);
+      console.log("Membership Discount:", membershipDiscount);
 
-  // Create payment intent with the discounted fee (Using stripe)
-  // createPaymentIntent(paymentAmount);
+      if (membershipDiscount > 0) {
+        const membershipDiscountAmount = (discountedFee * membershipDiscount) / 100;
+        finalFee -= membershipDiscountAmount;
+
+        console.log("Membership Discount Amount:", membershipDiscountAmount);
+        // Update Membership Discount Section
+        document.getElementById("membershipDiscountLabel").style.display = "block";
+        document.getElementById("membershipDiscountLabel").innerHTML = `Membership Discount: ${userMembership} (${parseInt(membershipDiscount)}%) <span id="membershipDiscountAmount" class="float-end">SGD ${membershipDiscountAmount.toFixed(2)}</span>`;
+
+      }
+    } catch (error) {
+      console.error("Error fetching membership discount:", error);
+    }
+  }
+  else {
+    document.getElementById("membershipDiscountLabel").classList.add("d-none");
+  }
+  
+
+  // Update subtotal and total
+  document.getElementById("subtotal").textContent = `SGD ${finalFee.toFixed(2)}`;
+  document.getElementById("total").textContent = `SGD ${finalFee.toFixed(2)}`;
+  paymentAmount = finalFee.toFixed(2);
+  console.log("Final Fee after membership discount:", finalFee.toFixed(2));
+
+  // Initialize Stripe
+  initializeStripe();
 
   // Display start and end dates
   startDate = new Date(dates.firstStartDate).toLocaleDateString();
   endDate = new Date(dates.lastEndDate).toLocaleDateString();
-
-  initializeStripe();
-  // document.getElementById("startDate").textContent = startDate;
-  // document.getElementById("endDate").textContent = endDate;
 }
+
+
+// Create a function to fetch from TierCriteria Table on the TierDiscount
+async function fetchTierDiscount(tier) {
+  try {
+      const response = await fetch(`/api/tier/tier-discount/${tier}`);
+      const data = await response.json();
+      return data.discount || 0;
+  } catch (error) {
+      console.error("Error fetching tier discount:", error);
+      return 0;
+  }
+}
+
+
 
 /**
  * Function to create a slot, and upon success redirect to payment receipt page
@@ -201,6 +217,7 @@ async function createSlot() {
   const userDetailsString = localStorage.getItem("userDetails");
   const userDetails = JSON.parse(userDetailsString);
   const userEmail = userDetails.email;
+  const userMembership = userDetails.membership;
   accountId = userDetails.accountId;
 
   // Prepare slot data object
@@ -258,19 +275,20 @@ const stripe = Stripe(
 );
 
 // Promotion code
-const addPromotionLink = document.getElementById("addPromotionLink");
+// const addPromotionLink = document.getElementById("addPromotionLink");
 const promotionInput = document.getElementById("promotionInput");
 const promotionInputField = document.getElementById("promotion-input-field");
 
-addPromotionLink.addEventListener("click", function (e) {
-  e.preventDefault();
-  addPromotionLink.style.opacity = "0";
-  setTimeout(() => {
-    addPromotionLink.style.display = "none";
-    promotionInput.classList.add("show");
-    promotionInputField.focus();
-  }, 0);
-});
+// Add promotion link
+// addPromotionLink.addEventListener("click", function (e) {
+//   e.preventDefault();
+//   addPromotionLink.style.opacity = "0";
+//   setTimeout(() => {
+//     addPromotionLink.style.display = "none";
+//     promotionInput.classList.add("show");
+//     promotionInputField.focus();
+//   }, 0);
+// });
 
 document.addEventListener("click", function (e) {
   if (!promotionInput.contains(e.target) && e.target !== addPromotionLink) {

@@ -33,10 +33,15 @@
                 <hr>
                 <div id="discountSection" class="discount-section">
                     <p id="discountLabel" class="discount-label">Discount <span id="discountAmount">(10%)</span><span id="discountedPrice" class="float-end">SGD 1,000.00</span></p>
+                    
+                    <!-- Membership Discount (Inside the Same Section) -->
+                    <p id="membershipDiscountLabel" class="discount-label">
+                      Membership Discount <span id="membershipDiscountAmount" class="float-end">SGD 0.00</span>
+                    </p>
                     <hr>
                 </div>
                 <p class="subtotal">Subtotal<span id="subtotal" class="float-end">SGD 1,000.00</span></p>
-                <p class="promotion-link mt-3" id="addPromotionLink">Add promotion code</p>
+                <!-- <p class="promotion-link mt-3" id="addPromotionLink">Add promotion code</p> -->
                 <div class="promotion-input mt-3" id="promotionInput">
                     <input id="promotion-input-field" type="text" class="form-control" placeholder="Add promotion code">
                     <button type="button" class="apply-btn" id="applyButton">Apply</button>
@@ -46,6 +51,9 @@
                 <p class="total">Total <span id="total" class="float-end">SGD 1,000.00</span></p>
             </div>
         </div>
+
+        
+      
 
         <div class="form-container">
             <div class="form-group">

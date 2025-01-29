@@ -1,5 +1,19 @@
 const Tier = require("../../../models/tier");
 
+const getTierDiscount = async (req, res) => {
+  try {
+      const { tier } = req.params; // Extract tier from request URL
+      if (!tier) return res.status(400).json({ error: "Tier is required." });
+
+      const discount = await Tier.getTierDiscount(tier);
+      res.json({ tier, discount });
+  } catch (error) {
+      console.error("Error fetching tier discount:", error);
+      res.status(500).json({ error: "Internal server error." });
+  }
+};
+
+
 const checkAndResetMembershipForAccount = async (req, res) => {
     const { accountId } = req.params;
   
@@ -14,5 +28,6 @@ const checkAndResetMembershipForAccount = async (req, res) => {
 };
 
 module.exports = {
+    getTierDiscount,
     checkAndResetMembershipForAccount
 };
