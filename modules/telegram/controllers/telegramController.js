@@ -724,6 +724,161 @@ const unrestrictUser = async (chatId, userId) => {
     }
 };
 
+
+// for chatbot
+const moment = require('moment-timezone');
+const ChatDataModel = require('../../../models/chatbot'); // Adjust this path based on your project structure
+const faqs = require('../../../modules/chatbot/data/faqs'); // Adjust this path based on your project structure
+
+const userSessions = {}; // Stores session history
+
+bot.on('message', async (msg) => {
+  const chatId = msg.chat.id;
+  const userMessage = msg.text;
+
+  // Check if the message starts with "/chatbot"
+  if (!userMessage.startsWith('/chatbot ')) {
+      return; // Ignore messages that do not start with "/chatbot"
+  }
+
+  const userPrompt = userMessage.replace('/chatbot ', '').trim(); // Extract actual user message
+
+  try {
+      // Fetch structured data and predefined context
+      const chatData = await ChatDataModel.getStructuredProgramData();
+      const dataSummary = JSON.stringify(chatData, null, 2);
+
+      const currentDate = moment().tz('Asia/Singapore').format('MMMM D, YYYY');
+
+      const storedPrompt = ChatDataModel.getChatPrompt('ChatbotUser');
+
+      const systemPrompt = `
+          ${storedPrompt}
+          Provided Information:
+          Current Date: ${currentDate}.
+          Company Overview: ${JSON.stringify(mindSphereData.companyOverview)}
+          Contact Information: ${JSON.stringify(mindSphereData.contact)}
+          FAQs: ${JSON.stringify(faqs)}
+          Database Context: ${dataSummary}
+      `;
+
+      // Create message sequence for OpenAI API
+      const messages = [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+      ];
+
+      // Call OpenAI API
+      const response = await openai.chat.completions.create({
+          model: 'gpt-4o-mini',
+          messages: messages,
+      });
+
+      const botReply = response.choices[0].message.content.trim();
+
+      const formattedReply = markdownToTelegram(botReply);
+      bot.sendMessage(chatId, formattedReply, { parse_mode: 'Markdown' });
+
+      // Send response to the user
+      // bot.sendMessage(chatId, botReply);
+  } catch (error) {
+      console.error('Error processing Telegram bot request:', error);
+      bot.sendMessage(chatId, 'An error occurred while processing your request.');
+  }
+});
+
+function markdownToTelegram(markdown) {
+  return markdown
+      .replace(/###### (.*?)\n/g, '*$1*')   // H6 -> Bold
+      .replace(/##### (.*?)\n/g, '*$1*')   // H5 -> Bold
+      .replace(/#### (.*?)\n/g, '*$1*')    // H4 -> Bold
+      .replace(/### (.*?)\n/g, '*$1*')     // H3 -> Bold
+      .replace(/## (.*?)\n/g, '*$1*')      // H2 -> Bold
+      .replace(/# (.*?)\n/g, '*$1*')       // H1 -> Bold
+      .replace(/\*\*(.*?)\*\*/g, '*$1*')   // Bold
+      .replace(/\*(.*?)\*/g, '_$1_')       // Italics
+      .replace(/`(.*?)`/g, '`$1`')         // Inline code
+      .replace(/\[(.*?)\]\((.*?)\)/g, '[$1]($2)') // Links
+      .replace(/^- (.*?)(\n|$)/gm, '• $1\n'); // Bullet points
+}
+
+
+// user session
+// bot.on('message', async (msg) => {
+//     const chatId = msg.chat.id;
+//     const userMessage = msg.text;
+
+//     // Check if the message starts with "/chatbot"
+//     if (!userMessage.startsWith('/chatbot ')) {
+//         return; // Ignore messages that do not start with "/chatbot"
+//     }
+
+//     const userPrompt = userMessage.replace('/chatbot ', '').trim(); // Extract actual user message
+
+//     // Initialize session if not existing
+//     if (!userSessions[chatId]) {
+//         userSessions[chatId] = {
+//             hasStarted: false,
+//             chatHistory: []
+//         };
+//     }
+
+//     let messages = [];
+ 
+//     if (!userSessions[chatId].hasStarted) {
+//         const chatData = await ChatDataModel.getStructuredProgramData();
+//         const dataSummary = JSON.stringify(chatData, null, 2);
+//         console.log('Database context:', dataSummary);
+
+//         const currentDate = moment().tz('Asia/Singapore').format('MMMM D, YYYY');
+//         console.log(currentDate);
+
+//         const storedPrompt = ChatDataModel.getChatPrompt('ChatbotUser');
+//         console.log(storedPrompt);
+
+//         const prePrompt = `
+//             ${storedPrompt}
+//             Provided Information:
+//             Current Date: ${currentDate}.
+//             Company Overview: ${JSON.stringify(mindSphereData.companyOverview)}
+//             Contact Information: ${JSON.stringify(mindSphereData.contact)}
+//             FAQs: ${JSON.stringify(faqs)}
+//             Database Context: ${dataSummary}
+//         `;
+
+//         messages.push({ role: 'system', content: prePrompt });
+//         userSessions[chatId].hasStarted = true;
+//     } else {
+//         messages = userSessions[chatId].chatHistory;
+//     }
+
+//     messages.push({ role: 'user', content: userPrompt });
+
+//     try {
+//         const response = await openai.chat.completions.create({
+//             model: 'gpt-4o-mini',
+//             messages: messages,
+//         });
+
+//         console.log('OpenAI response:', response.choices);
+//         const botReply = response.choices[0].message.content.trim();
+
+//         // Save chat history
+//         userSessions[chatId].chatHistory.push({ role: 'user', content: userPrompt });
+//         userSessions[chatId].chatHistory.push({ role: 'assistant', content: botReply });
+
+//         const MAX_HISTORY_LENGTH = 10;
+//         if (userSessions[chatId].chatHistory.length > MAX_HISTORY_LENGTH) {
+//             userSessions[chatId].chatHistory = userSessions[chatId].chatHistory.slice(-MAX_HISTORY_LENGTH);
+//         }
+
+//         bot.sendMessage(chatId, botReply);
+//     } catch (error) {
+//         console.error('Error processing Telegram bot request:', error);
+//         bot.sendMessage(chatId, 'An error occurred while processing your request.');
+//     }
+// });
+
 // Export the functions
 module.exports = {
   getUserMessage,
