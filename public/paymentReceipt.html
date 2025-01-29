@@ -11,6 +11,8 @@
     <!-- <link href="/css/paymentReceipt.css" rel="stylesheet" /> -->
     <link rel="stylesheet" href="./css/navbar.css" />
     <link rel="stylesheet" href="./css/footer.css" />
+    <link rel="stylesheet" href="path/to/translate.css" />
+    <script src="./js/translate.js"></script>
     <style>
       /* Global Reset */
       * {
@@ -115,7 +117,7 @@
         justify-content: space-between;
         align-items: center;
       }
-      
+
       .text-end {
         text-align: right;
         padding-right: 1rem;
@@ -164,7 +166,6 @@
         margin-bottom: 0.5rem;
         text-align: right;
       }
-
     </style>
   </head>
   <body>
@@ -206,7 +207,8 @@
           </div>
 
           <div class="table-row">
-            <div class="col-6">{{programmeName}}
+            <div class="col-6">
+              {{programmeName}}
               <div class="programmeDate">
                 <p>{{startDate}} - {{endDate}}</p>
               </div>
@@ -244,15 +246,12 @@
     </div>
 
     <script>
-      $(document).ready(function() {
-          // Load external navbar and footer into the template
-          $("#navbar-container").load("navbar.html");
-          $("#footer-container").load("footer.html");
+      $(document).ready(function () {
+        // Load external navbar and footer into the template
+        $("#navbar-container").load("navbar.html");
+        $("#footer-container").load("footer.html");
       });
     </script>
     <script src="/js/paymentReceipt.js"></script>
-
   </body>
-
-  
 </html>

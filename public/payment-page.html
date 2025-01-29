@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="./css/navbar.css" />
     <link rel="stylesheet" href="./css/footer.css" />
     <script src="https://js.stripe.com/v3/"></script>
+    <link rel="stylesheet" href="path/to/translate.css" />
+    <script src="./js/translate.js"></script>
   </head>
   <body>
     <!-- Navbar Section -->
@@ -29,16 +31,16 @@
                 <span class="payment-title">PAY</span>
                 <span class="payment-title-accent">NOW</span>
               </h2>
-    
+
               <p class="text-center mb-4">Scan the QR code to pay</p>
-    
+
               <div class="row">
                 <div class="col-md-6">
                   <div class="qr-container">
                     <div id="qrcode"></div>
                   </div>
                 </div>
-    
+
                 <div class="col-md-6">
                   <div class="summary-box">
                     <h5 class="summary-title">Summary</h5>
@@ -46,12 +48,13 @@
                       <span>Course</span>
                       <span id="courseName">Public Speaking</span>
                     </div>
-                    
+
                     <!-- Start and End Date -->
                     <div class="summary-item" id="StartEndDateSection">
                       <span>Dates</span>
                       <div>
-                        <span id="startDate" class="date-text">Start Date</span> - 
+                        <span id="startDate" class="date-text">Start Date</span>
+                        -
                         <span id="endDate" class="date-text">End Date</span>
                       </div>
                     </div>
@@ -61,19 +64,19 @@
                       <span>Price</span>
                       <span id="originalPrice">$120</span>
                     </div>
-    
+
                     <!-- Discount Section (Hidden by Default) -->
                     <div class="summary-item d-none" id="discountSection">
                       <span id="discountLabel">Discount</span>
                       <span id="discountAmount">-$0.00</span>
                     </div>
-    
+
                     <!-- Total Section -->
                     <div class="total-section">
                       <span>Total</span>
                       <span id="totalPrice">$120</span>
                     </div>
-    
+
                     <!-- File Upload and Buttons -->
                     <!-- <div class="custom-file-upload mt-3">
                       <label for="uploadImageButton" class="btn btn-outline-primary w-100">Upload Payment Confirmation</label>
@@ -94,7 +97,7 @@
                     >
                       Image has been uploaded
                     </div> -->
-    
+
                     <!-- <button
                       class="btn btn-secondary btn-print-receipt w-100 mt-3" 
                       onclick="printReceipt()"
@@ -105,7 +108,7 @@
 
                     <button
                       id="payNowButton"
-                      class="btn btn-secondary btn-confirm-pay w-100 mt-3" 
+                      class="btn btn-secondary btn-confirm-pay w-100 mt-3"
                     >
                       Confirm Payment
                     </button>
@@ -117,9 +120,8 @@
         </div>
       </div>
     </div>
-    
 
-     <!-- Modal for Image Preview -->
+    <!-- Modal for Image Preview -->
     <!-- <div
      class="modal fade"
      id="imagePreviewModal"
@@ -144,7 +146,7 @@
        </div>
      </div>
    </div> -->
-   
+
     <!-- Footer Section -->
     <footer class="bg-dark text-white mt-5">
       <div id="footer-container"></div>
