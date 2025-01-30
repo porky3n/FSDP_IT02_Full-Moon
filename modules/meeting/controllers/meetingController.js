@@ -1,5 +1,5 @@
 const Meeting = require("../../../models/meeting");
-
+const telegramController = require("../../telegram/controllers/telegramController");
 // const getMeetingById = async (req, res) => {
 //     const { id } = req.params;
 
@@ -40,6 +40,7 @@ const createMeeting = async (req, res) => {
     try {
       const result = await Meeting.createMeeting(programmeClassID, endDateTime, instanceID);
       res.status(200).json(result);
+      telegramController.bot.
     } catch (error) {
       console.error("Error in creating/updating meeting:", error.message);
       res.status(500).json({ message: error.message });
