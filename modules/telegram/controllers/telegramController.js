@@ -28,6 +28,8 @@ const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, botOptions);
 const CHANNEL_ID = process.env.CHANNEL_ID; // Telegram Channel ID
 const GROUP_ID = process.env.GROUP_ID; // Telegram Group ID
 
+const CHANNEL_INVITE = "https://t.me/+v9L7dYxugbQwYzI1"
+
 // Log errors
 // bot.on("polling_error", (error) => {
 //   console.error("Polling error:", error);
@@ -85,8 +87,8 @@ bot.onText(/\/start/, async (msg) => {
       bot.sendMessage(
         chatId,
         `🎉 *Great! Now join our official Telegram communities:*\n\n` +
-        `🔹 [Join Our Channel](https://t.me/${CHANNEL_ID})\n` +
-        `🔹 [Join Our Group](https://t.me/${GROUP_ID})\n\n` +
+        `🔹 [Join Our Channel](${CHANNEL_INVITE})\n`+
+        `🔹 [Join Our Group](https://t.me/${process.env.SEND_GROUP_ID})\n\n` +
         `⚠️ *Once you've joined, type* /confirm *to verify your membership.*`
       );
     } catch (error) {
@@ -158,6 +160,15 @@ bot.onText(/\/confirm/, async (msg) => {
 //     bot.sendMessage(chatId, "An error occurred. Please try again later.");
 //   }
 // });
+
+const sendTelegramMessage = async (chatId, message) => {
+  try {
+      await bot.sendMessage(chatId, message, { parse_mode: "Markdown" });
+      console.log(`Sent message to Telegram user: ${chatId}`);
+  } catch (error) {
+      console.error(`Error sending message to Telegram user ${chatId}:`, error.message);
+  }
+};
 
 // Create a clickable location link
 const createLocationLink = (location) => {
@@ -900,5 +911,6 @@ module.exports = {
   getUserMessage,
   sendProgramme,
   bot,
-  initBot
+  initBot,
+  sendTelegramMessage
 };
