@@ -22,7 +22,9 @@ const openai = new OpenAI({
 
 // Telegram Bot Setup
 const TelegramBot = require("node-telegram-bot-api");
-const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
+const isProduction = process.env.NODE_ENV === "production";
+const botOptions = isProduction ? { webHook: { port: process.env.PORT || 3000 } } : { polling: true };
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, botOptions);
 const CHANNEL_ID = process.env.CHANNEL_ID; // Telegram Channel ID
 const GROUP_ID = process.env.GROUP_ID; // Telegram Group ID
 
@@ -30,6 +32,16 @@ const GROUP_ID = process.env.GROUP_ID; // Telegram Group ID
 // bot.on("polling_error", (error) => {
 //   console.error("Polling error:", error);
 // });
+
+// **Webhook Setup for Railway**
+if (isProduction) {
+  const WEBHOOK_URL = `https://${process.env.RAILWAY_DOMAIN}/bot${process.env.TELEGRAM_BOT_TOKEN}`;
+  bot.setWebHook(WEBHOOK_URL);
+  app.use(bot.webhookCallback(`/bot${process.env.TELEGRAM_BOT_TOKEN}`));
+  console.log("Running in Webhook mode (Railway)");
+} else {
+  console.log("Running in Polling mode (Local)");
+}
 
 // Delete expired Telegram IDs from the database
 cron.schedule("0 0 * * *", async () => { // Every midnight
