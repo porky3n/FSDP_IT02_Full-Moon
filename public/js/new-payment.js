@@ -89,8 +89,11 @@ async function updateSummary(data, dates) {
 
   let finalFee = discountedFee;
 
+  console.log("data", data);
+
   // Update course name
   document.getElementById("courseName").firstChild.textContent = programmeName;
+  document.getElementById("courseDetails").textContent = data.description;
 
   // Update original price
   document.getElementById("originalPrice").textContent = `SGD ${originalFee.toFixed(2)}`;
