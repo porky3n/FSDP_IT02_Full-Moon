@@ -1,6 +1,53 @@
 const pool = require("../../dbConfig");
 const fs = require("fs");
 
+
+// Utility function to convert binary images to Base64
+const base64ToString = (base64) => {
+  return Buffer.from(base64, 'base64').toString('utf-8');
+};
+
+const convertToBase64 = (parent) => {
+  console.log("Parent profile picture:", parent);
+  if (parent.ProfilePicture instanceof Buffer) {
+      parent.ProfilePicture = `data:image/jpeg;base64,${parent.ProfilePicture.toString('base64')}`;
+
+      let profilePictureBase64 = parent.ProfilePicture.toString('base64');
+      let profilePictureDecoded = base64ToString(profilePictureBase64);
+
+      console.log("profile picture base64", profilePictureBase64);
+      if (profilePictureDecoded.includes('private-images')) {
+          // Remove the "data:image/jpeg;base64," prefix
+          let cleanedProfilePictureBase64 = profilePictureBase64.replace('data:image/jpeg;base64,', '');
+          let cleanedProfilePictureDecoded = base64ToString(cleanedProfilePictureBase64);
+
+          console.log("profile picture decoded: ", cleanedProfilePictureDecoded);  
+          parent.ProfilePicture = cleanedProfilePictureDecoded;  
+
+          // parent.profilePicture = path.join(__dirname, "../", "../", cleanedProfilePictureDecoded);
+          console.log("profile picture path", parent.ProfilePicture);
+
+          console.log("profile picture.", parent.ProfilePicture);
+      }
+      else {
+          console.log("profile picture base64: ", parent.ProfilePicture);
+      }
+  }
+  else {
+    console.log("profile picture base64: ", parent.ProfilePicture);
+  }
+
+  // if (parent.images) {
+  //     console.log("RUNNINGGGG");
+  //     parent.images = parent.images.map(image =>
+  //         image instanceof Buffer ? `data:image/jpeg;base64,${image.toString('base64')}` : image
+  //     );
+  // }
+  return parent;
+};
+
+
+
 exports.getProfile = async (req, res) => {
   const accountId = req.session.accountId || req.query.accountId;
 
@@ -33,10 +80,11 @@ exports.getProfile = async (req, res) => {
       return res.status(404).json({ message: "Profile not found" });
     }
 
-    const profile = rows[0];
-    if (profile.ProfilePicture) {
-      profile.ProfilePicture = `data:image/jpeg;base64,${profile.ProfilePicture.toString("base64")}`;
-    }
+    // const profile = rows[0];
+    // if (profile.ProfilePicture) {
+    //   profile.ProfilePicture = `data:image/jpeg;base64,${profile.ProfilePicture.toString("base64")}`;
+    // }
+    const profile = convertToBase64(rows[0]); // Apply base64 conversion
 
     console.log("Profile being sent:", profile); // Debug log
     res.json(profile);
@@ -166,14 +214,16 @@ exports.getProfilesByAccountId = async (req, res) => {
     }
 
     // Get the parent profile object
-    const parentProfile = parentResult[0];
+    // const parentProfile = parentResult[0];
+
+    let parentProfile = convertToBase64(parentResult[0]); // Apply base64 conversion
 
     // Convert ProfilePicture buffer to base64 if it exists
-    if (parentProfile.ProfilePicture) {
-      parentProfile.ProfilePicture = `data:image/jpeg;base64,${parentProfile.ProfilePicture.toString(
-        "base64"
-      )}`;
-    }
+    // if (parentProfile.ProfilePicture) {
+    //   parentProfile.ProfilePicture = `data:image/jpeg;base64,${parentProfile.ProfilePicture.toString(
+    //     "base64"
+    //   )}`;
+    // }
 
     // Query to get child profiles linked to the parent
     const [childResults] = await pool.query(
@@ -187,12 +237,18 @@ exports.getProfilesByAccountId = async (req, res) => {
     );
 
     // Convert ProfilePicture buffer to base64 for each child profile if it exists
-    const childProfiles = childResults.map(child => {
-      if (child.ProfilePicture) {
-        child.ProfilePicture = `data:image/jpeg;base64,${child.ProfilePicture.toString("base64")}`;
-      }
-      return child;
-    });
+    const childProfiles = childResults.map(convertToBase64); // Apply conversion to children
+
+
+    console.log("Parent profile being sent:", parentProfile); // Debug log
+    console.log("Child profiles being sent:", childProfiles); // Debug log
+
+    // const childProfiles = childResults.map(child => {
+    //   if (child.ProfilePicture) {
+    //     child.ProfilePicture = `data:image/jpeg;base64,${child.ProfilePicture.toString("base64")}`;
+    //   }
+    //   return child;
+    // });
 
     // Respond with the parent and child profiles
     res.json({

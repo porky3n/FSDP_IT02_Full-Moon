@@ -70,6 +70,10 @@ app.use(
   "/private-images/programme-pictures",
   express.static(path.join(__dirname, "private-images/programme-pictures"))
 );
+app.use(
+  "/private-images/profile-pictures",
+  express.static(path.join(__dirname, "private-images/profile-pictures"))
+);
 // Middleware for parsing JSON and URL-encoded request bodies
 app.use(express.json({ limit: "12mb" })); // Adjust limit as needed
 app.use(express.urlencoded({ limit: "12mb", extended: true }));
