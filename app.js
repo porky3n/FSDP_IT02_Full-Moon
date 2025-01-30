@@ -32,8 +32,7 @@ const telegramRoutes = require("./modules/telegram/telegram.routes");
 
 const tierRoutes = require("./modules/tier/tier.routes");
 const meetingRoutes = require("./modules/meeting/meeting.routes");
-
-const { bot } = require("./modules/telegram/controllers/telegramController");
+const { getUserMessage, sendProgramme, bot, initBot } = require("./modules/telegram/controllers/telegramController");
 
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
