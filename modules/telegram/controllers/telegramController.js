@@ -33,15 +33,19 @@ const GROUP_ID = process.env.GROUP_ID; // Telegram Group ID
 //   console.error("Polling error:", error);
 // });
 
-// **Webhook Setup for Railway**
-if (isProduction) {
-  const WEBHOOK_URL = `https://${process.env.RAILWAY_DOMAIN}/bot${process.env.TELEGRAM_BOT_TOKEN}`;
-  bot.setWebHook(WEBHOOK_URL);
-  app.use(bot.webhookCallback(`/bot${process.env.TELEGRAM_BOT_TOKEN}`));
-  console.log("Running in Webhook mode (Railway)");
-} else {
-  console.log("Running in Polling mode (Local)");
-}
+// Function to initialize the bot (receives `app` from `app.js`)
+const initBot = (app) => {
+  if (isProduction) {
+    const WEBHOOK_URL = `https://${process.env.RAILWAY_DOMAIN}/bot${process.env.TELEGRAM_BOT_TOKEN}`;
+    bot.setWebHook(WEBHOOK_URL);
+    app.use(bot.webhookCallback(`/bot${process.env.TELEGRAM_BOT_TOKEN}`));
+    console.log("Running in Webhook mode (Railway)");
+  } else {
+    console.log("Running in Polling mode (Local)");
+  }
+
+  return bot; // Return the bot instance
+};
 
 // Delete expired Telegram IDs from the database
 cron.schedule("0 0 * * *", async () => { // Every midnight
@@ -895,5 +899,6 @@ function markdownToTelegram(markdown) {
 module.exports = {
   getUserMessage,
   sendProgramme,
-  bot
+  bot,
+  initBot
 };
