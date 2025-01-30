@@ -375,6 +375,31 @@
       </div>
     </div>
 
+    <!-- Tiers Container -->
+    <div class="tiers-container">
+      <h2>Tiers</h2>
+      <div class="tier-categories">
+          <div class="tier bronze">
+              <h3>Bronze</h3>
+              <p>Basic membership with essential benefits.</p>
+              <span class="price">1 Programme</span>
+          </div>
+
+          <div class="tier silver">
+              <h3>Silver</h3>
+              <p>Enhanced benefits with added perks.</p>
+              <span class="price">2 Programmes</span>
+          </div>
+
+          <div class="tier gold">
+              <h3>Gold</h3>
+              <p>Premium benefits with exclusive offers.</p>
+              <span class="price">5 Programmes</span>
+          </div>
+
+      </div>
+    </div>
+
     <!-- Call to Action Section -->
     <section class="cta-section">
       <h2>Grow as a creator with our training webinars</h2>
@@ -389,6 +414,19 @@
         Get Started
       </button>
     </section>
+    
+    <!-- Tier Expiration Modal -->
+    <div id="tierExpirationModal" class="modal">
+      <div class="modal-content">
+          <span class="close">&times;</span>
+          <div id="lottie-container">
+            <dotlottie-player src="https://lottie.host/ca506ff1-bdac-41fe-ac19-0455ccd2385f/oPzQIgZ2jU.lottie" background="transparent" speed="1" style="width: 150px; height: 150px" loop autoplay></dotlottie-player>          </div> <!-- Animation container -->
+          <h2>Membership Expired</h2>
+          <p id="tierMessageText"></p>
+          <button id="closeModalBtn">OK</button>
+      </div>
+    </div>
+
 
     <!-- Footer Section -->
     <footer class="bg-dark text-white mt-5">
@@ -417,6 +455,8 @@
     <script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.6/lottie.min.js"></script>
+    <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
 
     <!-- Custom Script -->
     <script src="./js/homepage.js"></script>

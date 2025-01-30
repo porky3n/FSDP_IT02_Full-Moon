@@ -341,39 +341,105 @@
                 const data = await response.json();
                 console.log("Fetched Slots:", data);
         
-                if (response.ok) {
-                    const attendedParents = new Set();
-                    const attendedChildren = new Set();
-        
-                    data.slots.forEach(slot => {
-                        if (slot.parentID) attendedParents.add(slot.parentID);
-                        if (slot.childID) attendedChildren.add(slot.childID);
-                    });
-        
-                    // Reset all profile items before applying disable
-                    document.querySelectorAll(".profile-item").forEach(profileItem => {
-                        const profileId = parseInt(profileItem.getAttribute("data-profile-id"));
-                        const profileType = profileItem.getAttribute("data-profile-type");
-                        const radioInput = profileItem.querySelector("input[type='radio']");
-        
-                        profileItem.classList.remove("disabled-profile");
-                        profileItem.removeAttribute("title"); // Remove tooltip if not disabled
-                        radioInput.disabled = false;
-        
-                        if (
-                            (profileType === "parent" && attendedParents.has(profileId)) ||
-                            (profileType === "child" && attendedChildren.has(profileId))
-                        ) {
-                            profileItem.classList.add("disabled-profile");
-                            profileItem.setAttribute("title", "This profile is already booked for this schedule.");
-                            radioInput.disabled = true;
-                        }
-                    });
+                // If no slots are found, reset all disabled profiles
+                if (!response.ok || !data.slots || data.slots.length === 0) {
+                    console.warn("No slots found. Resetting all disabled profiles.");
+                    resetDisabledProfiles();
+                    return; // Stop execution since there's no need to disable any profiles
                 }
+        
+                const attendedParents = new Set();
+                const attendedChildren = new Set();
+        
+                data.slots.forEach(slot => {
+                    if (slot.parentID) attendedParents.add(slot.parentID);
+                    if (slot.childID) attendedChildren.add(slot.childID);
+                });
+        
+                // Reset all profile items before applying disable
+                resetDisabledProfiles();
+        
+                document.querySelectorAll(".profile-item").forEach(profileItem => {
+                    const profileId = parseInt(profileItem.getAttribute("data-profile-id"));
+                    const profileType = profileItem.getAttribute("data-profile-type");
+                    const radioInput = profileItem.querySelector("input[type='radio']");
+        
+                    if (
+                        (profileType === "parent" && attendedParents.has(profileId)) ||
+                        (profileType === "child" && attendedChildren.has(profileId))
+                    ) {
+                        profileItem.classList.add("disabled-profile");
+                        profileItem.setAttribute("title", "This profile is already booked for this schedule.");
+                        radioInput.disabled = true;
+                    }
+                });
             } catch (error) {
                 console.error("Error fetching slots:", error);
             }
         }
+
+        // Function to reset disabled profiles when a new schedule is selected
+        function resetDisabledProfiles() {
+            document.querySelectorAll(".profile-item").forEach(profileItem => {
+                profileItem.classList.remove("disabled-profile");
+                profileItem.removeAttribute("title"); // Remove tooltip
+                profileItem.querySelector("input[type='radio']").disabled = false;
+            });
+        }
+
+        // async function disableAttendedProfiles(selectedSchedule) {
+        //     if (!selectedSchedule) return;
+        
+        //     const programmeId = selectedSchedule.getAttribute("data-programmeId");
+        //     const instanceId = selectedSchedule.getAttribute("data-instanceId");
+        //     const programmeClassId = selectedSchedule.getAttribute("data-programmeClassId");
+        
+        //     console.log("Selected Schedule:", programmeId, instanceId, programmeClassId);
+        
+        //     try {
+        //         const response = await fetch("/api/slot/getSlots", {
+        //             method: "POST",
+        //             headers: { "Content-Type": "application/json" },
+        //             body: JSON.stringify({ programmeId, instanceId, programmeClassId })
+        //         });
+        
+        //         const data = await response.json();
+        //         console.log("Fetched Slots:", data);
+        
+        //         if (response.ok) {
+        //             const attendedParents = new Set();
+        //             const attendedChildren = new Set();
+        
+        //             data.slots.forEach(slot => {
+        //                 if (slot.parentID) attendedParents.add(slot.parentID);
+        //                 if (slot.childID) attendedChildren.add(slot.childID);
+        //             });
+        
+        //             // Reset all profile items before applying disable
+        //             document.querySelectorAll(".profile-item").forEach(profileItem => {
+        //                 const profileId = parseInt(profileItem.getAttribute("data-profile-id"));
+        //                 const profileType = profileItem.getAttribute("data-profile-type");
+        //                 const radioInput = profileItem.querySelector("input[type='radio']");
+        
+        //                 profileItem.classList.remove("disabled-profile");
+        //                 profileItem.removeAttribute("title"); // Remove tooltip if not disabled
+        //                 radioInput.disabled = false;
+        
+        //                 if (
+        //                     (profileType === "parent" && attendedParents.has(profileId)) ||
+        //                     (profileType === "child" && attendedChildren.has(profileId))
+        //                 ) {
+        //                     profileItem.classList.add("disabled-profile");
+        //                     profileItem.setAttribute("title", "This profile is already booked for this schedule.");
+        //                     radioInput.disabled = true;
+        //                 }
+        //             });
+        //         }
+        //     } catch (error) {
+        //         console.error("Error fetching slots:", error);
+        //     }
+        // }
+        
         
 
         // async function disableAttendedProfiles(selectedSchedule) {
