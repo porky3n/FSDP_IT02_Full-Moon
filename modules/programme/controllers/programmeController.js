@@ -22,18 +22,43 @@ const telegramController = require('../../telegram/controllers/telegramControlle
 
 
 // Utility function to convert binary images to Base64
+const base64ToString = (base64) => {
+    return Buffer.from(base64, 'base64').toString('utf-8');
+};
+
 const convertToBase64 = (programme) => {
     if (programme.programmePicture instanceof Buffer) {
         programme.programmePicture = `data:image/jpeg;base64,${programme.programmePicture.toString('base64')}`;
+
+        let programmePictureBase64 = programme.programmePicture.toString('base64');
+        let programmePictureDecoded = base64ToString(programmePictureBase64);
+
+        console.log("programme picture base64", programmePictureBase64);
+        if (programmePictureDecoded.includes('private-images')) {
+            // Remove the "data:image/jpeg;base64," prefix
+            let cleanedProgrammePictureBase64 = programmePictureBase64.replace('data:image/jpeg;base64,', '');
+            let cleanedProgrammePictureDecoded = base64ToString(cleanedProgrammePictureBase64);
+
+            console.log("programme picture decoded: ", cleanedProgrammePictureDecoded);  
+            programme.programmePicture = cleanedProgrammePictureDecoded;  
+
+            // programme.programmePicture = path.join(__dirname, "../", "../", cleanedProgrammePictureDecoded);
+            console.log("programme picture path", programme.programmePicture);
+
+            console.log("programme picture.", programme.programmePicture);
+        }
+        else {
+            console.log("programme picture base64: ", programme.programmePicture);
+        }
     }
     if (programme.images) {
+        console.log("RUNNINGGGG");
         programme.images = programme.images.map(image =>
             image instanceof Buffer ? `data:image/jpeg;base64,${image.toString('base64')}` : image
         );
     }
     return programme;
 };
-
 // Controller to get all programmes
 const getAllProgrammes = async (req, res) => {
     try {

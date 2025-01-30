@@ -66,7 +66,10 @@ app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, "public")));
-
+app.use(
+  "/private-images/programme-pictures",
+  express.static(path.join(__dirname, "private-images/programme-pictures"))
+);
 // Middleware for parsing JSON and URL-encoded request bodies
 app.use(express.json({ limit: "12mb" })); // Adjust limit as needed
 app.use(express.urlencoded({ limit: "12mb", extended: true }));
@@ -150,6 +153,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use("/api/telegram", telegramRoutes);
+
+
 // api for paymentintent
 // app.get("/api/payment-intent", async (req, res) => {
 //   const intent =
