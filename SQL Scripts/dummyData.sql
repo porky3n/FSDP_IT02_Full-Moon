@@ -64,26 +64,32 @@ VALUES
 INSERT INTO Programme (ProgrammeName, Category, ProgrammePicture, Description)
 VALUES 
 ('Coding Workshop','Workshop','private-images/programme-pictures/programme-1.png','A hands-on workshop teaching basic coding skills.'),
-('Art Camp', 'Camp', 'private-images/programme-pictures/programme-2.png', 'An immersive art camp for young artists.');
+('Art Camp', 'Camp', 'private-images/programme-pictures/programme-2.png', 'An immersive art camp for young artists.'),
+('1-1 Coaching Session', 'Online Session', 'private-images/programme-pictures/programme-3.jpg', 'Online session to educate your child.');
 
 -- Insert data into ProgrammeClass table
 INSERT INTO ProgrammeClass (ProgrammeID, ShortDescription, Location, Fee, MaxSlots, ProgrammeLevel, Remarks)
 VALUES 
 (1, 'Intro to Programming', 'Online', 50.00, 30, 'Beginner', 'Materials are provided ~ Online-only ~ Interactive sessions'),
-(2, 'Painting Basics', '535 Clementi Rd, Singapore 599489', 75.00, 20, 'Intermediate', 'Materials provided ~ Lunch included');
+(2, 'Painting Basics', '535 Clementi Rd, Singapore 599489', 75.00, 20, 'Intermediate', 'Materials provided ~ Lunch included'),
+(3, 'Basic Online Session', '535 Clementi Rd, Singapore 599489', 75.00, 20, 'Beginner', 'Online-only');
 
 -- Insert data into ProgrammeClassBatch table
 INSERT INTO ProgrammeClassBatch (ProgrammeClassID)
 VALUES 
 (1),
-(2);
+(2),
+(3),
+(3);
 
 -- Insert data into ProgrammeSchedule table
 INSERT INTO ProgrammeSchedule (InstanceID, StartDateTime, EndDateTime)
 VALUES 
 (1, '2025-02-01 09:00:00', '2025-02-01 12:00:00'),
 (1, '2025-02-03 09:00:00', '2025-02-03 12:00:00'),
-(2, '2025-02-10 10:00:00', '2025-02-10 16:00:00');
+(2, '2025-02-10 10:00:00', '2025-02-10 16:00:00'),
+(3, '2025-02-10 10:00:00', '2025-02-10 12:00:00'),
+(4, '2025-02-14 10:00:00', '2025-02-14 12:00:00');
 
 -- Insert data into ProgrammeImages table
 INSERT INTO ProgrammeImages (ProgrammeID, Image)

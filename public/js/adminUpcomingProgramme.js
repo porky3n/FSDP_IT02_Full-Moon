@@ -43,6 +43,8 @@ function displayProgrammeInfo(programmes) {
   let row = document.createElement('div');
   row.classList.add('row');
 
+  const currentTime = new Date();
+
   programmes.forEach((programme, index) => {
     console.log(programme);
       // Create a programme card
@@ -50,6 +52,16 @@ function displayProgrammeInfo(programmes) {
       programmeInfo.classList.add('col-md-4');
 
       const hasHostLink = programme.HostMeetingLink && programme.HostMeetingLink.trim() !== '';
+
+      // Convert StartDateTime and EndDateTime to Date objects
+      const startTime = parseDate(programme.StartDateTime);
+      const endTime = parseDate(programme.EndDateTime);
+
+      // Determine if the meeting should be enabled
+      const isNear =
+          ((startTime - currentTime) / (1000 * 60) <= 15) ||  // Within 5 minutes of start time
+          ((currentTime < endTime) && (currentTime > startTime)); // Current time is between start and end
+
 
       // Build the inner HTML conditionally
       programmeInfo.innerHTML = `
@@ -84,13 +96,12 @@ function displayProgrammeInfo(programmes) {
                     Delete Meeting
                 </button>
               ` : `
-                  
                   <button 
                       class="btn btn-primary mt-3 create-meeting-btn" 
                       data-programme-class-id="${programme.ProgrammeClassID || ''}"
                       data-instance-id="${programme.InstanceID || ''}"
                       data-end-date-time="${programme.EndDateTime || ''}"
-                  >
+                      ${isNear ? "" : "disabled"}>
                       Create Meeting
                   </button>
               `}
@@ -107,6 +118,28 @@ function displayProgrammeInfo(programmes) {
       }
   });
 }
+
+const parseDate = (dateStr) => {
+    // Example: "20 January 2025 at 11:53 pm"
+    const [day, month, year, hourMinute, period] = dateStr
+      .replace(" at ", " ")
+      .split(/[\s]+/); // Split by spaces only
+  
+    // Extract hours and minutes from hourMinute
+    const [hour, minute] = hourMinute.split(":").map(Number);
+  
+    // Convert month name to zero-based index
+    const monthIndex = new Date(`${month} 1, ${year}`).getMonth();
+  
+    // Adjust hours for 24-hour format
+    const adjustedHour = hour + (period.toLowerCase() === "pm" && hour !== 12 ? 12 : 0);
+  
+    // Handle midnight case (12 am is hour 0)
+    const finalHour = period.toLowerCase() === "am" && hour === 12 ? 0 : adjustedHour;
+  
+    // Return the Date object
+    return new Date(year, monthIndex, parseInt(day, 10), finalHour, minute);
+  };
 
 document.addEventListener('click', function (event) {
     if (event.target.classList.contains('copy-btn')) {
