@@ -128,14 +128,19 @@ function renderDashboard(metrics, selectedMonth) {
 
 // Function to render month options
 function renderMonthOptions(selectedMonth) {
-  const months = Array.from({ length: 12 }, (_, i) => {
-    const date = new Date();
-    date.setMonth(i);
-    return {
+  // Create an array of all months starting from January
+  const months = [];
+  const baseDate = new Date(new Date().getFullYear(), 0, 1); // Start with January 1st of current year
+
+  for (let i = 0; i < 12; i++) {
+    const monthDate = new Date(baseDate);
+    monthDate.setMonth(i);
+
+    months.push({
       index: i,
-      name: date.toLocaleDateString("en-US", { month: "long" }),
-    };
-  });
+      name: monthDate.toLocaleDateString("en-US", { month: "long" }),
+    });
+  }
 
   return months
     .map(

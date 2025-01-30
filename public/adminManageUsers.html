@@ -1,266 +1,517 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
+
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-    
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
     <!-- Custom CSS for Navbar, Footer, and User List -->
     <link rel="stylesheet" href="./css/adminNavbar.css" />
     <link rel="stylesheet" href="./css/footer.css" />
     <link rel="stylesheet" href="./css/adminManageUsers.css" />
+    <link rel="stylesheet" href="./css/translate.css" />
+    <script src="./js/translate.js"></script>
 
     <title>Mindsphere - All Users</title>
-</head>
-<body>
+  </head>
+  <body>
     <!-- Navbar Section -->
     <header>
-        <div id="navbar-container"></div>
+      <div id="navbar-container"></div>
     </header>
 
     <!-- Main Content -->
     <main>
-        <div class="container mt-5 table-container">
-            <h1 class="mb-4">All Users</h1>
+      <div class="container mt-5 table-container">
+        <h1 class="mb-4">All Users</h1>
 
-            <!-- Search and Filters -->
-            <div class="d-flex justify-content-between mb-3">
-                <div class="input-group" style="max-width: 300px;">
-                    <input type="text" id="searchInput" class="form-control" placeholder="Search anything (e.g., name, school, level)...">
-                    <button class="btn" type="button" id="searchButton">
-                        <img src="./images/search_icon.jpg" alt="Search Icon" style="width: 24px; height: 24px;">
-                    </button>
-                </div>
+        <!-- Search and Filters -->
+        <div class="d-flex justify-content-between mb-3">
+          <div class="input-group" style="max-width: 300px">
+            <input
+              type="text"
+              id="searchInput"
+              class="form-control"
+              placeholder="Search anything (e.g., name, school, level)..."
+            />
+            <button class="btn" type="button" id="searchButton">
+              <img
+                src="./images/search_icon.jpg"
+                alt="Search Icon"
+                style="width: 24px; height: 24px"
+              />
+            </button>
+          </div>
 
-                <div class="d-flex">
-                    <!-- Sort By Dropdown -->
-                    <div class="dropdown me-2">
-                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="sortByDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            Sort By
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="sortByDropdown">
-                            <li><a class="dropdown-item sort-option" href="#" data-sort="name">Name (A-Z)</a></li>
-                            <li><a class="dropdown-item sort-option" href="#" data-sort="dateJoined">Date Joined</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Member/Non-Member Dropdown -->
-                    <div class="dropdown">
-                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="membershipDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            Membership
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="membershipDropdown">
-                            <li><a class="dropdown-item filter-option" href="#" data-filter="gold">Gold</a></li>
-                            <li><a class="dropdown-item filter-option" href="#" data-filter="silver">Silver</a></li>
-                            <li><a class="dropdown-item filter-option" href="#" data-filter="bronze">Bronze</a></li>
-                            <li><a class="dropdown-item filter-option" href="#" data-filter="non-membership">Non-Membership</a></li>
-                        </ul>
-                    </div>
-                    
-
-                    <!-- Has Children/No Children Dropdown -->
-                    <div class="dropdown">
-                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="childrenDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            Children
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="childrenDropdown">
-                            <li><a class="dropdown-item filter-option" href="#" data-filter="has-children">Has Children</a></li>
-                            <li><a class="dropdown-item filter-option" href="#" data-filter="no-children">No Children</a></li>
-                        </ul>
-                    </div>
-                </div>
+          <div class="d-flex">
+            <!-- Sort By Dropdown -->
+            <div class="dropdown me-2">
+              <button
+                class="btn btn-outline-secondary dropdown-toggle"
+                type="button"
+                id="sortByDropdown"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                Sort By
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="sortByDropdown">
+                <li>
+                  <a class="dropdown-item sort-option" href="#" data-sort="name"
+                    >Name (A-Z)</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item sort-option"
+                    href="#"
+                    data-sort="dateJoined"
+                    >Date Joined</a
+                  >
+                </li>
+              </ul>
             </div>
 
-            <!-- User Table -->
-            <table class="table table-hover" id="userTable">
-                <thead>
-                    <tr class="table-header">
-                        <th scope="col">Name</th>
-                        <th scope="col">Gender</th>
-                        <th scope="col">DOB</th>
-                        <th scope="col">Email</th>
-                        <th scope="col">Phone Number</th>
-                        <th scope="col">Date Joined</th>
-                        <th scope="col">Membership</th>
-                        <th scope="col">Start Date</th>
-                        <th scope="col">End Date</th>
-                        <th scope="col">Dietary</th>
-                        <th scope="col">Profile Details</th>
-                        <th scope="col" class="text-end">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="user-list">
-                    <!-- Dynamic data will be injected here -->
-                </tbody>
-            </table>
+            <!-- Member/Non-Member Dropdown -->
+            <div class="dropdown">
+              <button
+                class="btn btn-outline-secondary dropdown-toggle"
+                type="button"
+                id="membershipDropdown"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                Membership
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="membershipDropdown">
+                <li>
+                  <a
+                    class="dropdown-item filter-option"
+                    href="#"
+                    data-filter="gold"
+                    >Gold</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item filter-option"
+                    href="#"
+                    data-filter="silver"
+                    >Silver</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item filter-option"
+                    href="#"
+                    data-filter="bronze"
+                    >Bronze</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item filter-option"
+                    href="#"
+                    data-filter="non-membership"
+                    >Non-Membership</a
+                  >
+                </li>
+              </ul>
+            </div>
 
-            <!-- Pagination -->
-            <nav aria-label="Page navigation" class="mt-4">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#" tabindex="-1">Previous</a>
-                    </li>
-                    <li class="page-item"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                </ul>
-            </nav>
+            <!-- Has Children/No Children Dropdown -->
+            <div class="dropdown">
+              <button
+                class="btn btn-outline-secondary dropdown-toggle"
+                type="button"
+                id="childrenDropdown"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                Children
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="childrenDropdown">
+                <li>
+                  <a
+                    class="dropdown-item filter-option"
+                    href="#"
+                    data-filter="has-children"
+                    >Has Children</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item filter-option"
+                    href="#"
+                    data-filter="no-children"
+                    >No Children</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
+
+        <!-- User Table -->
+        <table class="table table-hover" id="userTable">
+          <thead>
+            <tr class="table-header">
+              <th scope="col">Name</th>
+              <th scope="col">Gender</th>
+              <th scope="col">DOB</th>
+              <th scope="col">Email</th>
+              <th scope="col">Phone Number</th>
+              <th scope="col">Date Joined</th>
+              <th scope="col">Membership</th>
+              <th scope="col">Start Date</th>
+              <th scope="col">End Date</th>
+              <th scope="col">Dietary</th>
+              <th scope="col">Profile Details</th>
+              <th scope="col" class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="user-list">
+            <!-- Dynamic data will be injected here -->
+          </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <nav aria-label="Page navigation" class="mt-4">
+          <ul class="pagination justify-content-center">
+            <li class="page-item disabled">
+              <a class="page-link" href="#" tabindex="-1">Previous</a>
+            </li>
+            <li class="page-item"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+          </ul>
+        </nav>
+      </div>
     </main>
 
     <!-- Edit Parent Modal -->
-    <div class="modal fade" id="editParentModal" tabindex="-1" aria-labelledby="editParentModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="editParentForm">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editParentModalLabel">Edit Parent</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <input type="hidden" id="editParentID" name="parentID">
-                        <div class="mb-3">
-                            <label for="editFirstName" class="form-label">First Name</label>
-                            <input type="text" class="form-control" id="editFirstName" name="firstName" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editLastName" class="form-label">Last Name</label>
-                            <input type="text" class="form-control" id="editLastName" name="lastName" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editDOB" class="form-label">Date of Birth</label>
-                            <input type="date" class="form-control" id="editDOB" name="dob" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editContactNumber" class="form-label">Contact Number</label>
-                            <input type="text" class="form-control" id="editContactNumber" name="contactNumber" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editMembership" class="form-label">Membership</label>
-                            <select class="form-control" id="editMembership" name="membership">
-                                <option value="Non-Membership">Non-Membership</option>
-                                <option value="Bronze">Bronze</option>
-                                <option value="Silver">Silver</option>
-                                <option value="Gold">Gold</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editMembershipStartDate" class="form-label">Membership Start Date</label>
-                            <input type="date" class="form-control" id="editMembershipStartDate" name="membershipStartDate" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editMembershipEndDate" class="form-label">Membership End Date</label>
-                            <input type="date" class="form-control" id="editMembershipEndDate" name="membershipEndDate" readonly>
-                            <small class="form-text text-muted">End Date is automatically calculated as one year after the Start Date.</small>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="editDietary" class="form-label">Dietary</label>
-                            <input type="text" class="form-control" id="editDietary" name="dietary">
-                        </div>
-                        <div class="mb-3">
-                            <label for="editGender" class="form-label">Gender</label>
-                            <select class="form-control" id="editGender" name="gender" required>
-                                <option value="M">Male</option>
-                                <option value="F">Female</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editProfileDetails" class="form-label">Profile Details</label>
-                            <textarea class="form-control" id="editProfileDetails" name="profileDetails" rows="4" maxlength="500"></textarea>
-                            <small class="form-text text-muted">Limit: 500 characters</small>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                    </div>
-                </form>
+    <div
+      class="modal fade"
+      id="editParentModal"
+      tabindex="-1"
+      aria-labelledby="editParentModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="editParentForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editParentModalLabel">Edit Parent</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
             </div>
+            <div class="modal-body">
+              <input type="hidden" id="editParentID" name="parentID" />
+              <div class="mb-3">
+                <label for="editFirstName" class="form-label">First Name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editFirstName"
+                  name="firstName"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editLastName" class="form-label">Last Name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editLastName"
+                  name="lastName"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editDOB" class="form-label">Date of Birth</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="editDOB"
+                  name="dob"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editContactNumber" class="form-label"
+                  >Contact Number</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editContactNumber"
+                  name="contactNumber"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editMembership" class="form-label"
+                  >Membership</label
+                >
+                <select
+                  class="form-control"
+                  id="editMembership"
+                  name="membership"
+                >
+                  <option value="Non-Membership">Non-Membership</option>
+                  <option value="Bronze">Bronze</option>
+                  <option value="Silver">Silver</option>
+                  <option value="Gold">Gold</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="editMembershipStartDate" class="form-label"
+                  >Membership Start Date</label
+                >
+                <input
+                  type="date"
+                  class="form-control"
+                  id="editMembershipStartDate"
+                  name="membershipStartDate"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editMembershipEndDate" class="form-label"
+                  >Membership End Date</label
+                >
+                <input
+                  type="date"
+                  class="form-control"
+                  id="editMembershipEndDate"
+                  name="membershipEndDate"
+                  readonly
+                />
+                <small class="form-text text-muted"
+                  >End Date is automatically calculated as one year after the
+                  Start Date.</small
+                >
+              </div>
+
+              <div class="mb-3">
+                <label for="editDietary" class="form-label">Dietary</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editDietary"
+                  name="dietary"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editGender" class="form-label">Gender</label>
+                <select
+                  class="form-control"
+                  id="editGender"
+                  name="gender"
+                  required
+                >
+                  <option value="M">Male</option>
+                  <option value="F">Female</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="editProfileDetails" class="form-label"
+                  >Profile Details</label
+                >
+                <textarea
+                  class="form-control"
+                  id="editProfileDetails"
+                  name="profileDetails"
+                  rows="4"
+                  maxlength="500"
+                ></textarea>
+                <small class="form-text text-muted"
+                  >Limit: 500 characters</small
+                >
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Save Changes
+              </button>
+            </div>
+          </form>
         </div>
+      </div>
     </div>
 
     <!-- Edit Child Modal -->
-    <div class="modal fade" id="editChildModal" tabindex="-1" aria-labelledby="editChildModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="editChildForm">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editChildModalLabel">Edit Child</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <input type="hidden" id="editChildID" name="childID">
-                        <div class="mb-3">
-                            <label for="editChildFirstName" class="form-label">First Name</label>
-                            <input type="text" class="form-control" id="editChildFirstName" name="firstName" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editChildLastName" class="form-label">Last Name</label>
-                            <input type="text" class="form-control" id="editChildLastName" name="lastName" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editChildDOB" class="form-label">Date of Birth</label>
-                            <input type="date" class="form-control" id="editChildDOB" name="dob" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editChildSchool" class="form-label">School</label>
-                            <input type="text" class="form-control" id="editChildSchool" name="school">
-                        </div>
-                        <div class="mb-3">
-                            <label for="editChildDietary" class="form-label">Dietary</label>
-                            <input type="text" class="form-control" id="editChildDietary" name="dietary">
-                        </div>
-                        <div class="mb-3">
-                            <label for="editChildRelationship" class="form-label">Relationship</label>
-                            <input type="text" class="form-control" id="editChildRelationship" name="relationship">
-                        </div>
-                        <div class="mb-3">
-                            <label for="editChildHealthDetails" class="form-label">Health Details</label>
-                            <input type="text" class="form-control" id="editChildHealthDetails" name="healthDetails">
-                        </div>
-                        <div class="mb-3">
-                            <label for="editChildGender" class="form-label">Gender</label>
-                            <select class="form-control" id="editChildGender" name="gender">
-                                <option value="M">Male</option>
-                                <option value="F">Female</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editChildProfileDetails" class="form-label">Profile Details</label>
-                            <textarea class="form-control" id="editChildProfileDetails" name="profileDetails" rows="4" maxlength="500"></textarea>
-                            <small class="form-text text-muted">Limit: 500 characters</small>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                    </div>
-                </form>
+    <div
+      class="modal fade"
+      id="editChildModal"
+      tabindex="-1"
+      aria-labelledby="editChildModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="editChildForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editChildModalLabel">Edit Child</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
             </div>
+            <div class="modal-body">
+              <input type="hidden" id="editChildID" name="childID" />
+              <div class="mb-3">
+                <label for="editChildFirstName" class="form-label"
+                  >First Name</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editChildFirstName"
+                  name="firstName"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editChildLastName" class="form-label"
+                  >Last Name</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editChildLastName"
+                  name="lastName"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editChildDOB" class="form-label"
+                  >Date of Birth</label
+                >
+                <input
+                  type="date"
+                  class="form-control"
+                  id="editChildDOB"
+                  name="dob"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editChildSchool" class="form-label">School</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editChildSchool"
+                  name="school"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editChildDietary" class="form-label">Dietary</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editChildDietary"
+                  name="dietary"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editChildRelationship" class="form-label"
+                  >Relationship</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editChildRelationship"
+                  name="relationship"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editChildHealthDetails" class="form-label"
+                  >Health Details</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editChildHealthDetails"
+                  name="healthDetails"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editChildGender" class="form-label">Gender</label>
+                <select class="form-control" id="editChildGender" name="gender">
+                  <option value="M">Male</option>
+                  <option value="F">Female</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="editChildProfileDetails" class="form-label"
+                  >Profile Details</label
+                >
+                <textarea
+                  class="form-control"
+                  id="editChildProfileDetails"
+                  name="profileDetails"
+                  rows="4"
+                  maxlength="500"
+                ></textarea>
+                <small class="form-text text-muted"
+                  >Limit: 500 characters</small
+                >
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Save Changes
+              </button>
+            </div>
+          </form>
         </div>
+      </div>
     </div>
 
     <!-- Footer Section -->
     <footer class="bg-dark text-white mt-5">
-        <div id="footer-container"></div>
+      <div id="footer-container"></div>
     </footer>
 
     <!-- Bootstrap JS and other dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
+
     <!-- External JS for User Management -->
     <script src="./js/adminManageUsers.js"></script>
 
     <!-- Load external navbar and footer -->
     <script>
-        $(document).ready(function() {
-            $("#navbar-container").load("adminNavbar.html");
-        });
+      $(document).ready(function () {
+        $("#navbar-container").load("adminNavbar.html");
+      });
     </script>
-</body>
+  </body>
 </html>
