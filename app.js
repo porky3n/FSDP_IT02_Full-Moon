@@ -11,6 +11,8 @@ const userProfileRoutes = require("./modules/auth/userProfileRoutes");
 const childRoutes = require("./modules/auth/addChildRoutes");
 const adminRoutes = require("./modules/admin/adminDashboardRoutes");
 const { ensureAdminAuthenticated } = require("./middlewares/auth");
+const mysql = require("mysql2");
+const cron = require("node-cron");
 
 // const programmeRoutes = require("./modules/programme/programmeRoutes"); // Import programme routes
 // const programmeClassRoutes = require("./modules/programmeClass/programmeClassRoutes"); // Import programme class routes
@@ -203,6 +205,30 @@ app.get('/api/programme-fees', async (req, res) => {
 });
 
 */
+
+// Cron Job to Free MySQL Memory Every 30 Minutes
+cron.schedule("*/30 * * * *", () => {
+  console.log("Running MySQL Memory Optimization...");
+
+  pool.getConnection((err, connection) => {
+    if (err) {
+      console.error("MySQL Connection Error:", err);
+      return;
+    }
+
+    connection.query("FLUSH TABLES;", (err) => {
+      if (err) console.error("FLUSH TABLES Error:", err);
+      else console.log("FLUSH TABLES executed successfully.");
+    });
+
+    connection.query("RESET QUERY CACHE;", (err) => {
+      if (err) console.error("RESET QUERY CACHE Error:", err);
+      else console.log("RESET QUERY CACHE executed successfully.");
+    });
+
+    connection.release(); 
+  });
+});
 
 // Start the server
 app.listen(port, () => {
