@@ -21,6 +21,18 @@ class Slot {
         return rows.map(row => new Slot(row.SlotID, row.ProgrammeClassID, row.ProgrammeID, row.instanceID, row.ParentID, row.ChildID));
     }
 
+    // Get all slots for a specific programme
+    // not sure if needed
+    static async getSlotsAndParticipants(InstanceId, ProgrammeClassId) {
+        const sqlQuery = `
+            SELECT * FROM Slot s LEFT JOIN ProgrammeSchedule ps ON s.InstanceID = ps.InstanceID 
+            LEFT JOIN Parent p ON s.ParentID = p.ParentID LEFT JOIN Child c ON s.ChildID = c.ChildID
+            WHERE s.InstanceID = ? AND s.ProgrammeClassID = ?
+        `;
+        const [rows] = await pool.query(sqlQuery, [InstanceId, ProgrammeClassId]);
+        return rows;
+    }
+    
     // Get all slots for a specific programme class
     static async getSlotsByProgrammeClass(programmeClassID) {
         const sqlQuery = `

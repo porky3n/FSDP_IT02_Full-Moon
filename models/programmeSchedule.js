@@ -7,7 +7,7 @@ class ProgrammeSchedule {
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
     }
-
+    
     // Get start date and time for the first schedule of a specifc programme
     // Get the first schedule's start date and time for a specific programme
     static async getStartEndDate(instanceID) {
