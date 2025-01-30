@@ -85,6 +85,7 @@ class ProgrammeClass {
           SELECT 
             p.ProgrammeID,
             p.ProgrammeName,
+            p.Description,
             pc.Fee AS originalFee,
             pr.PromotionID,
             pr.PromotionName,
@@ -116,6 +117,7 @@ class ProgrammeClass {
             return {
                 programmeID: row.ProgrammeID,
                 programmeName: row.ProgrammeName,
+                description: row.Description,
                 originalFee: row.originalFee,
                 promotionID: row.PromotionID || null,
                 discountType: row.DiscountType || null,
