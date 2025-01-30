@@ -40,7 +40,6 @@ const createMeeting = async (req, res) => {
     try {
       const result = await Meeting.createMeeting(programmeClassID, endDateTime, instanceID);
       res.status(200).json(result);
-      telegramController.bot.
     } catch (error) {
       console.error("Error in creating/updating meeting:", error.message);
       res.status(500).json({ message: error.message });
