@@ -2,6 +2,7 @@ const pool = require("../dbConfig");
 
 class ChatDataModel {
     // Retrieve structured program data
+            // Retrieve structured program data
     static async getStructuredProgramData() {
         try {
             const query = `
@@ -10,102 +11,121 @@ class ChatDataModel {
                     p.ProgrammeName,
                     p.Description,
                     p.Category,
+                    
                     c.ProgrammeClassID,
                     c.ShortDescription AS ClassDescription,
                     c.Location,
                     c.Fee,
                     c.MaxSlots,
                     c.ProgrammeLevel,
+
                     b.InstanceID,
+                    
                     s.ScheduleID,
                     s.StartDateTime,
                     s.EndDateTime,
+
                     pi.ImageID,
+
                     pr.PromotionID,
                     pr.PromotionName,
                     pr.DiscountType,
                     pr.DiscountValue,
                     pr.StartDateTime AS PromoStart,
                     pr.EndDateTime AS PromoEnd,
+
                     r.ReviewID,
                     r.Rating,
                     r.ReviewText
+
                 FROM Programme p
                 LEFT JOIN ProgrammeClass c ON p.ProgrammeID = c.ProgrammeID
                 LEFT JOIN ProgrammeClassBatch b ON c.ProgrammeClassID = b.ProgrammeClassID
                 LEFT JOIN ProgrammeSchedule s ON b.InstanceID = s.InstanceID
                 LEFT JOIN ProgrammeImages pi ON p.ProgrammeID = pi.ProgrammeID
                 LEFT JOIN Promotion pr ON p.ProgrammeID = pr.ProgrammeID
-                LEFT JOIN Reviews r ON p.ProgrammeID = r.ProgrammeID;
+                LEFT JOIN Reviews r ON p.ProgrammeID = r.ProgrammeID
+                ORDER BY p.ProgrammeID, c.ProgrammeClassID, b.InstanceID, s.ScheduleID;
             `;
 
             const [rows] = await pool.query(query);
             const programmes = {};
 
             rows.forEach(row => {
+                // If programme is not already stored, initialize it
                 if (!programmes[row.ProgrammeID]) {
                     programmes[row.ProgrammeID] = {
+                        ProgrammeID: row.ProgrammeID,
                         ProgrammeName: row.ProgrammeName,
                         Description: row.Description,
                         Category: row.Category,
-                        Classes: []
+                        Classes: [],
+                        Reviews: [],
+                        Promotions: [],
                     };
                 }
 
-                if (row.ProgrammeClassID) {
-                    const existingClass = programmes[row.ProgrammeID].Classes.find(
-                        c => c.ProgrammeClassID === row.ProgrammeClassID
+                // Find or add the class inside the programme
+                let classObj = programmes[row.ProgrammeID].Classes.find(
+                    c => c.ProgrammeClassID === row.ProgrammeClassID
+                );
+
+                if (!classObj && row.ProgrammeClassID) {
+                    classObj = {
+                        ProgrammeClassID: row.ProgrammeClassID,
+                        ClassDescription: row.ClassDescription,
+                        Location: row.Location,
+                        Fee: row.Fee,
+                        MaxSlots: row.MaxSlots,
+                        ProgrammeLevel: row.ProgrammeLevel,
+                        Batches: []
+                    };
+                    programmes[row.ProgrammeID].Classes.push(classObj);
+                }
+
+                // Find or add the instance inside the class
+                if (classObj && row.InstanceID) {
+                    let batchObj = classObj.Batches.find(
+                        b => b.InstanceID === row.InstanceID
                     );
-                    if (!existingClass) {
-                        programmes[row.ProgrammeID].Classes.push({
-                            ProgrammeClassID: row.ProgrammeClassID,
-                            ClassDescription: row.ClassDescription,
-                            Location: row.Location,
-                            Fee: row.Fee,
-                            MaxSlots: row.MaxSlots,
-                            ProgrammeLevel: row.ProgrammeLevel,
-                            Batches: []
+
+                    if (!batchObj) {
+                        batchObj = {
+                            InstanceID: row.InstanceID,
+                            Schedules: []
+                        };
+                        classObj.Batches.push(batchObj);
+                    }
+
+                    // Add schedule if exists
+                    if (row.ScheduleID) {
+                        batchObj.Schedules.push({
+                            ScheduleID: row.ScheduleID,
+                            StartDateTime: row.StartDateTime,
+                            EndDateTime: row.EndDateTime
                         });
                     }
+                }
 
-                    if (row.InstanceID) {
-                        const classObj = programmes[row.ProgrammeID].Classes.find(
-                            c => c.ProgrammeClassID === row.ProgrammeClassID
-                        );
-                        const existingBatch = classObj.Batches.find(
-                            b => b.InstanceID === row.InstanceID
-                        );
-                        if (!existingBatch) {
-                            classObj.Batches.push({
-                                InstanceID: row.InstanceID,
-                                Schedules: []
-                            });
-                        }
+                // Add review information (Avoid duplicate reviews)
+                if (row.ReviewID && !programmes[row.ProgrammeID].Reviews.some(r => r.ReviewID === row.ReviewID)) {
+                    programmes[row.ProgrammeID].Reviews.push({
+                        ReviewID: row.ReviewID,
+                        Rating: row.Rating,
+                        ReviewText: row.ReviewText
+                    });
+                }
 
-                        if (row.ScheduleID) {
-                            const batchObj = classObj.Batches.find(
-                                b => b.InstanceID === row.InstanceID
-                            );
-                            batchObj.Schedules.push({
-                                ScheduleID: row.ScheduleID,
-                                StartDateTime: row.StartDateTime,
-                                EndDateTime: row.EndDateTime
-                            });
-                        }
-                        
-                    }
-                    // Add review information
-                    if (row.ReviewID) {
-                        if (!programmes[row.ProgrammeID].Reviews) {
-                            programmes[row.ProgrammeID].Reviews = [];
-                        }
-
-                        programmes[row.ProgrammeID].Reviews.push({
-                            ReviewID: row.ReviewID,
-                            Rating: row.Rating,
-                            ReviewText: row.ReviewText
-                        });
-                    }
+                // Add promotion information (Avoid duplicate promotions)
+                if (row.PromotionID && !programmes[row.ProgrammeID].Promotions.some(p => p.PromotionID === row.PromotionID)) {
+                    programmes[row.ProgrammeID].Promotions.push({
+                        PromotionID: row.PromotionID,
+                        PromotionName: row.PromotionName,
+                        DiscountType: row.DiscountType,
+                        DiscountValue: row.DiscountValue,
+                        PromoStart: row.PromoStart,
+                        PromoEnd: row.PromoEnd
+                    });
                 }
             });
 
