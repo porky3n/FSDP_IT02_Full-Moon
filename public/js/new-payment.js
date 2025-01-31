@@ -100,8 +100,12 @@ async function updateSummary(data, dates) {
   document.getElementById("coursePrice").textContent = `SGD ${originalFee.toFixed(2)}`;
 
   // Display discount section if there is a discount
-  if (discountedFee < originalFee) {
+  if (discountedFee < originalFee || userMembership !== "Non-Membership") {
     document.getElementById("discountSection").style.display = "block";
+  }
+  
+
+  if (discountedFee < originalFee) {
     document.getElementById("discountLabel").firstChild.textContent = `Discount (${promotionName}) `;
 
     if (discountType === "Percentage") {
@@ -112,7 +116,7 @@ async function updateSummary(data, dates) {
 
     document.getElementById("discountedPrice").textContent = `SGD ${discountValue.toFixed(2)}`;
   } else {
-    document.getElementById("discountSection").classList.add("d-none");
+    document.getElementById("discountLabel").classList.add("d-none");
   }
 
   // Apply Membership Discount if applicable
