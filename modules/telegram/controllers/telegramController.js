@@ -15,6 +15,11 @@ const pool = require("../../../dbConfig"); // Database connection
 const cron = require("node-cron");
 const { v4: uuidv4 } = require("uuid");
 
+// for chatbot
+const moment = require('moment-timezone');
+const ChatDataModel = require('../../../models/chatbot'); 
+const faqs = require('../../../modules/chatbot/data/faqs'); 
+
 // OpenAI API setup
 const openai = new OpenAI({
   apiKey: `${process.env.OPENAI_API_KEY}`,
@@ -28,7 +33,10 @@ const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, botOptions);
 const CHANNEL_ID = process.env.CHANNEL_ID; // Telegram Channel ID
 const GROUP_ID = process.env.GROUP_ID; // Telegram Group ID
 
-const CHANNEL_INVITE = "https://t.me/+v9L7dYxugbQwYzI1"
+const CHANNEL_INVITE = process.env.CHANNEL_INVITE; // Invite link for the Telegram Channel
+const GROUP_INVITE = process.env.GROUP_INVITE; // Invite link for the Telegram Group
+
+const Tier = require("../../../models/tier");
 
 // Log errors
 // bot.on("polling_error", (error) => {
@@ -63,12 +71,18 @@ cron.schedule("0 0 * * *", async () => { // Every midnight
 // 📌 **Handle `/start` Command**
 bot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id;
+  if (msg.chat.type === "group" || msg.chat.type === "supergroup" || msg.chat.type === "channel") {
+    bot.sendMessage(chatId, "⚠️ This command can only be used in *direct messages*. Please message me privately.", {
+      parse_mode: "markdown"
+    })
+    return;
+  };
   const firstName = msg.chat.first_name || "User";
 
   // Send a welcome message and ask for email or phone
   bot.sendMessage(
     chatId,
-    `Hi ${firstName}! 👋\n\nWelcome to *MindSphere*! 🚀\n\n✅ Before we continue, please reply with your *email address* so we can link your Telegram account.`
+    `Hi ${firstName}! 👋\n\nWelcome to *MindSphere*! 🚀\n\n✅ Before we continue, please reply with your *email address* so we can link your Telegram account.`, { parse_mode: "markdown" }
   );
 
   bot.once("message", async (response) => {
@@ -83,14 +97,16 @@ bot.onText(/\/start/, async (msg) => {
         [chatId, identifier]
       );
 
-      // Send invite links for the Telegram Channel and Group
-      bot.sendMessage(
-        chatId,
-        `🎉 *Great! Now join our official Telegram communities:*\n\n` +
-        `🔹 [Join Our Channel](${CHANNEL_INVITE})\n`+
-        `🔹 [Join Our Group](https://t.me/${process.env.SEND_GROUP_ID})\n\n` +
-        `⚠️ *Once you've joined, type* /confirm *to verify your membership.*`
-      );
+
+    // Escape message correctly
+    const inviteMessage = `
+    🎉 *Great! Now join our official Telegram communities:*\n🔹 [Join Our Channel](${CHANNEL_INVITE}) \
+    \n🔹 [Join Our Group](${GROUP_INVITE})\
+    \n⚠️ *Once you've joined, type* /confirm *to verify your membership.*
+      `;
+    
+      bot.sendMessage(chatId, inviteMessage, { parse_mode: "markdown" });
+      
     } catch (error) {
       console.error("Error saving Telegram ID and identifier:", error);
       bot.sendMessage(chatId, "❌ An error occurred. Please try again later.");
@@ -101,6 +117,12 @@ bot.onText(/\/start/, async (msg) => {
 // 📌 **Handle `/confirm` Command (Check if user joined)**
 bot.onText(/\/confirm/, async (msg) => {
   const chatId = msg.chat.id;
+  if (msg.chat.type === "group" || msg.chat.type === "supergroup" || msg.chat.type === "channel") {
+    bot.sendMessage(chatId, "⚠️ This command can only be used in *direct messages*. Please message me privately.", {
+      parse_mode: "markdown"
+    })
+    return;
+  };
 
   try {
     // Check if user is in the channel
@@ -116,14 +138,13 @@ bot.onText(/\/confirm/, async (msg) => {
         `✅ *Thank you for joining our communities!* 🎉\n\nYou're all set! Stay tuned for updates and discussions in our group.`
       );
     } else {
-      bot.sendMessage(
-        chatId,
+      const inviteMessage = 
         `⚠️ *It looks like you haven't joined both our Telegram Channel and Group.*\n\n` +
         `Please make sure you've joined:\n` +
-        `🔹 [Join Our Channel](https://t.me/${CHANNEL_ID})\n` +
-        `🔹 [Join Our Group](https://t.me/${GROUP_ID})\n\n` +
-        `Once you've joined, type *"/confirm"* again.`
-      );
+        `🔹 [Join Our Channel](${CHANNEL_INVITE})\n` +  
+        `🔹 [Join Our Group](${GROUP_INVITE})\n\n` +
+        `Once you've joined, type *"/confirm"* again.`;
+      bot.sendMessage(chatId, inviteMessage, { parse_mode: "markdown" }); // Ensuring proper Markdown parsing
     }
   } catch (error) {
     console.error("Error checking Telegram membership:", error);
@@ -131,35 +152,134 @@ bot.onText(/\/confirm/, async (msg) => {
   }
 });
 
-// // Handle `/link` command (optional if users can manually enter tokens)
-// bot.onText(/\/link/, async (msg) => {
-//   const chatId = msg.chat.id;
+cron.schedule("*/1 * * * *", async () => { // Runs every minute for testing
+  try {
+      // Fetch all tier details dynamically (MinPurchases, TierDuration, Discounts)
+      const tiers = await Tier.getMembershipTier();
+      console.log(tiers);
 
-//   try {
-//     // Retrieve the user token from the database
-//     const result = await pool.query(
-//       `SELECT token FROM TemporaryTelegramIDs WHERE telegram_id = $1 AND expires_at > NOW()`,
-//       [chatId]
-//     );
+      if (!tiers.length) {
+          console.log("⚠️ No membership tiers with expiry durations found. Skipping reminders.");
+          return;
+      }
 
-//     if (result.rows.length === 0) {
-//       bot.sendMessage(
-//         chatId,
-//         "It seems we don't have your information. Please restart the bot by typing /start."
-//       );
-//       return;
-//     }
+      // Loop through each tier and calculate when reminders should be sent
+      for (const aTier of tiers) {
+          const { tier, tierDuration } = aTier;
+          // Calculate when reminders should be sent
+          const minReminderDays = Math.floor((tierDuration * 5) / 6); // 5/6 of TierDuration (when reminders start)
+          const maxReminderDays = tierDuration; // Exact expiry date
 
-//     const token = result.rows[0].token;
-//     bot.sendMessage(
-//       chatId,
-//       `Hi! Your Telegram token is: \`${token}\`. Please use this token during sign-up to link your Telegram account.`
-//     );
-//   } catch (error) {
-//     console.error("Error retrieving Telegram token:", error);
-//     bot.sendMessage(chatId, "An error occurred. Please try again later.");
-//   }
-// });
+          console.log(`🔍 Checking reminders for Tier: ${tier}`);
+          console.log(`📆 Reminder range: ${minReminderDays} to ${maxReminderDays} days before expiry`);
+          // Fetch users whose memberships expire soon
+          const [usersExpiringSoon] = await pool.query(
+            `SELECT P.ParentID, P.FirstName, P.Membership, P.StartDate, P.TelegramChatID, T.TierDuration
+             FROM Parent P
+             JOIN TierCriteria T ON P.Membership = T.Tier
+             WHERE T.TierDuration > 0
+              AND DATE_ADD(P.StartDate, INTERVAL ? DAY) <= CURDATE()
+              AND DATE_ADD(P.StartDate, INTERVAL ? DAY) >= CURDATE()`, 
+              [minReminderDays, maxReminderDays]
+        );
+
+        
+        if (usersExpiringSoon.length === 0) {
+          console.log(`✅ No users need reminders for ${aTier}.`);
+          continue;
+        }
+
+        // get today's date
+        const today = moment().format("YYYY-MM-DD");
+
+        console.log("Users Expiring Soon: ", JSON.stringify(usersExpiringSoon, null, 2));
+        console.log("Tier Duration: ", tierDuration);
+          // Send reminders
+          for (const user of usersExpiringSoon) {
+            console.log("User: ", JSON.stringify(user, null, 2));
+            await sendMembershipReminder(user, maxReminderDays - today);
+          }
+      }
+
+      console.log("Dynamic membership expiry reminders sent successfully.");
+  } catch (error) {
+      console.error("Error sending membership reminders:", error);
+  }
+});
+
+
+const sendMembershipReminder = async (user, reminderDays) => {
+  const { FirstName, Membership, StartDate, TelegramChatID } = user;
+
+  if (!TelegramChatID) {
+      console.warn(`⚠️ Skipping reminder for ${FirstName} (${Membership}) - No Telegram ID found.`);
+      return;
+  }
+
+  // Fetch tier-specific details
+  const tierDetails = await Tier.getSpecificTier(Membership);
+  if (!tierDetails) {
+      console.warn(`⚠️ No tier details found for ${Membership}. Skipping reminder.`);
+      return;
+  }
+
+  const { TierDuration, TierDiscount, MinPurchases } = tierDetails;
+
+  const today = new Date();
+  const expiryDate = moment(today).add(TierDuration, "days").format("MMMM D, YYYY");
+
+  // Generate personalized reminder message using ChatGPT
+  const chatMessages = [
+      {
+          role: "system",
+          content: `
+              You are an AI assistant crafting **personalized membership expiry reminders** for users.
+              The user's membership tier is **${Membership}**, which gives them **${TierDiscount}% off all programs**.
+              Their membership **expires on ${expiryDate}**, and they only have **${reminderDays} days left**.
+
+              🔹 **Guidelines:**
+              - Be **friendly & engaging**.
+              - Emphasize that their **${TierDiscount}% discount will be lost** if they don’t renew.
+              - Create **urgency**, but keep it **positive**.
+              - Include a **call-to-action** (e.g., renew now to keep your discount).
+              - Mention they need to **purchase ${MinPurchases} programs** to maintain their tier.
+
+              Generate a **concise and engaging message** in Markdown format.
+          `
+      },
+      {
+          role: "user",
+          content: `
+              User: ${FirstName}
+              Membership Tier: ${Membership}
+              Discount: ${TierDiscount}%
+              Expiry Date: ${expiryDate}
+              Reminder Days Left: ${reminderDays}
+              Renewal Requirement: Purchase ${MinPurchases} programs
+              
+              Provide a **clear, friendly renewal reminder** with a Markdown-formatted call-to-action, the markdown format should work in Telegram through the Telegram Bot API, but it should be in text format with some boldings and italics if needed.
+              This is the website link to embed: "https://fsdpit02full-moon-production-2509.up.railway.app"
+          `
+      }
+  ];
+
+  try {
+      const response = await openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: chatMessages,
+      });
+
+      const reminderMessage = response.choices[0].message.content.trim();
+      console.log("Chat ID:", TelegramChatID);
+      console.log("Reminder Message:", reminderMessage);
+      await bot.sendMessage(TelegramChatID, reminderMessage, { parse_mode: "Markdown" });
+
+      console.log(`📩 Reminder sent to ${FirstName} (${Membership}) - ${reminderDays} days left.`);
+  } catch (error) {
+      console.error(`❌ Failed to send reminder to ${FirstName}:`, error);
+  }
+};
+
 
 const sendTelegramMessage = async (chatId, message) => {
   try {
@@ -172,9 +292,12 @@ const sendTelegramMessage = async (chatId, message) => {
 
 // Create a clickable location link
 const createLocationLink = (location) => {
-    if (location.toLowerCase().includes("http") || location.toLowerCase().includes("online")) {
+    if (location.toLowerCase().includes("http") || location.toLowerCase().includes("www.")) {
       // If the location is an online link (e.g., Zoom, Google Meet), return it as-is
       return `[Join the Online Meeting](${location})`;
+    } else if (location.toLowerCase().includes("online")) {
+      // If the location is an online platform, provide a generic message
+      return `🌐 *Online Event* - Meeting Link Not Confirmed/Unknown, ask mindSphere admin for help if any.`
     } else {
       // Otherwise, treat it as a physical address and generate a Google Maps link
       const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
@@ -303,7 +426,8 @@ const fetchFormattedDetails = async (programme) => {
                 If unsure, provide a general response. If there is a few days left to the event, make sure to highlight it and urge users to sign up. 
                 You will write it in an engaging and informative manner. You can add emojis, bullet points, and other formatting to make it more appealing.
                 You can use marketing gimmicks to attract more attention, such as limited slots, discounts (if any), or limited time left.
-                Do not reveal any private or personal information, and ensure that user privacy is protected. The current date is ${currentDate}. 
+                Do not reveal any private or personal information, and ensure that user privacy is protected. \
+                The current date is ${currentDate}. 
                 Company Contact Information: ${JSON.stringify(mindSphereData.contact)}.
                 Present the programme details in an easy-to-read format. Keep your responses at most 300 words. You should make an engaing description, here's a reference:
                 "Hey FoodAIDers! 🫶🤗
@@ -391,43 +515,96 @@ const fetchFormattedDetails = async (programme) => {
 
   
       let imagePath;
-  
-      if (Buffer.isBuffer(programme.ProgrammePicture)) {
-        const bufferString = programme.ProgrammePicture.toString("utf-8");
-  
-        if (bufferString.includes("/") || bufferString.includes("\\")) {
-          console.log("Programme picture buffer contains a relative path. Using local file...");
-          const relativePath = path.join(__dirname, "../../../", bufferString);
-          if (!fs.existsSync(relativePath)) {
-            throw new Error(`Image file not found at relative path: ${relativePath}`);
+      
+      if (programme.ProgrammePicture) {
+          if (Buffer.isBuffer(programme.ProgrammePicture)) {
+              console.log("🖼 Received a Buffer. Checking if it's a valid image...");
+      
+              let rawBuffer = programme.ProgrammePicture;
+      
+              // Convert buffer to a string for base64 detection
+              const bufferString = programme.ProgrammePicture.toString("utf-8").trim();
+      
+              // Check if buffer is base64-encoded (valid Base64 strings have letters, numbers, "/", "+", and "=" padding)
+              const base64Regex = /^[A-Za-z0-9+/]+={0,2}$/;
+              if (base64Regex.test(bufferString)) {
+                  console.log("🔄 Base64 detected. Decoding to raw buffer...");
+                  rawBuffer = Buffer.from(bufferString, "base64");
+              }
+      
+              // Try detecting image type after base64 decoding
+              const detectedType = await fileType.fromBuffer(rawBuffer);
+      
+              if (detectedType && ["image/jpeg", "image/png", "image/webp", "image/jpg"].includes(detectedType.mime)) {
+                  console.log(`✅ Valid image detected (${detectedType.mime}). Processing as an image...`);
+      
+                  // Save image to a temporary directory
+                  const tempDir = path.join(__dirname, "../../../temp");
+                  if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
+      
+                  tempFilePath = path.join(tempDir, `programme_${programmeID}_${Date.now()}.${detectedType.ext}`);
+                  fs.writeFileSync(tempFilePath, rawBuffer); // Use the decoded rawBuffer
+      
+                  optimizedFilePath = await validateAndOptimizeImage(tempFilePath);
+                  imagePath = optimizedFilePath;
+              } else {
+                  console.log("❌ No valid image detected. Checking if buffer is actually a stored file path...");
+      
+                  if (bufferString.includes("/") || bufferString.includes("\\")) {
+                      console.log("🛠 Detected as a relative file path. Using local file...");
+                      const relativePath = path.join(__dirname, "../../../", bufferString);
+      
+                      if (!fs.existsSync(relativePath)) {
+                          throw new Error(`❌ Image file not found at: ${relativePath}`);
+                      }
+                      imagePath = relativePath;
+                  } else {
+                      throw new Error("❌ ProgrammePicture is neither an image nor a valid file path.");
+                  }
+              }
+          } else {
+              throw new Error("❌ ProgrammePicture is not a valid Buffer.");
           }
-          imagePath = relativePath;
-        } else {
-          console.log("Programme picture is binary data. Processing as image...");
-          const detectedType = await fileType.fromBuffer(programme.ProgrammePicture);
-  
-          if (!detectedType || !["image/jpeg", "image/png", "image/webp"].includes(detectedType.mime)) {
-            throw new Error(`Unsupported image format: ${detectedType ? detectedType.mime : "unknown"}`);
-          }
-  
-          const tempDir = path.join(__dirname, "../../../temp");
-          if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
-  
-          tempFilePath = path.join(tempDir, `programme_${programmeID}_${Date.now()}.${detectedType.ext}`);
-          fs.writeFileSync(tempFilePath, programme.ProgrammePicture);
-  
-          optimizedFilePath = await validateAndOptimizeImage(tempFilePath);
-          imagePath = optimizedFilePath;
-        }
-      } else if (typeof programme.ProgrammePicture === "string") {
-        const relativePath = path.join(__dirname, "../../../", programme.ProgrammePicture);
-        if (!fs.existsSync(relativePath)) {
-          throw new Error(`Image file not found at relative path: ${relativePath}`);
-        }
-        imagePath = relativePath;
       } else {
-        throw new Error("Invalid ProgrammePicture format. Expected a Buffer or a relative path.");
+          throw new Error("❌ ProgrammePicture is empty or undefined.");
       }
+      
+      // if (Buffer.isBuffer(programme.ProgrammePicture)) {
+      //   const bufferString = programme.ProgrammePicture.toString("utf-8");
+  
+      //   if (bufferString.includes("/") || bufferString.includes("\\")) {
+      //     console.log("Programme picture buffer contains a relative path. Using local file...");
+      //     const relativePath = path.join(__dirname, "../../../", bufferString);
+      //     if (!fs.existsSync(relativePath)) {
+      //       throw new Error(`Image file not found at relative path: ${relativePath}`);
+      //     }
+      //     imagePath = relativePath;
+      //   } else {
+      //     console.log("Programme picture is binary data. Processing as image...");
+      //     const detectedType = await fileType.fromBuffer(programme.ProgrammePicture);
+  
+      //     if (!detectedType || !["image/jpeg", "image/png", "image/webp"].includes(detectedType.mime)) {
+      //       throw new Error(`Unsupported image format: ${detectedType ? detectedType.mime : "unknown"}`);
+      //     }
+  
+      //     const tempDir = path.join(__dirname, "../../../temp");
+      //     if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
+  
+      //     tempFilePath = path.join(tempDir, `programme_${programmeID}_${Date.now()}.${detectedType.ext}`);
+      //     fs.writeFileSync(tempFilePath, programme.ProgrammePicture);
+  
+      //     optimizedFilePath = await validateAndOptimizeImage(tempFilePath);
+      //     imagePath = optimizedFilePath;
+      //   }
+      // } else if (typeof programme.ProgrammePicture === "string") {
+      //   const relativePath = path.join(__dirname, "../../../", programme.ProgrammePicture);
+      //   if (!fs.existsSync(relativePath)) {
+      //     throw new Error(`Image file not found at relative path: ${relativePath}`);
+      //   }
+      //   imagePath = relativePath;
+      // } else {
+      //   throw new Error("Invalid ProgrammePicture format. Expected a Buffer or a relative path.");
+      // }
   
       const imageResponse = await axios.post(
         `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendPhoto`,
@@ -620,6 +797,12 @@ bot.onText(/\/rules/, (msg) => {
 4️⃣ **No NSFW Content** – Do not share explicit, violent, or inappropriate material.
 5️⃣ **Use Common Sense** – Be considerate and follow general etiquette.
 
+Bot Commands:
+/start - Begin interaction and link your Telegram account
+/confirm - Verify your membership in the Telegram group and channel
+/chatbot [query] - Ask the mindSphere Assistant any question, e.g., /chatbot What programmes does mindSphere offer?
+/rules - View the community guidelines and rules
+
 🚨 Violations may result in warnings, mutes, or bans.
 
 👮 *Admins have the final say on enforcing the rules.* 
@@ -631,55 +814,56 @@ Thank you for being a part of mindSphere community! 😊
 });
 
 
-bot.on('message', async (msg) => {
+bot.onText(/\/chatbot/, async (msg) => {
   const chatId = msg.chat.id;
-  const userId = msg.from.id;
-  const messageId = msg.message_id;
-  const userMessage = msg.text;
+  const userMessage = msg.text || ""; // Ensure it's always a string
 
-  if (!userMessage) {
-      console.log('Received a non-text message, ignoring it.');
-      return;
+  // Check if msg.text exists and starts with "/chatbot"
+  if (!userMessage || !userMessage.startsWith('/chatbot ')) {
+      return; // Ignore messages that do not start with "/chatbot"
   }
 
-  // Save the current timestamp to track user activity
-  userCooldowns[userId] = Date.now();
+  const userPrompt = userMessage.replace('/chatbot ', '').trim(); // Extract actual user message
 
-  // AI moderation
   try {
-      const response = await openai.chat.completions.create({
-          model: "gpt-4o-mini",
-          messages: [
-              {
-                  role: "system",
-                  content: `
-                      You are a moderator. Classify user messages into the following categories:
-                      - Return \`1\` if the message is polite, relevant, or a common social message (e.g., "hello", "good morning", "how are you").
-                      - Return \`2\` ONLY if the message is offensive, spam, or clearly inappropriate.
-                      - Return \`3\` if the message is neutral or ambiguous but not harmful.
+      // Fetch structured data and predefined context
+      const chatData = await ChatDataModel.getStructuredProgramData();
+      const dataSummary = JSON.stringify(chatData, null, 2);
 
-                      Avoid flagging normal or friendly interactions as violations.
-                  `
-              },
-              { role: "user", content: userMessage }
-          ],
+      const currentDate = moment().tz('Asia/Singapore').format('MMMM D, YYYY');
+
+      const storedPrompt = ChatDataModel.getChatPrompt('ChatbotUser');
+
+      const systemPrompt = `
+          ${storedPrompt}
+          Provided Information:
+          Current Date: ${currentDate}.
+          Company Overview: ${JSON.stringify(mindSphereData.companyOverview)}
+          Contact Information: ${JSON.stringify(mindSphereData.contact)}
+          FAQs: ${JSON.stringify(faqs)}
+          Database Context: ${dataSummary}
+      `;
+
+      // Create message sequence for OpenAI API
+      const messages = [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+      ];
+
+      // Call OpenAI API
+      const response = await openai.chat.completions.create({
+          model: 'gpt-4o-mini',
+          messages: messages,
       });
 
-      console.log("Moderation response:", response.choices[0].message.content);
-      const moderationResult = response.choices[0].message.content.trim();
+      const botReply = response.choices[0].message.content.trim();
 
-      if (moderationResult === '1' || moderationResult === '3') {
-          // Approved message, do nothing
-      } else if (moderationResult === '2') {
-          // Unapproved message (offensive or spam)
-          bot.deleteMessage(chatId, messageId).catch(() => {});
-          bot.sendMessage(chatId, `@${msg.from.username || msg.from.first_name}, your message was not approved. Please follow the rules.`, { parse_mode: "Markdown" });
-          await restrictUser(chatId, userId, 1, msg.from);
-      } else {
-          console.error("Unexpected moderation result:", moderationResult);
-      }
+      const formattedReply = markdownToTelegram(botReply);
+      bot.sendMessage(chatId, formattedReply, { parse_mode: 'Markdown' });
+
   } catch (error) {
-      console.error("Error during moderation:", error.message);
+      console.error('Error processing Telegram bot request:', error);
+      bot.sendMessage(chatId, 'An error occurred while processing your request.');
   }
 });
 
@@ -750,69 +934,6 @@ const unrestrictUser = async (chatId, userId) => {
         console.error("Failed to unrestrict user:", error);
     }
 };
-
-
-// for chatbot
-const moment = require('moment-timezone');
-const ChatDataModel = require('../../../models/chatbot'); // Adjust this path based on your project structure
-const faqs = require('../../../modules/chatbot/data/faqs'); // Adjust this path based on your project structure
-
-const userSessions = {}; // Stores session history
-
-bot.on('message', async (msg) => {
-  const chatId = msg.chat.id;
-  const userMessage = msg.text;
-
-  // Check if the message starts with "/chatbot"
-  if (!userMessage.startsWith('/chatbot ')) {
-      return; // Ignore messages that do not start with "/chatbot"
-  }
-
-  const userPrompt = userMessage.replace('/chatbot ', '').trim(); // Extract actual user message
-
-  try {
-      // Fetch structured data and predefined context
-      const chatData = await ChatDataModel.getStructuredProgramData();
-      const dataSummary = JSON.stringify(chatData, null, 2);
-
-      const currentDate = moment().tz('Asia/Singapore').format('MMMM D, YYYY');
-
-      const storedPrompt = ChatDataModel.getChatPrompt('ChatbotUser');
-
-      const systemPrompt = `
-          ${storedPrompt}
-          Provided Information:
-          Current Date: ${currentDate}.
-          Company Overview: ${JSON.stringify(mindSphereData.companyOverview)}
-          Contact Information: ${JSON.stringify(mindSphereData.contact)}
-          FAQs: ${JSON.stringify(faqs)}
-          Database Context: ${dataSummary}
-      `;
-
-      // Create message sequence for OpenAI API
-      const messages = [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-      ];
-
-      // Call OpenAI API
-      const response = await openai.chat.completions.create({
-          model: 'gpt-4o-mini',
-          messages: messages,
-      });
-
-      const botReply = response.choices[0].message.content.trim();
-
-      const formattedReply = markdownToTelegram(botReply);
-      bot.sendMessage(chatId, formattedReply, { parse_mode: 'Markdown' });
-
-      // Send response to the user
-      // bot.sendMessage(chatId, botReply);
-  } catch (error) {
-      console.error('Error processing Telegram bot request:', error);
-      bot.sendMessage(chatId, 'An error occurred while processing your request.');
-  }
-});
 
 function markdownToTelegram(markdown) {
   return markdown

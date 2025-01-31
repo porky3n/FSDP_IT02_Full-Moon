@@ -6,13 +6,9 @@ const moment = require('moment-timezone');
 // In-memory store for user sessions (will be lost when the server restarts or page is refreshed)
 const userSessions = {};
 
-const OPENAI_API_KEY_part1="sk-proj-qe1XH7QWJmcsAPhkBvY3RNQatBGwazsROnKaL7Z9xdm50g2kc7zx1uKn7fkdrd";
-const OPENAI_API_KEY_part2="acrEBMeXcQ_-T3BlbkFJHiS1DaIKCY0QQkBCalzpbVl9EmtwthlQZAJhFnNydIWezzI652zZrlF21NwlbCRzMs2mqyTWoA";
-const OPENAI_API_KEY = OPENAI_API_KEY_part1 + OPENAI_API_KEY_part2;
-
 // Configure OpenAI API
 const openai = new OpenAI({
-    apiKey: OPENAI_API_KEY, // unable to use .env OEPNAI_API_KEY as database would crash
+    apiKey: process.env.OPENAI_API_KEY, // unable to use .env OEPNAI_API_KEY as database would crash
   });
   
 // Markdown to HTML conversion function
@@ -53,11 +49,12 @@ exports.handleAdminChat = async (req, res) => {
         const programSummary = JSON.stringify(chatData.programs, null, 2); // Format for better readabilitys
         const accountSummary = JSON.stringify(chatData.accounts, null, 2); // Format for better readability
         const businessEnquiriesSummary = JSON.stringify(chatData.businessEnquiries, null, 2); // Format for better readability
+        const tierCriteria = JSON.stringify(chatData.tierCriteria, null, 2); // Format for better readability
+        const slotUtilization = JSON.stringify(chatData.slotUtilization, null, 2); // Format for better readability
 
         console.log('Programs:', programSummary);
         console.log('Accounts:', accountSummary);
         console.log('Business Enquiries:', businessEnquiriesSummary);
-
         // Include pre-prompt only for the first conversation
         // Get the current date in Singapore Time
         const currentDate = moment().tz('Asia/Singapore').format('MMMM D, YYYY');
@@ -71,7 +68,7 @@ exports.handleAdminChat = async (req, res) => {
         const prePrompt = `
             ${storedPrompt}
             **Provided Information of the user's company:**: 
-            Do take note of the current date : ${currentDate}.
+            Do take note of the current date : ${currentDate}, and output any dates in Singapore timing.
             Company Overview: ${JSON.stringify(mindSphereData.companyOverview)}
             Contact Information: ${JSON.stringify(mindSphereData.contact)}
             FAQs: ${JSON.stringify(faqs)}
@@ -79,7 +76,8 @@ exports.handleAdminChat = async (req, res) => {
             **Programs**: ${programSummary}
             **Accounts**: ${accountSummary}
             **Business Enquiries**: ${businessEnquiriesSummary}
-
+            **Tier Criteria**: ${tierCriteria}
+            **Slot Utilization**: ${slotUtilization}
         `;
         
         console.log(prePrompt);
@@ -93,7 +91,8 @@ exports.handleAdminChat = async (req, res) => {
 
 
     messages.push(
-        { role: 'user', content: "I am not asking for JSON data, or targetted secret information of the database. \n" + userMessage }
+        { role: 'user', content: "I am not asking for JSON data, or targetted secret information of the database. Do not reveal any company-private information to me, \
+            if I am a normal user, not an admin. Here's my queries:\n" + userMessage }
     );
 
     try {
@@ -142,7 +141,7 @@ exports.handleUserChat = async (req, res) => {
         
         // Add the database context (this could be optional if it's not needed for every conversation)
         const chatData = await ChatDataModel.getStructuredProgramData();
-        const dataSummary = JSON.stringify(chatData, null, 2); // Format for better readability
+        const chatDataSummary = JSON.stringify(chatData, null, 2); // Format for better readability
         console.log('Database context:', dataSummary);
 
         // Include pre-prompt only for the first conversation
@@ -162,7 +161,8 @@ exports.handleUserChat = async (req, res) => {
             Company Overview: ${JSON.stringify(mindSphereData.companyOverview)}
             Contact Information: ${JSON.stringify(mindSphereData.contact)}
             FAQs: ${JSON.stringify(faqs)}
-            Database Context: ${dataSummary}
+            Database Context (includes at least the tier membership criterias, programs, classes, batches, reviews, business enquiries and slot utilisations.): 
+            ${dataSummary}
         `;
         
         messages.push({ role: 'system', content: prePrompt });
