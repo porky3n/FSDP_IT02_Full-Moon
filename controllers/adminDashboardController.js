@@ -4,7 +4,9 @@ const adminController = {
   async getDashboardMetrics(req, res) {
     try {
       const metrics = {};
-      const selectedMonth = parseInt(req.query.month) || new Date().getMonth();
+      // Add 1 to convert from JS month (0-11) to SQL month (1-12)
+      const selectedMonth =
+        (parseInt(req.query.month) || new Date().getMonth()) + 1;
       const year = new Date().getFullYear();
 
       const totalRevenueQuery = `
@@ -56,14 +58,14 @@ const adminController = {
 
       // Get revenue by month
       const monthlyRevenueQuery = `
-      SELECT 
-        DATE(PaymentDate) as Date,
-        SUM(CASE WHEN Verified = 'Verified' THEN PaymentAmount ELSE 0 END) as Revenue
-      FROM Payment 
-      WHERE MONTH(PaymentDate) = ? AND YEAR(PaymentDate) = ?
-      GROUP BY DATE(PaymentDate)
-      ORDER BY Date ASC
-    `;
+        SELECT 
+          DATE(PaymentDate) as Date,
+          SUM(CASE WHEN Verified = 'Verified' THEN PaymentAmount ELSE 0 END) as Revenue
+        FROM Payment 
+        WHERE MONTH(PaymentDate) = ? AND YEAR(PaymentDate) = ?
+        GROUP BY DATE(PaymentDate)
+        ORDER BY Date ASC
+      `;
 
       // Get average ratings
       const ratingsQuery = `
@@ -95,12 +97,12 @@ const adminController = {
         monthlyRevenue,
         ratings,
         totalRevenue,
-        membershipCounts, // Add this line
+        membershipCounts,
       ] = await Promise.all([
         pool.query(topSpendersQuery),
         pool.query(activeParticipantsQuery),
         pool.query(popularProgrammesQuery),
-        pool.query(monthlyRevenueQuery, [selectedMonth + 1, year]),
+        pool.query(monthlyRevenueQuery, [selectedMonth, year]),
         pool.query(ratingsQuery),
         pool.query(totalRevenueQuery),
         pool.query(membershipCountQuery),

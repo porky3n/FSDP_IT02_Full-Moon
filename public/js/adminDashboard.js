@@ -44,8 +44,9 @@ async function fetchDashboardMetrics(month) {
 // Main function to render the dashboard
 function renderDashboard(metrics, selectedMonth) {
   const mainContent = document.querySelector("main");
-  const date = new Date();
-  date.setMonth(selectedMonth);
+
+  // Create a safe date object with the correct selected month
+  const date = new Date(new Date().getFullYear(), selectedMonth, 1); // Use day 1 to avoid overflow
   const monthYear = date.toLocaleDateString("en-US", {
     month: "long",
     year: "numeric",
@@ -74,30 +75,30 @@ function renderDashboard(metrics, selectedMonth) {
 
             <!-- Revenue Chart -->
             <div class="row mb-4">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="card-title mb-0">Monthly Revenue</h5>
-                                <div class="d-flex align-items-center">
-                                    <span class="text-muted me-3">Revenue in ${monthYear}: $${totalMonthlyRevenue.toLocaleString()}</span>
-                                    <div class="dropdown">
-                                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                            ${monthYear}
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            ${renderMonthOptions(selectedMonth)}
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="revenueChart" height="300"></canvas>
-                        </div>
-                    </div>
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Monthly Revenue</h5>
+                <div class="d-flex align-items-center">
+                  <span class="text-muted me-3">Revenue in ${monthYear}: $${totalMonthlyRevenue.toLocaleString()}</span>
+                  <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="monthDropdown">
+                      ${monthYear}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                      ${renderMonthOptions(selectedMonth)}
+                    </ul>
+                  </div>
                 </div>
+              </div>
             </div>
+            <div class="card-body">
+              <canvas id="revenueChart" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
 
             <!-- Rest of the dashboard content -->
             <div class="row g-4">
@@ -120,7 +121,7 @@ function renderDashboard(metrics, selectedMonth) {
     `;
 
   // Initialize the revenue chart
-  initializeRevenueChart(metrics.monthlyRevenue);
+  initializeRevenueChart(metrics.monthlyRevenue, selectedMonth);
 
   // Add event listeners for month selection
   addMonthSelectionListeners();
@@ -128,16 +129,13 @@ function renderDashboard(metrics, selectedMonth) {
 
 // Function to render month options
 function renderMonthOptions(selectedMonth) {
-  // Create an array of all months starting from January
   const months = [];
-  const baseDate = new Date(new Date().getFullYear(), 0, 1); // Start with January 1st of current year
 
+  // Generate month names directly using the correct month indices (0-11)
   for (let i = 0; i < 12; i++) {
-    const monthDate = new Date(baseDate);
-    monthDate.setMonth(i);
-
+    const monthDate = new Date(new Date().getFullYear(), i, 1); // Use day 1 to avoid overflow issues
     months.push({
-      index: i,
+      index: i, // Zero-based index for consistency
       name: monthDate.toLocaleDateString("en-US", { month: "long" }),
     });
   }
@@ -163,10 +161,30 @@ function renderMonthOptions(selectedMonth) {
 function addMonthSelectionListeners() {
   const monthItems = document.querySelectorAll(".dropdown-item");
   monthItems.forEach((item) => {
-    item.addEventListener("click", (e) => {
+    item.addEventListener("click", async (e) => {
       e.preventDefault();
-      const selectedMonth = parseInt(e.target.dataset.month);
-      initializeDashboard(selectedMonth);
+      const button = e.target.closest(".dropdown-item");
+      if (!button) return;
+
+      const selectedMonth = parseInt(button.dataset.month);
+
+      // Get the month name and year
+      const date = new Date();
+      date.setMonth(selectedMonth);
+      const monthYear = date.toLocaleDateString("en-US", {
+        month: "long",
+        year: "numeric",
+      });
+
+      // Update all month displays immediately
+      document.querySelector("#monthDropdown").textContent = monthYear;
+      const revenueText = document.querySelector(".text-muted.me-3");
+      if (revenueText) {
+        revenueText.textContent = `Revenue in ${monthYear}: $0`; // Will be updated when data loads
+      }
+
+      // Then initialize dashboard with selected month
+      await initializeDashboard(selectedMonth);
     });
   });
 }
@@ -187,10 +205,12 @@ function renderSummaryCards(metrics) {
     0
   );
   const averageRating =
-    metrics.ratings.reduce(
-      (sum, prog) => sum + parseFloat(prog.AverageRating),
-      0
-    ) / metrics.ratings.length;
+    metrics.ratings.length > 0
+      ? metrics.ratings.reduce(
+          (sum, prog) => sum + parseFloat(prog.AverageRating || 0),
+          0
+        ) / metrics.ratings.length
+      : 0;
   const membershipCounts = metrics.membershipCounts.reduce(
     (acc, item) => {
       acc[item.Membership] = parseInt(item.MemberCount);
@@ -410,38 +430,25 @@ function renderStarRating(rating) {
 }
 
 // Initialize revenue chart using Chart.js
-function initializeRevenueChart(revenueData) {
+function initializeRevenueChart(revenueData, selectedMonth) {
   const ctx = document.getElementById("revenueChart").getContext("2d");
 
-  // Get the selected month from the dropdown
-  const selectedMonthStr = document
-    .querySelector(".dropdown-toggle")
-    .textContent.trim();
-  const selectedDate = new Date(selectedMonthStr);
+  // Use the explicitly passed selectedMonth for date calculations
+  const date = new Date();
+  date.setMonth(selectedMonth);
 
-  // Create an array of dates for the selected month
-  const firstDay = new Date(
-    selectedDate.getFullYear(),
-    selectedDate.getMonth(),
-    1
-  );
-  const lastDay = new Date(
-    selectedDate.getFullYear(),
-    selectedDate.getMonth() + 1,
-    0
-  );
+  const firstDay = new Date(date.getFullYear(), selectedMonth, 1);
+  const lastDay = new Date(date.getFullYear(), selectedMonth + 1, 0);
 
   // Format the data with proper date handling
   const formattedData = [];
   let currentDay = new Date(firstDay);
 
   while (currentDay <= lastDay) {
-    // Format the current date to match MySQL date format (YYYY-MM-DD)
     const currentDateStr = currentDay.toISOString().slice(0, 10);
 
     // Find matching data
     const matchingData = revenueData.find((item) => {
-      // Ensure we're comparing the same date format
       const itemDate = new Date(item.Date);
       return itemDate.toISOString().slice(0, 10) === currentDateStr;
     });
@@ -451,11 +458,10 @@ function initializeRevenueChart(revenueData) {
       revenue: matchingData ? parseFloat(matchingData.Revenue) : 0,
     });
 
-    // Move to next day
     currentDay.setDate(currentDay.getDate() + 1);
   }
 
-  // Create the chart
+  // Create the chart with the properly formatted data
   new Chart(ctx, {
     type: "line",
     data: {
