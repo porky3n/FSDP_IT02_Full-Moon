@@ -403,7 +403,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         console.log(currentTime);
         meetingLink = prog.ViewerMeetingLink;
-        console.log("Meeting Link: ", prog.ViewerMeetingLink);
+        console.log("Meeting Link: ", prog.ViewerMeetingLink + prog.ProgrammeName);
         const isOnline = prog.Location === "Online";
         const isNear =
         ((startTime - currentTime) / (1000 * 60) <= 5) || // Within 5 minutes of startTime
@@ -446,6 +446,7 @@ document.addEventListener("DOMContentLoaded", function () {
                       ? 
                       `<button 
                         class="btn btn-primary mt-3 create-meeting-btn" 
+                        data-meeting-link="${prog.ViewerMeetingLink}" 
                         data-programme-id="${prog.ProgrammeID}" 
                         ${isNear ? "" : "disabled"}>
                         Join Meeting
@@ -464,6 +465,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // Add click event listeners to "Join Meeting" buttons
       document.querySelectorAll(".create-meeting-btn").forEach((button) => {
         button.addEventListener("click", (event) => {
+          const meetingLink = event.target.getAttribute("data-meeting-link");
           if (meetingLink) {
             window.open(meetingLink, "_blank");
           } else {
