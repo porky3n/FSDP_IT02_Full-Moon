@@ -219,3 +219,4 @@ CREATE TABLE BusinessEnquiries (
     AdminNotes TEXT NULL                          -- Internal notes for admin reference (optional)
 );
 
+
