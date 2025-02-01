@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <p>School: ${child.School || "N/A"}</p>
           <p>Emergency Contact: ${child.EmergencyContactNumber}</p>
           <p>Dietary: ${child.Dietary || "N/A"}</p>
-          <p>Special Needs: ${child.SpecialNeeds || "N/A"}</p>
+          <p>Health Details: ${child.HealthDetails || "N/A"}</p>
           <p>Relationship: ${child.Relationship}</p>
         `;
 
@@ -202,7 +202,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const childId = form.dataset.childId;
 
       try {
-        // Create form data object
         const formData = {
           firstName: document.getElementById("firstName").value,
           lastName: document.getElementById("lastName").value,
@@ -212,7 +211,8 @@ document.addEventListener("DOMContentLoaded", function () {
           emergencyContactNumber:
             document.getElementById("emergencyContact").value,
           dietary: document.getElementById("dietary").value,
-          specialNeeds: document.getElementById("specialNeeds").value || "nil",
+          healthDetails:
+            document.getElementById("healthDetails").value || "nil",
           relationship: document.getElementById("relationship").value,
         };
 
@@ -222,12 +222,10 @@ document.addEventListener("DOMContentLoaded", function () {
         if (isUpdate && childId) {
           url = `/api/children/${childId}`;
           method = "PUT";
-          // Include profile picture in update if it exists
           if (currentProfilePicture) {
             formData.profilePicture = currentProfilePicture;
           }
         } else {
-          // Always include profile picture for new children
           formData.profilePicture = currentProfilePicture;
         }
 
@@ -292,7 +290,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const child = await response.json();
 
-      // Populate form fields
       document.getElementById("firstName").value = child.FirstName;
       document.getElementById("lastName").value = child.LastName;
       document.getElementById("dob").value = formatDateForInput(
@@ -303,8 +300,8 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("emergencyContact").value =
         child.EmergencyContactNumber;
       document.getElementById("dietary").value = child.Dietary || "";
-      document.getElementById("specialNeeds").value =
-        child.SpecialNeeds || "nil";
+      document.getElementById("healthDetails").value =
+        child.HealthDetails || "nil";
       document.getElementById("relationship").value = child.Relationship;
 
       if (child.ProfilePicture) {
@@ -316,7 +313,6 @@ document.addEventListener("DOMContentLoaded", function () {
       submitBtn.textContent = "Update Child";
       form.dataset.childId = childId;
 
-      // Scroll to the form
       form.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
       console.error("Error loading child details:", error);
