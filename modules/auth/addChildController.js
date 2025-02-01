@@ -19,24 +19,23 @@ exports.getChildren = async (req, res) => {
   try {
     const [children] = await pool.query(
       `SELECT  
-        c.ChildID,
-        c.FirstName,
-        c.LastName,
-        c.DateOfBirth,
-        c.Gender,
-        c.School,
-        c.EmergencyContactNumber,
-        c.Dietary,
-        c.ProfilePicture,
-        c.SpecialNeeds,
-        c.Relationship
-      FROM Child c
-      JOIN Parent p ON c.ParentID = p.ParentID
-      WHERE p.AccountID = ?`,
+    c.ChildID,
+    c.FirstName,
+    c.LastName,
+    c.DateOfBirth,
+    c.Gender,
+    c.School,
+    c.EmergencyContactNumber,
+    c.Dietary,
+    c.ProfilePicture,
+    c.HealthDetails,
+    c.Relationship
+  FROM Child c
+  JOIN Parent p ON c.ParentID = p.ParentID
+  WHERE p.AccountID = ?`,
       [accountId]
     );
 
-    // Convert BLOB to base64 string if ProfilePicture exists and format date
     const processedChildren = children.map((child) => ({
       ...child,
       ProfilePicture: child.ProfilePicture
@@ -66,20 +65,20 @@ exports.getChild = async (req, res) => {
 
     const [children] = await pool.query(
       `SELECT 
-        c.ChildID,
-        c.FirstName,
-        c.LastName,
-        c.DateOfBirth,
-        c.Gender,
-        c.School,
-        c.EmergencyContactNumber,
-        c.Dietary,
-        c.ProfilePicture,
-        c.SpecialNeeds,
-        c.Relationship
-      FROM Child c
-      JOIN Parent p ON c.ParentID = p.ParentID
-      WHERE p.AccountID = ? AND c.ChildID = ?`,
+    c.ChildID,
+    c.FirstName,
+    c.LastName,
+    c.DateOfBirth,
+    c.Gender,
+    c.School,
+    c.EmergencyContactNumber,
+    c.Dietary,
+    c.ProfilePicture,
+    c.HealthDetails,
+    c.Relationship
+  FROM Child c
+  JOIN Parent p ON c.ParentID = p.ParentID
+  WHERE p.AccountID = ? AND c.ChildID = ?`,
       [accountId, childId]
     );
 
@@ -119,11 +118,10 @@ exports.addChild = async (req, res) => {
       emergencyContactNumber,
       dietary,
       profilePicture,
-      specialNeeds,
+      healthDetails,
       relationship,
     } = req.body;
 
-    // Get parent ID from account ID
     const [parentResult] = await pool.query(
       "SELECT ParentID FROM Parent WHERE AccountID = ?",
       [accountId]
@@ -133,7 +131,6 @@ exports.addChild = async (req, res) => {
       return res.status(404).json({ message: "Parent record not found" });
     }
 
-    // Convert base64 string to Buffer if profilePicture exists
     const profilePictureBuffer = profilePicture
       ? Buffer.from(profilePicture.split(",")[1], "base64")
       : null;
@@ -149,7 +146,7 @@ exports.addChild = async (req, res) => {
           Dietary,
           ProfilePicture,
           ParentID,
-          SpecialNeeds,
+          HealthDetails,
           Relationship
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
@@ -162,7 +159,7 @@ exports.addChild = async (req, res) => {
         dietary,
         profilePictureBuffer,
         parentResult[0].ParentID,
-        specialNeeds,
+        healthDetails,
         relationship,
       ]
     );
@@ -189,7 +186,6 @@ exports.updateChild = async (req, res) => {
   try {
     const childId = req.params.id;
 
-    // Verify this child belongs to the logged-in parent
     const [authorized] = await pool.query(
       `SELECT 1 FROM Child c
        JOIN Parent p ON c.ParentID = p.ParentID
@@ -212,11 +208,10 @@ exports.updateChild = async (req, res) => {
       emergencyContactNumber,
       dietary,
       profilePicture,
-      specialNeeds,
+      healthDetails,
       relationship,
     } = req.body;
 
-    // Convert base64 string to Buffer if profilePicture exists
     const profilePictureBuffer = profilePicture
       ? Buffer.from(profilePicture.split(",")[1], "base64")
       : null;
@@ -231,7 +226,7 @@ exports.updateChild = async (req, res) => {
         EmergencyContactNumber = ?,
         Dietary = ?,
         ProfilePicture = ?,
-        SpecialNeeds = ?,
+        HealthDetails = ?,
         Relationship = ?
       WHERE ChildID = ?`,
       [
@@ -243,7 +238,7 @@ exports.updateChild = async (req, res) => {
         emergencyContactNumber,
         dietary,
         profilePictureBuffer,
-        specialNeeds,
+        healthDetails,
         relationship,
         childId,
       ]
