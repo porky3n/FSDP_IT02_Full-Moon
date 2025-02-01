@@ -624,6 +624,8 @@ class Programme {
               WITH ProgrammeDates AS (
                 SELECT 
                   pcb.ProgrammeClassID,
+                  pcb.HostMeetingLink,
+                  pcb.ViewerMeetingLink,
                   pc.ProgrammeID,
                   pcb.InstanceID, -- Retrieve InstanceID instead of ViewerMeetingLink
                   MIN(ps.StartDateTime) AS StartDateTime,
@@ -648,6 +650,8 @@ class Programme {
                 pc.Location,
                 pc.ProgrammeLevel,
                 pd.ProgrammeClassID, -- Include ProgrammeClassID in the final selection
+                pd.HostMeetingLink,
+                pd.ViewerMeetingLink,
                 pd.InstanceID, -- Include InstanceID in the final selection
                 pd.StartDateTime,
                 pd.EndDateTime
