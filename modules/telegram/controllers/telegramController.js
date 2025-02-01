@@ -28,7 +28,7 @@ const openai = new OpenAI({
 // Telegram Bot Setup
 const TelegramBot = require("node-telegram-bot-api");
 const isProduction = process.env.ISRAILWAY === "railway";
-const botOptions = isProduction ? { webHook: { port: process.env.PORT || 8080 } } : { polling: true };
+const botOptions = isProduction ? { webHook: { port: 8080 } } : { polling: true };
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, botOptions);
 const CHANNEL_ID = process.env.CHANNEL_ID; // Telegram Channel ID
 const GROUP_ID = process.env.GROUP_ID; // Telegram Group ID
@@ -268,7 +268,7 @@ const sendMembershipReminder = async (user, reminderDays) => {
               Renewal Requirement: Purchase ${MinPurchases} programs
               
               Provide a **clear, friendly renewal reminder** with a Markdown-formatted call-to-action, the markdown format should work in Telegram through the Telegram Bot API, but it should be in text format with some boldings and italics if needed.
-              This is the website link to embed: "${website}"
+              This is the website link to embed: "${process.env.RAILWAY_DOMAIN}"
           `
       }
   ];
@@ -519,7 +519,7 @@ const fetchFormattedDetails = async (programme) => {
       // this will only work if its a public server.
       //const programmeLink = `http://localhost:3000/userProgrammeInfoPage.html?programmeId=${programmeID}`;
     // Add a link to the programme details page
-    const programmeLink = `${website}/userProgrammeInfoPage.html?programmeId=${programmeID}`;
+    const programmeLink = `${process.env.RAILWAY_DOMAIN}/userProgrammeInfoPage.html?programmeId=${programmeID}`;
     console.log("Programme Link:", programmeLink);
     const clickableLink = `[View More Details](${programmeLink})`;
     formattedDetails += `\n\n${clickableLink}`;
