@@ -33,6 +33,7 @@ const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, botOptions);
 const CHANNEL_ID = process.env.CHANNEL_ID; // Telegram Channel ID
 const GROUP_ID = process.env.GROUP_ID; // Telegram Group ID
 
+const website = `https:///${process.env.RAILWAY_DOMAIN}`; // Website link to embed in messages
 const CHANNEL_INVITE = process.env.CHANNEL_INVITE; // Invite link for the Telegram Channel
 const GROUP_INVITE = process.env.GROUP_INVITE; // Invite link for the Telegram Group
 
@@ -152,11 +153,10 @@ bot.onText(/\/confirm/, async (msg) => {
   }
 });
 
-cron.schedule("*/1 * * * *", async () => { // Runs every minute for testing
+cron.schedule("*/5 * * * *", async () => { // Runs every minute for testing
   try {
       // Fetch all tier details dynamically (MinPurchases, TierDuration, Discounts)
       const tiers = await Tier.getMembershipTier();
-      console.log(tiers);
 
       if (!tiers.length) {
           console.log("⚠️ No membership tiers with expiry durations found. Skipping reminders.");
@@ -185,7 +185,7 @@ cron.schedule("*/1 * * * *", async () => { // Runs every minute for testing
 
         
         if (usersExpiringSoon.length === 0) {
-          console.log(`✅ No users need reminders for ${aTier}.`);
+          console.log(`No users need reminders for ${aTier}.`);
           continue;
         }
 
@@ -212,14 +212,14 @@ const sendMembershipReminder = async (user, reminderDays) => {
   const { FirstName, Membership, StartDate, TelegramChatID } = user;
 
   if (!TelegramChatID) {
-      console.warn(`⚠️ Skipping reminder for ${FirstName} (${Membership}) - No Telegram ID found.`);
+      console.warn(`Skipping reminder for ${FirstName} (${Membership}) - No Telegram ID found.`);
       return;
   }
 
   // Fetch tier-specific details
   const tierDetails = await Tier.getSpecificTier(Membership);
   if (!tierDetails) {
-      console.warn(`⚠️ No tier details found for ${Membership}. Skipping reminder.`);
+      console.warn(`No tier details found for ${Membership}. Skipping reminder.`);
       return;
   }
 
@@ -258,7 +258,7 @@ const sendMembershipReminder = async (user, reminderDays) => {
               Renewal Requirement: Purchase ${MinPurchases} programs
               
               Provide a **clear, friendly renewal reminder** with a Markdown-formatted call-to-action, the markdown format should work in Telegram through the Telegram Bot API, but it should be in text format with some boldings and italics if needed.
-              This is the website link to embed: "https://fsdpit02full-moon-production-2509.up.railway.app"
+              This is the website link to embed: "${website}"
           `
       }
   ];
@@ -274,9 +274,9 @@ const sendMembershipReminder = async (user, reminderDays) => {
       console.log("Reminder Message:", reminderMessage);
       await bot.sendMessage(TelegramChatID, reminderMessage, { parse_mode: "Markdown" });
 
-      console.log(`📩 Reminder sent to ${FirstName} (${Membership}) - ${reminderDays} days left.`);
+      console.log(`Reminder sent to ${FirstName} (${Membership}) - ${reminderDays} days left.`);
   } catch (error) {
-      console.error(`❌ Failed to send reminder to ${FirstName}:`, error);
+      console.error(`Failed to send reminder to ${FirstName}:`, error);
   }
 };
 
@@ -509,7 +509,7 @@ const fetchFormattedDetails = async (programme) => {
       // this will only work if its a public server.
       //const programmeLink = `http://localhost:3000/userProgrammeInfoPage.html?programmeId=${programmeID}`;
     // Add a link to the programme details page
-    const programmeLink = `https://fsdpit02full-moon-production-2509.up.railway.app/userProgrammeInfoPage.html?programmeId=${programmeID}`;
+    const programmeLink = `${website}/userProgrammeInfoPage.html?programmeId=${programmeID}`;
     const clickableLink = `[View More Details](${programmeLink})`;
     formattedDetails += `\n\n${clickableLink}`;
 
@@ -826,28 +826,41 @@ bot.onText(/\/chatbot/, async (msg) => {
   const userPrompt = userMessage.replace('/chatbot ', '').trim(); // Extract actual user message
 
   try {
-      // Fetch structured data and predefined context
-      const chatData = await ChatDataModel.getStructuredProgramData();
-      const dataSummary = JSON.stringify(chatData, null, 2);
+        // Add the database context (this could be optional if it's not needed for every conversation)
+        const programData = await ChatDataModel.getStructuredProgramData();
+        const paymentData = await ChatDataModel.getPaymentDetails();
+        const getSlotUtilization = await ChatDataModel.getSlotUtilization();
+        const tierData = await ChatDataModel.getTierCriteria();
+        const storedPrompt = await ChatDataModel.getChatPrompt('ChatbotUser');
 
-      const currentDate = moment().tz('Asia/Singapore').format('MMMM D, YYYY');
-
-      const storedPrompt = ChatDataModel.getChatPrompt('ChatbotUser');
-
-      const systemPrompt = `
-          ${storedPrompt}
-          Provided Information:
-          Current Date: ${currentDate}.
-          Company Overview: ${JSON.stringify(mindSphereData.companyOverview)}
-          Contact Information: ${JSON.stringify(mindSphereData.contact)}
-          FAQs: ${JSON.stringify(faqs)}
-          Database Context: ${dataSummary}
-      `;
-
+        // Include pre-prompt only for the first conversation
+        // Get the current date in Singapore Time
+        const currentDate = moment().tz('Asia/Singapore').format('MMMM D, YYYY');
+        
+        const prePrompt = `
+            ${storedPrompt}
+            You are mindSphere's assistant. You are helping the company mindSphere.sg.
+            Provided Information: 
+            Do take note of the current date : ${currentDate}.
+            Company Overview: ${JSON.stringify(mindSphereData.companyOverview)}
+            Contact Information: ${JSON.stringify(mindSphereData.contact)}
+            FAQs: ${JSON.stringify(faqs)}
+            Database Context (includes at least the tier membership criterias, programs, classes, batches, reviews and slot utilisations.): 
+            **Program**: ${JSON.stringify(programData, (key, value) => {
+                if (Array.isArray(value)) {
+                    return value.map(item => JSON.stringify(item));
+                }
+                return value;
+            }, 2)}
+            **Payment**: ${JSON.stringify(paymentData, null, 2)}
+            **Tier Criteria**: ${JSON.stringify(tierData, null, 2)}
+            **Slot Utilization**: ${JSON.stringify(getSlotUtilization, null, 2)}
+        `;
       // Create message sequence for OpenAI API
       const messages = [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
+          { role: 'user', content: "Do not reveal any company-secrets, or database secrets that a typical public user like me can see, such as payments by other customers and their details." +
+            "Enforce levels of control accordingly. Here's my prompt:" + userPrompt }
       ];
 
       // Call OpenAI API

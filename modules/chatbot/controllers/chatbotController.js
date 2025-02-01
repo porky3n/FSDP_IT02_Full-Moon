@@ -140,29 +140,39 @@ exports.handleUserChat = async (req, res) => {
     if (!userSessions[accountID].hasStarted) {
         
         // Add the database context (this could be optional if it's not needed for every conversation)
-        const chatData = await ChatDataModel.getStructuredProgramData();
-        const chatDataSummary = JSON.stringify(chatData, null, 2); // Format for better readability
-        console.log('Database context:', dataSummary);
+        const programData = await ChatDataModel.getStructuredProgramData();
+        const paymentData = await ChatDataModel.getPaymentDetails();
+        const getSlotUtilization = await ChatDataModel.getSlotUtilization();
+        const tierData = await ChatDataModel.getTierCriteria();
 
         // Include pre-prompt only for the first conversation
         // Get the current date in Singapore Time
         const currentDate = moment().tz('Asia/Singapore').format('MMMM D, YYYY');
         console.log(currentDate); // Example output: "November 13, 2024"
+        console.log(JSON.stringify(programData,null,2));
 
-
-        const storedPrompt = ChatDataModel.getChatPrompt('ChatbotUser');
+        const storedPrompt = await ChatDataModel.getChatPrompt('ChatbotUser');
 
         console.log(storedPrompt);
         
         const prePrompt = `
             ${storedPrompt}
+            You are mindSphere's assistant. You are helping the company mindSphere.sg.
             Provided Information: 
             Do take note of the current date : ${currentDate}.
             Company Overview: ${JSON.stringify(mindSphereData.companyOverview)}
             Contact Information: ${JSON.stringify(mindSphereData.contact)}
             FAQs: ${JSON.stringify(faqs)}
-            Database Context (includes at least the tier membership criterias, programs, classes, batches, reviews, business enquiries and slot utilisations.): 
-            ${dataSummary}
+            Database Context (includes at least the tier membership criterias, programs, classes, batches, reviews and slot utilisations.): 
+            **Program**: ${JSON.stringify(programData, (key, value) => {
+                if (Array.isArray(value)) {
+                    return value.map(item => JSON.stringify(item));
+                }
+                return value;
+            }, 2)}
+            **Payment**: ${JSON.stringify(paymentData, null, 2)}
+            **Tier Criteria**: ${JSON.stringify(tierData, null, 2)}
+            **Slot Utilization**: ${JSON.stringify(getSlotUtilization, null, 2)}
         `;
         
         messages.push({ role: 'system', content: prePrompt });
