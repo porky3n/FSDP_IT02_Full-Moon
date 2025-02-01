@@ -51,6 +51,7 @@ function displayProgrammeInfo(programmes) {
       const programmeInfo = document.createElement('div');
       programmeInfo.classList.add('col-md-4');
 
+      console.log("Meeting link", programme.HostMeetingLink);
       const hasHostLink = programme.HostMeetingLink && programme.HostMeetingLink.trim() !== '';
 
       // Convert StartDateTime and EndDateTime to Date objects
