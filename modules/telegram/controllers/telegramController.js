@@ -28,7 +28,7 @@ const openai = new OpenAI({
 // Telegram Bot Setup
 const TelegramBot = require("node-telegram-bot-api");
 const isProduction = process.env.ISRAILWAY === "railway";
-const botOptions = isProduction ? { webHook: { port: process.env.PORT || 3000 } } : { polling: true };
+const botOptions = isProduction ? { webHook: { port: process.env.PORT || 8080 } } : { polling: true };
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, botOptions);
 const CHANNEL_ID = process.env.CHANNEL_ID; // Telegram Channel ID
 const GROUP_ID = process.env.GROUP_ID; // Telegram Group ID
@@ -100,7 +100,15 @@ bot.onText(/\/start/, async (msg) => {
         [chatId, identifier]
       );
 
-
+      // query such that if user's email already registered,just update the chatId
+      await pool.query(
+        `UPDATE Parent 
+         JOIN Account ON Account.AccountID = Parent.AccountID 
+         SET Parent.TelegramChatID = ? 
+         WHERE Account.Email = ?`,
+        [chatId, identifier]
+    );
+    
     // Escape message correctly
     const inviteMessage = `
     🎉 *Great! Now join our official Telegram communities:*\n🔹 [Join Our Channel](${CHANNEL_INVITE}) \
