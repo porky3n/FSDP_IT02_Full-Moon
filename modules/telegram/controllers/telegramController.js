@@ -27,7 +27,7 @@ const openai = new OpenAI({
 
 // Telegram Bot Setup
 const TelegramBot = require("node-telegram-bot-api");
-const isProduction = process.env.NODE_ENV === "production";
+const isProduction = process.env.ISRAILWAY === "railway";
 const botOptions = isProduction ? { webHook: { port: process.env.PORT || 3000 } } : { polling: true };
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, botOptions);
 const CHANNEL_ID = process.env.CHANNEL_ID; // Telegram Channel ID
@@ -78,6 +78,8 @@ bot.onText(/\/start/, async (msg) => {
     })
     return;
   };
+
+  console.log("Chat ID for /start:", chatId);
   const firstName = msg.chat.first_name || "User";
 
   // Send a welcome message and ask for email or phone
@@ -510,6 +512,7 @@ const fetchFormattedDetails = async (programme) => {
       //const programmeLink = `http://localhost:3000/userProgrammeInfoPage.html?programmeId=${programmeID}`;
     // Add a link to the programme details page
     const programmeLink = `${website}/userProgrammeInfoPage.html?programmeId=${programmeID}`;
+    console.log("Programme Link:", programmeLink);
     const clickableLink = `[View More Details](${programmeLink})`;
     formattedDetails += `\n\n${clickableLink}`;
 
