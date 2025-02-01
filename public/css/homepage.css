@@ -70,7 +70,6 @@
     max-width: 600px; /* Limit width for better readability */
     margin-left: auto;
     margin-right: auto;
-    
   }
   
   .tlogos1 {
@@ -326,15 +325,6 @@
       transform: translateX(-20%) !important;
     }
   }
-  
-  
-  
-  
-  
-  
-  
-  
-  
   
   #featured .container {
     padding: 0;
