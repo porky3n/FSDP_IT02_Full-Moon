@@ -848,7 +848,7 @@ bot.onText(/\/chatbot/, async (msg) => {
         // Get the current date in Singapore Time
         const currentDate = moment().tz('Asia/Singapore').format('MMMM D, YYYY');
         
-        const prePrompt = `
+        const systemPrompt = `
             ${storedPrompt}
             You are mindSphere's assistant. You are helping the company mindSphere.sg.
             Provided Information: 
