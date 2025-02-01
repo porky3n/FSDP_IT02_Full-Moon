@@ -14,25 +14,64 @@ body {
   border-radius: 50%;
 }
 
-/* Profile Section */
 .profile-picture-container {
-  width: 120px;
-  height: 120px;
-  margin: 0 auto;
   position: relative;
+  width: 150px;
+  height: 150px;
+  margin: 0 auto;
+  border-radius: 50%;
+  overflow: hidden;
 }
 
 .profile-picture {
   width: 100%;
   height: 100%;
-  border-radius: 50%;
-  border: 3px solid #ffc107;
   object-fit: cover;
 }
 
-.btn-edit {
-  padding: 6px 24px;
-  border-radius: 20px;
+.upload-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 8px;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.profile-picture-container:hover .upload-overlay {
+  opacity: 1;
+}
+
+.upload-overlay label {
+  cursor: pointer;
+  margin: 0;
+  color: white;
+  font-size: 0.9rem;
+}
+
+.upload-overlay label:hover {
+  color: #f8f9fa;
+}
+
+.user-details .card {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.user-details .card-title {
+  color: #333;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 10px;
+}
+
+.user-details p {
+  margin-bottom: 1rem;
+}
+
+.user-details strong {
+  color: #555;
 }
 
 /* Programme Cards */
@@ -53,29 +92,71 @@ body {
   color: #333;
 }
 
-/* Footer */
-.footer {
-  background-color: white;
-  border-top: 1px solid #eee;
+.card {
+  transition: transform 0.2s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.footer-links a {
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card-img-top {
+  border-bottom: 1px solid #eee;
+}
+
+.subscribed-programmes {
+  margin-top: 2rem;
+}
+
+.subscribed-programmes h4 {
+  background-color: #3a506b;
+  color: #ffffff;
+  padding: 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  text-align: center;
+}
+
+/* Added css  (Overlapped with some) */
+/* Programme Cards with Ellipsis */
+/* Programme Cards with Ellipsis */
+.programme-card {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: white;
+}
+
+.programme-info {
+  padding: 1rem;
+}
+
+/* Truncate Programme Name to a Single Line */
+.programme-info .date {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 1.2rem;
+  font-weight: bold;
   color: #333;
-  text-decoration: none;
-  margin: 0 1rem;
 }
 
-.social-links a {
-  margin: 0 0.5rem;
+/* Truncate Description to Two Lines */
+.programme-info .description {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Adjust line limit as needed */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
 }
 
-.social-links img {
-  width: 24px;
-  height: 24px;
+
+.date {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
 }
 
-.address,
-.copyright {
-  color: #666;
-  font-size: 0.9rem;
-}

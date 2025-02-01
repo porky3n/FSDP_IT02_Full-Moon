@@ -1,7 +1,9 @@
 // /modules/auth/authRoutes.js
 const express = require('express');
+const passport = require('./passportConfig'); // Import Google OAuth setup
 const router = express.Router();
 const authController = require('./authController');
+const jwt = require("jsonwebtoken");
 
 // POST /auth/signup - Handle signup requests
 router.post('/signup', authController.signup);
@@ -39,6 +41,32 @@ router.get('/check-session', authController.checkSession);
 // GET - Check session and log out
 router.get('/logout', authController.logout);
 
+// Google OAuth routes
+router.get(
+  '/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+router.get(
+  "/google/callback",
+  passport.authenticate("google", { failureRedirect: "/auth/login" }),
+  (req, res) => {
+    const accountId = req.user.AccountID;
+
+    if (accountId) {
+      req.session.accountId = accountId; // Save accountId to session
+      req.session.firstName = req.user.firstName; // Save user's first name to session for easy access
+      res.redirect(`/index.html`);
+    } else {
+      res.redirect("/auth/login");
+    }
+  }
+);
+
+
+
+// Logout Google session
+router.get('/logout', authController.logout);
 
 
 module.exports = router;

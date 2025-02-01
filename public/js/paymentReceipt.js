@@ -27,3 +27,4 @@ function calculateTotals() {
   document.getElementById("tax").textContent = `$${tax.toFixed(2)}`;
   document.getElementById("total").textContent = `SGD$ ${total.toFixed(2)}`;
 }
+

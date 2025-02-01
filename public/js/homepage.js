@@ -1,14 +1,14 @@
-var TrandingSlider = new Swiper('.tranding-slider', {
+var featuredSlider = new Swiper('.featured-slider', {
   effect: 'coverflow',
   grabCursor: true,
   centeredSlides: true,
   loop: true,
   slidesPerView: 'auto',
   coverflowEffect: {
-    rotate: 0, // No rotation effect
-    stretch: 0, // No stretching
-    depth: 100, // Depth of the effect
-    modifier: 2.5, // Increase the effect strength
+    rotate: 0,
+    stretch: 0,
+    depth: 100,
+    modifier: 2.5,
   },
   pagination: {
     el: '.swiper-pagination',
@@ -17,5 +17,5 @@ var TrandingSlider = new Swiper('.tranding-slider', {
   navigation: {
     nextEl: '.swiper-button-next',
     prevEl: '.swiper-button-prev',
-  },
+  }
 });

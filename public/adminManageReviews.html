@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Custom CSS for Navbar, Footer, and Reviews -->
+    <link rel="stylesheet" href="./css/adminNavbar.css" />
+    <link rel="stylesheet" href="./css/footer.css" />
+    <link rel="stylesheet" href="./css/adminManageReviews.css" />
+    <link rel="stylesheet" href="./css/translate.css" />
+    <script src="./js/translate.js"></script>
+
+    <title>Manage Reviews | Mindsphere</title>
+  </head>
+  <body>
+    <!-- Navbar Section -->
+    <header>
+      <div id="navbar-container"></div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+      <div class="container mt-5">
+        <h1 class="text-center mb-4">Manage Reviews</h1>
+
+        <!-- Programme Selection Dropdown -->
+        <div class="mb-4">
+          <label for="programmeSelect" class="form-label"
+            >Select Programme:</label
+          >
+          <select id="programmeSelect" class="form-select">
+            <!-- Programmes will be dynamically loaded here -->
+          </select>
+        </div>
+
+        <!-- Reviews Section -->
+        <div id="reviews-section">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th scope="col">Reviewer Name</th>
+                <th scope="col">Rating</th>
+                <th scope="col">Review</th>
+                <th scope="col">Date</th>
+                <th scope="col" class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="review-list">
+              <!-- Reviews will be dynamically loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="bg-dark text-white mt-5">
+      <div id="footer-container"></div>
+    </footer>
+
+    <!-- Bootstrap JS and other dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="./js/adminManageReviews.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#navbar-container").load("adminNavbar.html");
+      });
+    </script>
+  </body>
+</html>

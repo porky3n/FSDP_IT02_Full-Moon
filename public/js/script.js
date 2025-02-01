@@ -1,34 +1,156 @@
-$(document).ready(function() {
+$(document).ready(function () {
+    console.log("Script initialized");
+
     // Load the navbar and footer content dynamically
     $("#navbar-container").load("navbar.html");
     $("#footer-container").load("footer.html");
 
-    // Check for stored user details in localStorage
-    const userDetails = JSON.parse(localStorage.getItem('userDetails'));
-    if (userDetails && userDetails.firstName) {
-        displayWelcomeMessage(userDetails.firstName);
-    }
+    // Directly check session and fetch user details
+    checkSessionAndDisplayWelcomeMessage();
+
+    // Check for tier expiration message
+    displayTierExpirationMessage();
+
+    // const userDetailsString = localStorage.getItem('userDetails');
+    // const userDetails = JSON.parse(userDetailsString); // Parse the JSON string into an object
+    // let accountId = userDetails['accountId'] ? userDetails['accountId'] : null;
+
+    // checkAndResetTierForAccount(accountId);
 });
 
-document.addEventListener('DOMContentLoaded', async function() {
+// Check the session and display welcome message
+async function checkSessionAndDisplayWelcomeMessage() {
     try {
-        // Fetch session details to check if the user is logged in
-        const response = await fetch('/auth/check-session');
-        const data = await response.json();
+        // Fetch session details from the backend
+        const response = await fetch("/auth/check-session", {
+            method: "GET",
+            credentials: "include",
+            headers: {
+                Accept: "application/json",
+            },
+        });
 
-        if (data.isLoggedIn && data.firstName) {
-            displayWelcomeMessage(data.firstName);
+        const sessionData = await response.json();
+
+        if (sessionData.isLoggedIn && sessionData.firstName) {
+            // Store user details in localStorage
+            localStorage.setItem(
+                "userDetails",
+                JSON.stringify({
+                    accountId: sessionData.accountId,
+                    firstName: sessionData.firstName,
+                    email: sessionData.email,
+                    membership: sessionData.membership,
+                })
+            );
+
+            // Update welcome message
+            displayWelcomeMessage(sessionData.firstName);
         } else {
-            displayWelcomeMessage('Guest');
+            displayWelcomeMessage("Guest");
         }
     } catch (error) {
-        console.error('Error fetching user session:', error);
-        displayWelcomeMessage('Guest');
+        console.error("Error checking session:", error);
+        displayWelcomeMessage("Guest");
     }
-});
+}
 
+
+// Display the welcome message
 function displayWelcomeMessage(firstName) {
     const welcomeMessageContainer = document.getElementById('welcomeMessage');
     welcomeMessageContainer.textContent = `Welcome, ${firstName}!`;
     welcomeMessageContainer.classList.add('welcome-text'); // Add CSS class for styling
+};
+
+
+// Function to check and display the tier expiration message
+// function displayTierExpirationMessage() {
+//   const tierMessage = localStorage.getItem("tierExpirationMessage");
+
+//   if (tierMessage) {
+//       alert(tierMessage); // Display the message as an alert (you can change this to show in the UI)
+      
+//       // Optionally, display in a designated container instead of an alert
+//       // const messageContainer = document.getElementById("membershipMessage");
+//       // if (messageContainer) {
+//       //     messageContainer.textContent = tierMessage;
+//       //     messageContainer.style.display = "block";
+//       // }
+
+//       // Remove the message from storage after displaying to avoid repeated alerts
+//       localStorage.removeItem("tierExpirationMessage");
+//   }
+// }
+
+// Function to check and display the tier expiration message
+function displayTierExpirationMessage() {
+    const tierMessage = localStorage.getItem("tierExpirationMessage");
+
+    if (tierMessage) {
+        // Set message text
+        document.getElementById("tierMessageText").textContent = tierMessage;
+
+        // Show modal
+        document.getElementById("tierExpirationModal").style.display = "flex";
+
+        // Remove the message from storage after displaying
+        localStorage.removeItem("tierExpirationMessage");
+
+        // Load Lottie animation
+        loadLottieAnimation();
+    }
 }
+
+// Function to Load Lottie Animation
+function loadLottieAnimation() {
+    lottie.loadAnimation({
+        container: document.getElementById("lottie-container"),
+        renderer: "svg",
+        loop: true,
+        autoplay: true,
+        path: "https://lottie.host/2660d233-559f-443b-a80d-7b874ccb1ab0/wc6fgPdfWC.lottie" // Expired warning animation
+    });
+}
+
+// Event Listeners to Close Modal
+document.querySelector(".close").addEventListener("click", function () {
+    document.getElementById("tierExpirationModal").style.display = "none";
+});
+
+document.getElementById("closeModalBtn").addEventListener("click", function () {
+    document.getElementById("tierExpirationModal").style.display = "none";
+});
+
+
+// async function checkAndResetTierForAccount(accountId) {
+//     try {
+//       console.log("accountId:", accountId);
+//       const response = await fetch(`/api/tier/${accountId}/checkMembership`, {
+//         method: 'PUT',
+//       });
+  
+//       if (response.ok) {
+//         const data = await response.json();
+//         console.log(data.message);
+  
+//         // Update localStorage if the tier was expired
+//         if (data.expired) {
+//           const updatedUserDetails = {
+//             ...JSON.parse(localStorage.getItem("userDetails")),
+//             membership: data.membership,
+//           };
+//           localStorage.setItem("userDetails", JSON.stringify(updatedUserDetails));
+  
+//           // Display the message only if the tier was expired
+//           alert(data.message);
+//         }
+//       } else {
+//         console.error("Error resetting Membership for account:", response.statusText);
+//       }
+//     } catch (error) {
+//       console.error("Error resetting Membership for account:", error);
+//       alert("Error resetting Membership for account.");
+//     }
+//   }
+  

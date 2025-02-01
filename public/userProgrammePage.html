@@ -1,52 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-    
+
+    <!-- Google Fonts Link For Icons -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0"
+    />
+    <!-- Bootstrap -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    />
+
     <!-- Swiper CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/swiper@8/swiper-bundle.min.css"
+    />
+
+    <script defer src="./js/aichat.js"></script>
 
     <!-- Custom CSS for Navbar and Footer -->
     <link rel="stylesheet" href="./css/navbar.css" />
     <link rel="stylesheet" href="./css/footer.css" />
     <link rel="stylesheet" href="./css/userProgrammePage.css" />
+    <link rel="stylesheet" href="./css/aichat.css" />
+    <link rel="stylesheet" href="./css/translate.css" />
+    <script src="./js/translate.js"></script>
 
     <title>Mindsphere</title>
-</head>
-<body>
+  </head>
+  <body>
     <!-- Navbar Section -->
     <header>
-        <div id="navbar-container"></div>
+      <div id="navbar-container"></div>
     </header>
 
     <!-- Main Content -->
     <main>
-        <section class="banner text-white">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-10 text-left">
-                        <h1>Grow as a creator with our training webinars</h1>
-                        <p><b>Free live training workshops, Monday to Friday, from the comfort of your own home. Let’s learn, grow, and build together.</b></p>
-                        <a href="userProgrammeInfoPage.html" class="btn btn-light btn-rounded btn-arrow">Most Recent Webinars
-                            <img src="images/arrow_forward.png" alt="Arrow" class="arrow-img">
-                        </a>
-                    </div>
-                    <div class="col-md-6"></div>
-                </div>
+      <section class="banner text-white">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-10 text-left">
+              <h1>Enhance Your Skills with Our Expert-Led Programmes</h1>
+              <p>
+                Gain valuable insights, develop new skills, and connect with a
+                community of learners. Start your journey today!
+              </p>
+              <a href="#search" class="btn btn-light btn-rounded btn-arrow"
+                >Look for Programmes
+                <img
+                  src="images/arrow_forward.png"
+                  alt="Arrow"
+                  class="arrow-img"
+                />
+              </a>
             </div>
-        </section>
+            <div class="col-md-6"></div>
+          </div>
+        </div>
+      </section>
 
-        <!-- featured programmes -->
-        <section id="featured">
-            <div class="container">
-              <h2>Featured Programmes</h2>
-              <div class="swiper featured-slider">
-                <div class="swiper-wrapper">
-                  <div class="swiper-slide featured-slide">
+      <!-- featured programmes -->
+      <section id="featured">
+        <div class="container">
+          <h2>Featured Programmes</h2>
+          <div class="swiper featured-slider">
+            <div class="swiper-wrapper">
+              <!-- <div class="swiper-slide featured-slide">
                     <div class="card">
                         <img src="images/publicspeaking 1.png" class="card-img-top" alt="Public Speaking">
                         <div class="card-body">
@@ -72,80 +112,107 @@
                             <p class="card-text">Impactful speaking skills start here</p>
                         </div>
                     </div>
+                  </div> -->
+            </div>
+
+            <div class="featured-slider-control">
+              <div class="swiper-button-prev slider-arrow">
+                <ion-icon name="arrow-back-outline"></ion-icon>
+              </div>
+              <div class="swiper-button-next slider-arrow">
+                <ion-icon name="arrow-forward-outline"></ion-icon>
+              </div>
+              <div class="swiper-pagination"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="private bg-light py-5">
+        <div class="container">
+          <h2>Workshops</h2>
+          <div class="row mt-4">
+            <div class="col-md-4">
+              <div class="card">
+                <img
+                  src="images/publicspeaking 1.png"
+                  class="card-img-top"
+                  alt="Workshop"
+                />
+                <div class="card-body">
+                  <!-- <h6 class="mb-2">APR 14</h6> -->
+                  <div>
+                    <h5 class="card-title">Public Speaking Workshop</h5>
+                    <p class="card-text">
+                      Master the art of public speaking, captivate your
+                      audience, boost your confidence, and leave a lasting
+                      impact.
+                    </p>
                   </div>
                 </div>
-      
-                <div class="featured-slider-control">
-                  <div class="swiper-button-prev slider-arrow">
-                    <ion-icon name="arrow-back-outline"></ion-icon>
-                  </div>
-                  <div class="swiper-button-next slider-arrow">
-                    <ion-icon name="arrow-forward-outline"></ion-icon>
-                  </div>
-                  <div class="swiper-pagination"></div>
-                </div>
-      
               </div>
             </div>
-        </section>
-
-        <section class="private bg-light py-5">
-            <div class="container">
-                <h2>Private Coaching</h2>
-                <div class="row mt-4">
-                    <div class="col-md-4">
-                        <div class="card">
-                            <img src="images/publicspeaking 1.png" class="card-img-top" alt="Workshop">
-                            <div class="card-body">
-                                <h6 class="mb-2">APR 14</h6>
-                                <div>
-                                    <h5 class="card-title">Public Speaking Workshop</h5>
-                                    <p class="card-text">Master the art of public speaking, captivate your audience, boost your confidence, and leave a lasting impact.</p>
-                                </div> 
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card">
-                            <img src="images/publicspeaking 1.png" class="card-img-top" alt="Workshop">
-                            <div class="card-body">
-                                <h6 class="mb-2">APR 14</h6>
-                                <div>
-                                    <h5 class="card-title">Public Speaking Workshop</h5>
-                                    <p class="card-text">Master the art of public speaking, captivate your audience, boost your confidence, and leave a lasting impact.</p>
-                                </div> 
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card">
-                            <img src="images/publicspeaking 1.png" class="card-img-top" alt="Workshop">
-                            <div class="card-body">
-                                <h6 class="mb-2">APR 14</h6>
-                                <div>
-                                    <h5 class="card-title">Public Speaking Workshop</h5>
-                                    <p class="card-text">Master the art of public speaking, captivate your audience, boost your confidence, and leave a lasting impact.</p>
-                                </div>   
-                            </div>
-                        </div>
-                    </div>
+            <div class="col-md-4">
+              <div class="card">
+                <img
+                  src="images/publicspeaking 1.png"
+                  class="card-img-top"
+                  alt="Workshop"
+                />
+                <div class="card-body">
+                  <!-- <h6 class="mb-2">APR 14</h6> -->
+                  <div>
+                    <h5 class="card-title">Public Speaking Workshop</h5>
+                    <p class="card-text">
+                      Master the art of public speaking, captivate your
+                      audience, boost your confidence, and leave a lasting
+                      impact.
+                    </p>
+                  </div>
                 </div>
-                <div class="row mt-4">
-                    <div class="col-auto">
-                        <button class="btn btn-custom-fill">Show More</button>
-                    </div>
-                    <div class="col-auto">
-                        <button class="btn btn-custom-outline">
-                            View All
-                            <img src="images/arrow_forward.png" alt="Arrow" class="arrow-img">
-                        </button>
-                    </div>
-                </div>
+              </div>
             </div>
-        </section>
-        
-        <!-- Popular Category -->
-        <section class="py-5">
+            <div class="col-md-4">
+              <div class="card">
+                <img
+                  src="images/publicspeaking 1.png"
+                  class="card-img-top"
+                  alt="Workshop"
+                />
+                <div class="card-body">
+                  <!-- <h6 class="mb-2">APR 14</h6> -->
+                  <div>
+                    <h5 class="card-title">Public Speaking Workshop</h5>
+                    <p class="card-text">
+                      Master the art of public speaking, captivate your
+                      audience, boost your confidence, and leave a lasting
+                      impact.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row mt-4">
+            <!-- <div class="col-auto">
+                        <button class="btn btn-custom-fill">Show More</button>
+                    </div> -->
+            <div class="col-auto">
+              <button class="btn btn-custom-outline">
+                View All
+                <img
+                  src="images/arrow_forward.png"
+                  alt="Arrow"
+                  class="arrow-img"
+                />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Popular Category -->
+      <!-- <section class="py-5">
             <div class="container">
                 <h2>Popular Category</h2>
                 <div class="category">
@@ -165,147 +232,118 @@
                     </div>
                 </div>
             </div>
-        </section>
-        
-        <!-- Search section -->
-        <section class="search mt-4 mb-5">
-            <div class="container">
-              <!-- Search and Sort -->
-              <h2>Search</h2>
-              <div class="search-filter mb-4">
-                <div class="search-bar">
-                  <div class="input-group">
-                    <span class="input-group-text" id="search-icon">
-                      <img src="images/icon.png" alt="Search Icon" class="search-icon-img">
-                    </span>
-                    <input type="text" class="form-control" placeholder="Search anything..." aria-label="Search" aria-describedby="search-icon">
-                  </div>
+        </section> -->
+
+      <!-- Search section -->
+      <section class="search mt-5 mb-5" id="search">
+        <div class="container">
+          <h2>Search</h2>
+          <div class="search-filter mb-4">
+            <div class="search-bar">
+              <div class="input-group">
+                <div class="group">
+                  <svg class="icon" aria-hidden="true" viewBox="0 0 24 24">
+                    <g>
+                      <path
+                        d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z"
+                      ></path>
+                    </g>
+                  </svg>
+                  <input placeholder="Search" type="search" class="input" />
                 </div>
-                <div class="sort-dropdown">
-                  <select class="form-select">
-                    <option>Sort By Date</option>
-                  </select>
-                </div>
-              </div>
-          
-              <!-- Card Grid -->
-              <div class="row mt-5">
-                <div class="col-md-4">
-                  <div class="card">
-                    <img src="images/publicspeaking 1.png" class="card-img-top" alt="Workshop">
-                    <div class="card-body">
-                      <h6>APR 14</h6>
-                      <div>
-                        <h5 class="card-title">Public Speaking Workshop</h5>
-                        <p class="card-text">Master the art of public speaking, captivate your audience, boost your confidence, and leave a lasting impact.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-          
-                <div class="col-md-4">
-                  <div class="card">
-                    <img src="images/publicspeaking 1.png" class="card-img-top" alt="Workshop">
-                    <div class="card-body">
-                      <h6>APR 14</h6>
-                      <div>
-                        <h5 class="card-title">Public Speaking Workshop</h5>
-                        <p class="card-text">Master the art of public speaking, captivate your audience, boost your confidence, and leave a lasting impact.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-          
-                <div class="col-md-4">
-                  <div class="card">
-                    <img src="images/publicspeaking 1.png" class="card-img-top" alt="Workshop">
-                    <div class="card-body">
-                      <h6>APR 14</h6>
-                      <div>
-                        <h5 class="card-title">Public Speaking Workshop</h5>
-                        <p class="card-text">Master the art of public speaking, captivate your audience, boost your confidence, and leave a lasting impact.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-          
-              <div class="row mt-5">
-                <div class="col-md-4">
-                  <div class="card">
-                    <img src="images/publicspeaking 1.png" class="card-img-top" alt="Workshop">
-                    <div class="card-body">
-                      <h6>APR 14</h6>
-                      <div>
-                        <h5 class="card-title">Public Speaking Workshop</h5>
-                        <p class="card-text">Master the art of public speaking, captivate your audience, boost your confidence, and leave a lasting impact.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-          
-                <div class="col-md-4">
-                  <div class="card">
-                    <img src="images/publicspeaking 1.png" class="card-img-top" alt="Workshop">
-                    <div class="card-body">
-                      <h6>APR 14</h6>
-                      <div>
-                        <h5 class="card-title">Public Speaking Workshop</h5>
-                        <p class="card-text">Master the art of public speaking, captivate your audience, boost your confidence, and leave a lasting impact.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-          
-                <div class="col-md-4">
-                  <div class="card">
-                    <img src="images/publicspeaking 1.png" class="card-img-top" alt="Workshop">
-                    <div class="card-body">
-                      <h6>APR 14</h6>
-                      <div>
-                        <h5 class="card-title">Public Speaking Workshop</h5>
-                        <p class="card-text">Master the art of public speaking, captivate your audience, boost your confidence, and leave a lasting impact.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary"
+                  id="reset-button"
+                >
+                  Enter
+                </button>
               </div>
             </div>
-          </section>
-          
-        <!-- Pagination Section -->
-        <section class="text-center my-4">
-            <nav>
-                <ul class="pagination justify-content-center">
-                    <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <!-- Add more pagination items -->
-                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                </ul>
-            </nav>
-        </section>
+            <div class="sort-dropdown">
+              <select class="form-select">
+                <option>All</option>
+                <option>Workshop</option>
+                <option>Camp</option>
+                <option>Lab</option>
+                <option>Professionals</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Card Grid -->
+          <div class="card-grid">
+            <div class="row mt-5">
+              <div class="col-md-4">
+                <div class="card">
+                  <img
+                    src="images/publicspeaking 1.png"
+                    class="card-img-top"
+                    alt="Workshop"
+                  />
+                  <div class="card-body">
+                    <!-- <h6>APR 14</h6> -->
+                    <div>
+                      <h5 class="card-title">Public Speaking Workshop</h5>
+                      <p class="card-text">
+                        Master the art of public speaking, captivate your
+                        audience, boost your confidence, and leave a lasting
+                        impact.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- More cards can go here -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pagination Section -->
+      <section class="text-center my-4">
+        <nav>
+          <ul class="pagination justify-content-center pagination-container">
+            <li class="page-item disabled">
+              <a class="page-link" href="#">Previous</a>
+            </li>
+            <li class="page-item active">
+              <a class="page-link" href="#">1</a>
+            </li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <!-- Add more pagination items -->
+            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+          </ul>
+        </nav>
+      </section>
     </main>
 
     <!-- Footer Section -->
     <footer class="bg-dark text-white mt-5">
-        <div id="footer-container"></div>
+      <div id="footer-container"></div>
     </footer>
 
     <!-- Bootstrap JS and other dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function() {
-            // Load external navbar and footer into the template
-            $("#navbar-container").load("navbar.html");
-            $("#footer-container").load("footer.html");
-        });
+      $(document).ready(function () {
+        // Load external navbar and footer into the template
+        $("#navbar-container").load("navbar.html");
+        $("#footer-container").load("footer.html");
+      });
     </script>
 
-    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <script
+      type="module"
+      src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"
+    ></script>
+    <script
+      nomodule
+      src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"
+    ></script>
     <script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
     <script src="js/userProgrammePage.js"></script>
-</body>
+  </body>
 </html>
