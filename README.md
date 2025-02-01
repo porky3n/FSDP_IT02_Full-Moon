@@ -61,7 +61,14 @@ Building upon **Assignment 1**, the project has undergone significant improvemen
 
 ### **New Features in User Flow**
 1. **Google Login:** Enabled users to sign up and log in using Google accounts for added convenience.
-2. **Enhanced Telegram Channel Broadcast:** Introduced direct messages to remind users of bookings or membership expirations, with support for location/maps, videos, and images.
+2. **Enhanced Telegram Channel Broadcast:** 
+
+- **Telegram Channel**: Used for broadcasting new programs, locations, maps, posters, and general announcements from Mindsphere to all members.  
+
+- **Telegram Bot**: Allows users to link their Telegram accounts to the Mindsphere database upon signup. It sends direct messages for private matters such as membership renewals, booking reminders, and personalized offers.  
+
+- **Telegram Community Chat**: A group chat where members can interact, ask questions, and receive answers. Users must follow the rules (`/rules`) and can use the in-built chatbot for queries (`/chatbot [query]`).
+
 3. **Workable Payment API:** Integrated the Stripe API to enable a functional PayNow payment option for Singapore users during checkout.
 4. **Online 1-1 Coaching:** Implemented an in-built video API for users to join personalized coaching sessions directly on the website.
 5. **Multi-Language Support:** Added Google Translate tool that allows user to translate each webpage to any of Singapore’s four main languages (English, Chinese, Malay, and Tamil) for greater accessibility.
@@ -104,6 +111,7 @@ For admin users, please use the login credentials below.
 - OpenAI API for chatbot functionality
 - Telegram Chatbot API for programme announcements
 - Stripe API for payment integration
+- Wheryby API for 1-1 online coaching video call
 - Google OAuth 2.0 for Google Login Authentication
 - Google Translate Embedded Widget for Website Multi-Language Support
 
