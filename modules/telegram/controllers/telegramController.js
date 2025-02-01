@@ -28,7 +28,7 @@ const openai = new OpenAI({
 // Telegram Bot Setup
 const TelegramBot = require("node-telegram-bot-api");
 const isProduction = process.env.ISRAILWAY === "railway";
-const botOptions = isProduction ? { webHook: { port: 8080 } } : { polling: true };
+const botOptions = isProduction ? { webHook: 8070  } : { polling: true };
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, botOptions);
 const CHANNEL_ID = process.env.CHANNEL_ID; // Telegram Channel ID
 const GROUP_ID = process.env.GROUP_ID; // Telegram Group ID
