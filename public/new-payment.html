@@ -1,67 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Payment Page</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment Page</title>
 
-      <!-- Custom CSS for Navbar and Footer -->
-      <link rel="stylesheet" href="./css/navbar.css" />
-      <link rel="stylesheet" href="./css/footer.css" />
-      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
-      <link href="./css/new-payment.css" rel="stylesheet" />
-      <script src="https://js.stripe.com/v3/"></script>
+    <!-- Custom CSS for Navbar and Footer -->
+    <link rel="stylesheet" href="./css/navbar.css" />
+    <link rel="stylesheet" href="./css/footer.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link href="./css/new-payment.css" rel="stylesheet" />
+    <script src="https://js.stripe.com/v3/"></script>
+    <link rel="stylesheet" href="./css/translate.css" />
+    <script src="./js/translate.js"></script>
   </head>
 
   <body>
-
     <!-- Navbar Section -->
     <header>
-        <div id="navbar-container"></div>
+      <div id="navbar-container"></div>
     </header>
 
     <div class="payment-container">
-        <div class="details-container">
-            <div class="product-group">
-                <!-- <h4>Pay Default Sandbox</h4>
+      <div class="details-container">
+        <div class="product-group">
+          <!-- <h4>Pay Default Sandbox</h4>
                 <p class="text-muted">TEST MODE</p> -->
-                <p id="originalPrice" class="price mb-4">SGD 1,000.00</p>
-                <div class="product-info">
-                    <p id="courseName" class="product-name">Public Speaking Programme<span id="coursePrice" class="float-end">SGD 1,000.00</span></p>
-                    <p class="product-details text-muted">Public Speaking is an essential for your kids to develop communication skills. Public Speaking is an essential for your kids to develop communication skills.</p>
-                </div> 
-                <hr>
-                <div id="discountSection" class="discount-section">
-                    <p id="discountLabel" class="discount-label">Discount <span id="discountAmount">(10%)</span><span id="discountedPrice" class="float-end">SGD 1,000.00</span></p>
-                    <hr>
-                </div>
-                <p class="subtotal">Subtotal<span id="subtotal" class="float-end">SGD 1,000.00</span></p>
-                <p class="promotion-link mt-3" id="addPromotionLink">Add promotion code</p>
-                <div class="promotion-input mt-3" id="promotionInput">
-                    <input id="promotion-input-field" type="text" class="form-control" placeholder="Add promotion code">
-                    <button type="button" class="apply-btn" id="applyButton">Apply</button>
-                </div>
-                <!-- <input class="CheckoutInput PromotionCodeEntry-input Input Input--empty" autocomplete="off" autocorrect="off" spellcheck="false" size="1" type="text" name="promotionCode" id="promotionCode" placeholder="Add promotion code" aria-invalid="false" data-1p-ignore="false" value=""> -->
-                <hr>
-                <p class="total">Total <span id="total" class="float-end">SGD 1,000.00</span></p>
-            </div>
+          <p id="originalPrice" class="price mb-4">SGD 1,000.00</p>
+          <div class="product-info">
+            <p id="courseName" class="product-name">
+              Public Speaking Programme<span id="coursePrice" class="float-end"
+                >SGD 1,000.00</span
+              >
+            </p>
+            <p id="courseDetails" class="product-details text-muted">
+              Public Speaking is an essential for your kids to develop
+              communication skills. Public Speaking is an essential for your
+              kids to develop communication skills.
+            </p>
+          </div>
+          <hr />
+          <div id="discountSection" class="discount-section">
+            <p id="discountLabel" class="discount-label">
+              Discount <span id="discountAmount">(10%)</span
+              ><span id="discountedPrice" class="float-end">SGD 1,000.00</span>
+            </p>
+
+            <!-- Membership Discount (Inside the Same Section) -->
+            <p id="membershipDiscountLabel" class="discount-label">
+              Membership Discount
+              <span id="membershipDiscountAmount" class="float-end"
+                >SGD 0.00</span
+              >
+            </p>
+            <hr />
+          </div>
+          <p class="subtotal">
+            Subtotal<span id="subtotal" class="float-end">SGD 1,000.00</span>
+          </p>
+          <!-- <p class="promotion-link mt-3" id="addPromotionLink">Add promotion code</p> -->
+          <div class="promotion-input mt-3" id="promotionInput">
+            <input
+              id="promotion-input-field"
+              type="text"
+              class="form-control"
+              placeholder="Add promotion code"
+            />
+            <button type="button" class="apply-btn" id="applyButton">
+              Apply
+            </button>
+          </div>
+          <!-- <input class="CheckoutInput PromotionCodeEntry-input Input Input--empty" autocomplete="off" autocorrect="off" spellcheck="false" size="1" type="text" name="promotionCode" id="promotionCode" placeholder="Add promotion code" aria-invalid="false" data-1p-ignore="false" value=""> -->
+          <hr />
+          <p class="total">
+            Total <span id="total" class="float-end">SGD 1,000.00</span>
+          </p>
         </div>
+      </div>
 
-        <div class="form-container">
-            <div class="form-group">
-              <h3>Payment method</h3>
+      <div class="form-container">
+        <div class="form-group">
+          <h3>Payment method</h3>
 
-                <form id="paymentForm">
-
-                    <div class="payment-method">
-                        <!-- Card Payment -->
-                        <!-- <div class="payment-option">
+          <form id="paymentForm">
+            <div class="payment-method">
+              <!-- Card Payment -->
+              <!-- <div class="payment-option">
                           <div class="radio-header">
                             <input type="radio" id="card" name="payment-method" value="card">
                             <label for="card">Card</label>
                           </div>
                           <div id="card-form" class="card-container"> -->
-                            <!-- <div>
+              <!-- <div>
                               <label for="card-number">Card information</label>
                               <input type="text" id="card-number" placeholder="1234 1234 1234 1234" maxlength="19">
                               <div class="card-container-2">
@@ -82,22 +115,24 @@
                               </select>
                             </div>
                           </div> -->
-                        <div id="card-element"></div>
-                        <div id="card-errors" style="color: red;"></div>
-                        <div id="spinner" style="display: none;">
-                          <div
-                            class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-black motion-reduce:animate-[spin_1.5s_linear_infinite]"
-                            role="status"
-                          >
-                            <span class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
-                              Loading...
-                            </span>
-                          </div>
-                        </div>
-                    </div>
-                
-                        <!-- PayNow Payment -->
-                        <!-- <div class="payment-option">
+              <div id="card-element"></div>
+              <div id="card-errors" style="color: red"></div>
+              <div id="spinner" style="display: none">
+                <div
+                  class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-black motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                  role="status"
+                >
+                  <span
+                    class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                  >
+                    Loading...
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- PayNow Payment -->
+            <!-- <div class="payment-option">
                           <div class="radio-header">
                             <input type="radio" id="paynow" name="payment-method" value="paynow">
                             <label for="paynow">PayNow</label>
@@ -109,17 +144,168 @@
                           </div>
                         </div>
                       </div> -->
-                
-                      <!-- <button id="bookButton" type="submit" class="btn-book">Book for SGD 1,000.00</button> -->
-                </form>
-            </div>
+
+            <!-- <button id="bookButton" type="submit" class="btn-book">Book for SGD 1,000.00</button> -->
+          </form>
         </div>
+      </div>
     </div>
-    
+
+    <!-- ✅ Success Modal -->
+    <div
+      class="modal fade"
+      id="successModal"
+      tabindex="-1"
+      aria-labelledby="successModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center">
+          <div class="modal-header border-0">
+            <h5 class="modal-title" id="successModalLabel">
+              Payment Successful!
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div id="lottie-success" class="mb-3">
+              <dotlottie-player
+                src="https://lottie.host/28b6ad99-393d-4b26-8e66-4c4e116c87d1/3lPyy49ELi.lottie"
+                background="transparent"
+                speed="1"
+                style="width: 300px; height: 300px"
+                loop
+                autoplay
+              ></dotlottie-player>
+            </div>
+            <!-- Lottie animation -->
+            <p>Your payment has been successfully processed.</p>
+          </div>
+          <div class="modal-footer border-0">
+            <button
+              type="button"
+              class="btn btn-success"
+              data-bs-dismiss="modal"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ❌ Error Modal -->
+    <div
+      class="modal fade"
+      id="errorModal"
+      tabindex="-1"
+      aria-labelledby="errorModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center">
+          <div class="modal-header border-0">
+            <h5 class="modal-title text-danger" id="errorModalLabel">
+              Payment Failed
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div id="lottie-error" class="mb-3">
+              <dotlottie-player
+                src="https://lottie.host/ca506ff1-bdac-41fe-ac19-0455ccd2385f/oPzQIgZ2jU.lottie"
+                background="transparent"
+                speed="1"
+                style="width: 300px; height: 300px"
+                loop
+                autoplay
+              ></dotlottie-player>
+            </div>
+            <!-- Lottie animation -->
+            <p id="errorMessage">Something went wrong. Please try again.</p>
+          </div>
+          <div class="modal-footer border-0">
+            <button
+              type="button"
+              class="btn btn-danger"
+              data-bs-dismiss="modal"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tier Upgrade Modal -->
+    <div
+      class="modal fade"
+      id="tierUpgradeModal"
+      tabindex="-1"
+      aria-labelledby="tierUpgradeModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center">
+          <div class="modal-header border-0">
+            <h5 class="modal-title" id="tierUpgradeModalLabel">
+              Membership Upgraded!
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div id="lottie-tier" class="mb-3">
+              <dotlottie-player
+                src="https://lottie.host/d5e23155-1935-4dcf-aabc-733aaf574826/EKSfBvyrwN.lottie"
+                background="transparent"
+                speed="1"
+                style="width: 300px; height: 300px"
+                loop
+                autoplay
+              ></dotlottie-player>
+            </div>
+            <!-- Lottie animation -->
+
+            <!-- Tier Name Display -->
+            <div id="tierDisplay" class="tier-display">
+              <span id="tierName"></span>
+            </div>
+
+            <p id="tierUpgradeMessage">
+              Your membership has been successfully upgraded!
+            </p>
+          </div>
+          <div class="modal-footer border-0">
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-bs-dismiss="modal"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Footer Section -->
     <footer class="bg-dark text-white">
-        <div id="footer-container"></div>
+      <div id="footer-container"></div>
     </footer>
 
     <!-- Bootstrap JS and other dependencies -->
@@ -127,15 +313,19 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script
+      src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs"
+      type="module"
+    ></script>
+
     <script>
-    $(document).ready(function () {
+      $(document).ready(function () {
         // Load external navbar and footer into the template
         $("#navbar-container").load("navbar.html");
         $("#footer-container").load("footer.html");
-    });
+      });
     </script>
 
     <script src="./js/new-payment.js"></script>
   </body>
-
 </html>

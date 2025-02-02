@@ -73,13 +73,13 @@ exports.getProfile = async (req, res) => {
     // Format membership status
     const formatMembership = (membershipStatus) => {
       if (!membershipStatus) return "Not a Member";
-      return membershipStatus === "Non-Member" ? "Not a Member" : "Member";
+      return membershipStatus === "Non-Member" ? "Not a Member" : membershipStatus;
     };
 
     const profileData = {
       Email: accountResults[0].Email || "",
       FirstName: accountResults[0].FirstName || "",
-      LastName: accountResults[0].LastName || "",
+      LastName: accountResults[0].LastNamwe || "",
       DateOfBirth: formatDate(accountResults[0].DateOfBirth),
       ContactNumber: accountResults[0].ContactNumber || "",
       Membership: formatMembership(accountResults[0].Membership),
@@ -348,7 +348,7 @@ exports.getEnrolledProgrammes = async (req, res) => {
     const [childrenResult] = await pool.query(
       `SELECT ChildID FROM Child WHERE ParentID = ?`,
       [parentId]
-    );
+    );    
 
     const childIds = childrenResult.map((child) => child.ChildID);
 
@@ -468,6 +468,101 @@ exports.getEnrolledProgrammes = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Error retrieving enrolled programmes",
+      error: error.message,
+    });
+  }
+};
+
+
+
+// New function
+// Get Tier day left
+exports.getTierDaysLeft = async (req, res) => {
+  try {
+    // Check authentication
+    const accountId = req.session?.accountId;
+    const userEmail = req.session?.user?.email;
+
+    if (!accountId && !userEmail) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized access",
+      });
+    }
+
+    let query;
+    let params;
+
+    if (accountId) {
+      query = `
+        SELECT 
+          p.Membership,
+          p.StartDate,
+          tc.TierDuration
+        FROM Parent p
+        LEFT JOIN TierCriteria tc ON p.Membership = tc.Tier
+        WHERE p.AccountID = ?
+      `;
+      params = [accountId];
+    } else {
+      query = `
+        SELECT 
+          p.Membership,
+          p.StartDate,
+          tc.TierDuration
+        FROM Parent p
+        LEFT JOIN TierCriteria tc ON p.Membership = tc.Tier
+        WHERE p.AccountID = (SELECT AccountID FROM Account WHERE Email = ?)
+      `;
+      params = [userEmail];
+    }
+
+    const [tierResults] = await pool.query(query, params);
+
+    if (!tierResults || tierResults.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Tier information not found",
+      });
+    }
+
+    const { Membership, StartDate, TierDuration } = tierResults[0];
+
+    if (!StartDate || !TierDuration) {
+      return res.status(200).json({
+        success: true,
+        message: "Tier does not have a valid start date or duration",
+        daysLeft: null,
+      });
+    }
+
+    // Calculate tier expiration date and days left
+    const tierStartDate = new Date(StartDate);
+    const tierExpirationDate = new Date(tierStartDate);
+    tierExpirationDate.setDate(tierStartDate.getDate() + TierDuration);
+
+    const currentDate = new Date();
+    const daysLeft = Math.ceil((tierExpirationDate - currentDate) / (1000 * 60 * 60 * 24));
+
+    const responseMessage =
+      daysLeft > 0
+        ? `${daysLeft} day(s) left until your '${Membership}' tier expires.`
+        : `Your '${Membership}' tier has expired.`;
+
+    res.status(200).json({
+      success: true,
+      Membership,
+      StartDate: tierStartDate.toISOString().split("T")[0], // Format date as YYYY-MM-DD
+      TierDuration,
+      ExpirationDate: tierExpirationDate.toISOString().split("T")[0],
+      DaysLeft: daysLeft > 0 ? daysLeft : 0,
+      message: responseMessage,
+    });
+  } catch (error) {
+    console.error("Error in getTierDaysLeft:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error retrieving tier information",
       error: error.message,
     });
   }

@@ -85,6 +85,7 @@ class ProgrammeClass {
           SELECT 
             p.ProgrammeID,
             p.ProgrammeName,
+            p.Description,
             pc.Fee AS originalFee,
             pr.PromotionID,
             pr.PromotionName,
@@ -116,6 +117,7 @@ class ProgrammeClass {
             return {
                 programmeID: row.ProgrammeID,
                 programmeName: row.ProgrammeName,
+                description: row.Description,
                 originalFee: row.originalFee,
                 promotionID: row.PromotionID || null,
                 discountType: row.DiscountType || null,
@@ -163,6 +165,44 @@ class ProgrammeClass {
     //     const [rows] = await pool.query(sqlQuery, [programmeID, programmeClassID]);
     //     return rows.length ? rows[0].Fee : null;
     // }
+
+    static async getProgrammeByProgrammeClassID(programmeClassID) {
+        const sqlQuery = `
+            SELECT 
+                p.ProgrammeID,
+                p.ProgrammeName,
+                p.Description,
+                pc.Fee,
+                pc.MaxSlots,
+                pc.ProgrammeLevel,
+                pc.Remarks
+            FROM Programme p
+            JOIN ProgrammeClass pc ON p.ProgrammeID = pc.ProgrammeID
+            WHERE pc.ProgrammeClassID = ?
+        `;
+
+        try {
+            const [rows] = await pool.query(sqlQuery, [programmeClassID]);
+
+            if (rows.length === 0) {
+                return null; // Return null if no data is found
+            }
+
+            const row = rows[0];
+            return {
+                programmeID: row.ProgrammeID,
+                programmeName: row.ProgrammeName,
+                description: row.Description,
+                fee: row.Fee,
+                maxSlots: row.MaxSlots,
+                programmeLevel: row.ProgrammeLevel,
+                remarks: row.Remarks || ''
+            };
+        } catch (error) {
+            console.error("Error fetching programme by programme class ID:", error);
+            throw error;
+        }
+    }
 }
 
 module.exports = ProgrammeClass;

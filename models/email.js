@@ -20,6 +20,14 @@ const sendPaymentConfirmationEmail = async (userDetails) => {
 
   console.log("paymentAmount type:", typeof paymentAmount, "value:", paymentAmount);
 
+  console.log("userEmail:", userEmail);
+  console.log("paymentID:", paymentID);
+  console.log("programmeName:", programmeName);
+  console.log("startDate:", startDate);
+  console.log("endDate:", endDate);
+  console.log("paymentAmount:", paymentAmount);
+  console.log("paymentMethod:", paymentMethod);
+
   try {
     const numericPaymentAmount = Number(paymentAmount); // Convert to number
     if (isNaN(numericPaymentAmount)) {
@@ -33,9 +41,10 @@ const sendPaymentConfirmationEmail = async (userDetails) => {
       .replace("{{programmeName}}", programmeName)
       .replace("{{programmeAmount}}", numericPaymentAmount.toFixed(2))
       // .replace("{{paymentMethod}}", paymentMethod)
-      .replace("{{subTotal}}", numericPaymentAmount.toFixed(2))
-      .replace("{{taxFee}}", (numericPaymentAmount * 0.09).toFixed(2))
-      .replace("{{total}}", (numericPaymentAmount * 1.09).toFixed(2))
+      // .replace("{{subTotal}}", numericPaymentAmount.toFixed(2))
+      // .replace("{{taxFee}}", (numericPaymentAmount * 0.09).toFixed(2))
+      .replace("{{total}}", (numericPaymentAmount).toFixed(2))
+      // .replace("{{total}}", (numericPaymentAmount * 1.09).toFixed(2))
       .replace("{{startDate}}", startDate)
       .replace("{{endDate}}", endDate);
 

@@ -44,9 +44,9 @@ VALUES
 INSERT INTO TierCriteria (Tier, MinPurchases, TierDuration, TierDiscount, Special)
 VALUES 
 ('Non-Membership', 0, 0, 0.00, FALSE), -- Default tier with no benefits
-('Bronze', 2, 30, 5.00, FALSE),       -- Requires 5 purchases, 5% discount, valid for 30 days
-('Silver', 10, 90, 10.00, TRUE),      -- Requires 10 purchases, 10% discount, valid for 90 days, with special benefits
-('Gold', 20, 180, 20.00, TRUE);       -- Requires 20 purchases, 20% discount, valid for 180 days, with special benefits
+('Bronze', 1, 30, 5.00, FALSE),       -- Requires 5 purchases, 5% discount, valid for 30 days
+('Silver', 2, 90, 10.00, TRUE),      -- Requires 10 purchases, 10% discount, valid for 90 days, with special benefits
+('Gold', 5, 180, 20.00, TRUE);       -- Requires 20 purchases, 20% discount, valid for 180 days, with special benefits
 
 -- Insert data into Parent table
 INSERT INTO Parent (AccountID, FirstName, LastName, DateOfBirth, Gender, ContactNumber, Membership, StartDate, Dietary, ProfilePicture, ProfileDetails)
@@ -64,26 +64,32 @@ VALUES
 INSERT INTO Programme (ProgrammeName, Category, ProgrammePicture, Description)
 VALUES 
 ('Coding Workshop','Workshop','private-images/programme-pictures/programme-1.png','A hands-on workshop teaching basic coding skills.'),
-('Art Camp', 'Camp', 'private-images/programme-pictures/programme-2.png', 'An immersive art camp for young artists.');
+('Art Camp', 'Camp', 'private-images/programme-pictures/programme-2.png', 'An immersive art camp for young artists.'),
+('1-1 Coaching Session', 'Online Session', 'private-images/programme-pictures/programme-3.jpg', 'Online session to educate your child.');
 
 -- Insert data into ProgrammeClass table
 INSERT INTO ProgrammeClass (ProgrammeID, ShortDescription, Location, Fee, MaxSlots, ProgrammeLevel, Remarks)
 VALUES 
 (1, 'Intro to Programming', 'Online', 50.00, 30, 'Beginner', 'Materials are provided ~ Online-only ~ Interactive sessions'),
-(2, 'Painting Basics', 'Community Center', 75.00, 20, 'Intermediate', 'Materials provided ~ Lunch included');
+(2, 'Painting Basics', '535 Clementi Rd, Singapore 599489', 75.00, 20, 'Intermediate', 'Materials provided ~ Lunch included'),
+(3, 'Basic Online Session', '535 Clementi Rd, Singapore 599489', 75.00, 20, 'Beginner', 'Online-only');
 
 -- Insert data into ProgrammeClassBatch table
 INSERT INTO ProgrammeClassBatch (ProgrammeClassID)
 VALUES 
 (1),
-(2);
+(2),
+(3),
+(3);
 
 -- Insert data into ProgrammeSchedule table
 INSERT INTO ProgrammeSchedule (InstanceID, StartDateTime, EndDateTime)
 VALUES 
 (1, '2025-02-01 09:00:00', '2025-02-01 12:00:00'),
 (1, '2025-02-03 09:00:00', '2025-02-03 12:00:00'),
-(2, '2025-02-10 10:00:00', '2025-02-10 16:00:00');
+(2, '2025-02-10 10:00:00', '2025-02-10 16:00:00'),
+(3, '2025-02-10 10:00:00', '2025-02-10 12:00:00'),
+(4, '2025-02-14 10:00:00', '2025-02-14 12:00:00');
 
 -- Insert data into ProgrammeImages table
 INSERT INTO ProgrammeImages (ProgrammeID, Image)

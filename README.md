@@ -42,7 +42,7 @@ The primary goal of this project is to build a web application that allows Minds
 ### **User Flow**
 1. **Login/Sign Up:** Users can securely register for a new account or log in to an existing account.
 2. **User Profile Management:** Users can view and update their personal or child profiles.
-3. **View Programmes & Bookings:** Users can explore and book available programmes with ease.
+3. **View Programmes & Book Programmes:** Users can explore and book available programmes with ease.
 4. **Chatbot Assistance:** Integrated chatbot to provide instant answers about the company and its programmes.
 5. **Telegram Channel Integration:** Dedicated channel for members, broadcasting programme details and reminders.
 6. **Payment System:** Users can make payments through the system and upload proof of payment (PayNow style).
@@ -51,6 +51,7 @@ The primary goal of this project is to build a web application that allows Minds
 ### **Admin Flow**
 1. **User Account Management:** Admins can view, edit, or delete user accounts, including parent and child details such as name, date of birth, membership status, and date joined.
 2. **Programme Management:** Admins can view, edit, delete, and create programmes, which are instantly displayed on the user front end.
+3. **Transaction Management** Admins can view transaction evidence like Paynow screenshots to verify payments via the Admin portal
 
 ---
 
@@ -63,9 +64,11 @@ Building upon **Assignment 1**, the project has undergone significant improvemen
 2. **Enhanced Telegram Channel Broadcast:** Introduced direct messages to remind users of bookings or membership expirations, with support for location/maps, videos, and images.
 3. **Workable Payment API:** Integrated the Stripe API to enable a functional PayNow payment option for Singapore users during checkout.
 4. **Online 1-1 Coaching:** Implemented an in-built video API for users to join personalized coaching sessions directly on the website.
-5. **Multi-Language Support:** Added support for Singapore’s four main languages (English, Chinese, Malay, and Tamil) for greater accessibility.
+5. **Multi-Language Support:** Added Google Translate tool that allows user to translate each webpage to any of Singapore’s four main languages (English, Chinese, Malay, and Tamil) for greater accessibility.
 6. **Programme Reviews:** Users can view reviews, ratings, and submission dates from others. They can also add reviews for each programme.
-7. **B2B Contact Form:** Created a form for potential business partners to express interest, enabling admins to view and contact them.
+7. **B2B Contact Form:** Created a form for potential business partners to express interest, these information is stored into the Database.
+8. **Membership Tier** Created a membership tiering system that auto tracks their spendings and upgrade users to different tiers (Gold, Silver & Bronze).
+9. **Profile Details** During Sign-Up, users can fill in information about themselves such as hobbies or skills. These information helps Mindsphere personalize programmes for users.
 
 ### **New Features in Admin Flow**
 1. **Programme Reviews Management:** Admins can manage reviews, including deleting inappropriate ones, via the admin portal.
@@ -101,6 +104,8 @@ For admin users, please use the login credentials below.
 - OpenAI API for chatbot functionality
 - Telegram Chatbot API for programme announcements
 - Stripe API for payment integration
+- Google OAuth 2.0 for Google Login Authentication
+- Google Translate Embedded Widget for Website Multi-Language Support
 
 ### **Others:**
 - User account authentication using JWT

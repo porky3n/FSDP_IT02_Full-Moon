@@ -17,6 +17,7 @@ const slotRoutes = express.Router();
 
 // ========== Routes ==========
 
+slotRoutes.post('/getSlots', slotController.getSlots);
 
 slotRoutes.post('/create', slotController.createSlotAndPayment);
 

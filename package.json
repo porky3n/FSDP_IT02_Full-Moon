@@ -27,6 +27,8 @@
     "openai": "^4.72.0",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
+    "qrcode": "^1.5.4",
+    "redis": "^4.7.0",
     "sharp": "^0.33.5",
     "sql": "^0.78.0",
     "stripe": "^17.5.0",

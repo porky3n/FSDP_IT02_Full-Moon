@@ -458,3 +458,35 @@ body {
 .profile-item input[type="radio"], .schedule-item input[type="radio"] {
     display: none;
 }
+
+/* .disabled-profile {
+    opacity: 0.5; 
+    pointer-events: none; 
+} */
+
+.disabled-profile {
+    position: relative;
+    opacity: 0.6; /* Make it look faded */
+    cursor: not-allowed; /* Indicate it’s not selectable */
+    pointer-events: none; /* Prevent clicking */
+}
+
+.disabled-profile::after {
+    content: "Booked";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.75);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.disabled-profile .card-body {
+    filter: grayscale(50%); /* Slightly greyscale the content */
+}

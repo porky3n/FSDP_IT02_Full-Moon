@@ -134,8 +134,95 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   // Function to fetch and display user profile data
+  // const loadUserProfile = async () => {
+  //   try {
+  //     const response = await fetch("/auth/profile", {
+  //       method: "GET",
+  //       credentials: "include",
+  //       headers: {
+  //         Accept: "application/json",
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //       },
+  //     });
+
+  //     if (response.status === 401) {
+  //       if (profileContent) profileContent.style.display = "none";
+  //       if (guestContent) guestContent.style.display = "block";
+  //       return;
+  //     }
+
+  //     if (!response.ok) {
+  //       throw new Error(`HTTP error! status: ${response.status}`);
+  //     }
+
+  //     const profileData = await response.json();
+
+  //     // Show profile content and hide guest content
+  //     if (profileContent) profileContent.style.display = "block";
+  //     if (guestContent) guestContent.style.display = "none";
+
+  //     // Format the date
+  //     const formatDate = (dateStr) => {
+  //       if (!dateStr) return "Not provided";
+  //       const date = new Date(dateStr);
+  //       if (isNaN(date.getTime())) return "Not provided";
+  //       return date.toLocaleDateString("en-GB", {
+  //         day: "numeric",
+  //         month: "long",
+  //         year: "numeric",
+  //       });
+  //     };
+
+  //     // Format membership status based on the Membership column value
+  //     const formatMembership = (status) => {
+  //       if (!status) return "Not a Member";
+  //       return status === "Non-Member" ? "Not a Member" : "Member";
+  //     };
+
+  //     // Update profile fields
+  //     const profileFields = {
+  //       userName: `${profileData.FirstName} ${profileData.LastName}`,
+  //       userEmail: profileData.Email,
+  //       userDOB: formatDate(profileData.DateOfBirth),
+  //       userContact: profileData.ContactNumber || "Not provided",
+  //       userMembership: profileData.Membership,
+
+  //       userDietary: profileData.Dietary || "Not provided",
+  //     };
+  //     console.log(profileData.Membership);
+
+  //     Object.entries(profileFields).forEach(([id, value]) => {
+  //       const element = document.getElementById(id);
+  //       if (element) {
+  //         element.textContent = value;
+  //       }
+  //     });
+
+  //     // Update profile picture with error handling
+  //     const profilePic = document.querySelector(".profile-picture");
+  //     if (profilePic) {
+  //       try {
+  //         await fetch(
+  //           profileData.ProfilePicture || "../images/profilePicture.png"
+  //         );
+  //         profilePic.src =
+  //           profileData.ProfilePicture || "../images/profilePicture.png";
+  //       } catch {
+  //         profilePic.src = "../images/profilePicture.png";
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Error loading profile:", error);
+  //     // Show guest content on error
+  //     if (profileContent) profileContent.style.display = "none";
+  //     if (guestContent) guestContent.style.display = "block";
+  //   }
+  // };
+
   const loadUserProfile = async () => {
     try {
+      // Fetch user profile data
       const response = await fetch("/auth/profile", {
         method: "GET",
         credentials: "include",
@@ -145,60 +232,80 @@ document.addEventListener("DOMContentLoaded", function () {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-
+  
       if (response.status === 401) {
         if (profileContent) profileContent.style.display = "none";
         if (guestContent) guestContent.style.display = "block";
         return;
       }
-
+  
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+  
       const profileData = await response.json();
-
+  
       // Show profile content and hide guest content
       if (profileContent) profileContent.style.display = "block";
       if (guestContent) guestContent.style.display = "none";
-
+  
       // Format the date
-      // const formatDate = (dateStr) => {
-      //   if (!dateStr) return "Not provided";
-      //   const date = new Date(dateStr);
-      //   if (isNaN(date.getTime())) return "Not provided";
-      //   return date.toLocaleDateString("en-GB", {
-      //     day: "numeric",
-      //     month: "long",
-      //     year: "numeric",
-      //   });
-      // };
-
-      // Format membership status based on the Membership column value
-      const formatMembership = (status) => {
-        if (!status) return "Not a Member";
-        return status === "Non-Member" ? "Not a Member" : "Member";
+      const formatDate = (dateStr) => {
+        if (!dateStr) return "Not provided";
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return "Not provided";
+        return date.toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
       };
-
+  
       // Update profile fields
       const profileFields = {
         userName: `${profileData.FirstName} ${profileData.LastName}`,
         userEmail: profileData.Email,
         userDOB: formatDate(profileData.DateOfBirth),
         userContact: profileData.ContactNumber || "Not provided",
-        userMembership: formatMembership(profileData.Membership),
-
         userDietary: profileData.Dietary || "Not provided",
       };
-      console.log(profileData.Membership);
+  
+      // Check membership status
+      if (profileData.Membership !== "Non-Membership") {
+        // Fetch tier days left
+        const tierDaysLeftResponse = await fetch("/auth/getTierDaysLeft", {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+  
 
+        if (!tierDaysLeftResponse.ok) {
+          throw new Error(
+            `HTTP error in getTierDaysLeft! status: ${tierDaysLeftResponse.status}`
+          );
+        }
+  
+        const { DaysLeft } = await tierDaysLeftResponse.json();
+        
+        console.log(DaysLeft);
+        profileFields.userMembership = `${profileData.Membership} (Days Left: ${DaysLeft})`;
+      } else {
+        profileFields.userMembership = "Non-Membership";
+      }
+  
+      // Update the DOM with profile data
       Object.entries(profileFields).forEach(([id, value]) => {
         const element = document.getElementById(id);
         if (element) {
           element.textContent = value;
         }
       });
-
+  
       // Update profile picture with error handling
       const profilePic = document.querySelector(".profile-picture");
       if (profilePic) {
@@ -219,6 +326,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (guestContent) guestContent.style.display = "block";
     }
   };
+  
 
   const initializeProgrammeCards = async () => {
     // This function can be implemented later for programme cards

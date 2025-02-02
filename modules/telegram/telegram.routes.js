@@ -24,6 +24,10 @@ const telegramRoutes = express.Router();
 // // Route to send the programme image to Telegram
 // telegramRoutes.get("/sendProgrammeImage/:programmeID", telegramController.sendProgrammeImage);   
 
+// Route to get user message
+telegramRoutes.get("/getUserMessage", telegramController.getUserMessage);
+
+
 // // Route to send the programme details to Telegram
 telegramRoutes.get('/send/programme/:programmeID', telegramController.sendProgramme);
 module.exports = telegramRoutes;

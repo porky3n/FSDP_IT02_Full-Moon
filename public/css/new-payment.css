@@ -333,3 +333,152 @@ h3 {
         width: 100%;
     }
 }
+
+
+/* Tier Display in Modal */
+.tier-display {
+    width: 200px;
+    padding: 15px;
+    border-radius: 10px;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-align: center;
+    margin: 10px auto;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.bronze {
+    background: linear-gradient(135deg, #cd7f32, #b87333);
+}
+
+/* Silver Tier */
+.silver {
+    background: linear-gradient(135deg, #c0c0c0, #a8a8a8);
+}
+
+/* Gold Tier */
+.gold {
+    background: linear-gradient(135deg, #ffd700, #e6ac00);
+}
+
+.tiers-container {
+    color: #2F3E50; /* Text color */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.tier-categories {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 100px;
+}
+
+/* Tier Cards */
+.tier {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 220px;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    color: #fff;
+    font-weight: bold;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+/* Tier Hover Effect */
+.tier:hover {
+    transform: scale(1.05);
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+
+
+/* MODAL */
+/* Modal Custom Styling */
+
+/* Success Modal */
+#successModal .modal-content {
+    background-color: #eaffea;
+    border-radius: 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  }
+  #successModal .modal-title {
+    color: #28a745;
+    font-weight: bold;
+  }
+  #successModal .btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    padding: 0.5rem 2rem;
+    border-radius: 1rem;
+  }
+  
+  /* Error Modal */
+  #errorModal .modal-content {
+    background-color: #ffecec;
+    border-radius: 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  }
+  #errorModal .modal-title {
+    color: #dc3545;
+    font-weight: bold;
+  }
+  #errorModal .btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    padding: 0.5rem 2rem;
+    border-radius: 1rem;
+  }
+  
+  /* Tier Upgrade Modal */
+  #tierUpgradeModal .modal-content {
+    background-color: #eef2ff;
+    border-radius: 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  }
+  #tierUpgradeModal .modal-title {
+    color: #007bff;
+    font-weight: bold;
+  }
+  #tierUpgradeModal .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    padding: 0.5rem 2rem;
+    border-radius: 1rem;
+  }
+  
+  /* Lottie Animation Containers */
+  #lottie-success,
+  #lottie-error,
+  #lottie-tier {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  /* Tier Name Display */
+  #tierDisplay {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #495057;
+    margin-top: 1rem;
+  }
+  
+  /* Modal Footer Button Styles */
+  .modal-footer button {
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  .modal-footer button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+  

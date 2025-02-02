@@ -43,6 +43,8 @@ function displayProgrammeInfo(programmes) {
   let row = document.createElement('div');
   row.classList.add('row');
 
+  const currentTime = new Date();
+
   programmes.forEach((programme, index) => {
     console.log(programme);
       // Create a programme card
@@ -50,6 +52,16 @@ function displayProgrammeInfo(programmes) {
       programmeInfo.classList.add('col-md-4');
 
       const hasHostLink = programme.HostMeetingLink && programme.HostMeetingLink.trim() !== '';
+
+      // Convert StartDateTime and EndDateTime to Date objects
+      const startTime = parseDate(programme.StartDateTime);
+      const endTime = parseDate(programme.EndDateTime);
+
+      // Determine if the meeting should be enabled
+      const isNear =
+          ((startTime - currentTime) / (1000 * 60) <= 15) ||  // Within 5 minutes of start time
+          ((currentTime < endTime) && (currentTime > startTime)); // Current time is between start and end
+
 
       // Build the inner HTML conditionally
       programmeInfo.innerHTML = `
@@ -79,18 +91,18 @@ function displayProgrammeInfo(programmes) {
                     class="btn btn-danger mt-3 delete-meeting-btn" 
                     data-programme-class-id="${programme.ProgrammeClassID || ''}" 
                     data-instance-id="${programme.InstanceID || ''}" 
-                    data-meeting-id="${programme.MeetingID || ''}">
+                    data-meeting-id="${programme.MeetingID || ''}"
+                    data-end-date-time="${programme.EndDateTime || ''}">
                     Delete Meeting
                 </button>
               ` : `
-                  
                   <button 
                       class="btn btn-primary mt-3 create-meeting-btn" 
                       data-programme-class-id="${programme.ProgrammeClassID || ''}"
                       data-instance-id="${programme.InstanceID || ''}"
                       data-end-date-time="${programme.EndDateTime || ''}"
-                  >
-                      Join Meeting
+                      ${isNear ? "" : "disabled"}>
+                      Create Meeting
                   </button>
               `}
           </div>
@@ -106,6 +118,28 @@ function displayProgrammeInfo(programmes) {
       }
   });
 }
+
+const parseDate = (dateStr) => {
+    // Example: "20 January 2025 at 11:53 pm"
+    const [day, month, year, hourMinute, period] = dateStr
+      .replace(" at ", " ")
+      .split(/[\s]+/); // Split by spaces only
+  
+    // Extract hours and minutes from hourMinute
+    const [hour, minute] = hourMinute.split(":").map(Number);
+  
+    // Convert month name to zero-based index
+    const monthIndex = new Date(`${month} 1, ${year}`).getMonth();
+  
+    // Adjust hours for 24-hour format
+    const adjustedHour = hour + (period.toLowerCase() === "pm" && hour !== 12 ? 12 : 0);
+  
+    // Handle midnight case (12 am is hour 0)
+    const finalHour = period.toLowerCase() === "am" && hour === 12 ? 0 : adjustedHour;
+  
+    // Return the Date object
+    return new Date(year, monthIndex, parseInt(day, 10), finalHour, minute);
+  };
 
 document.addEventListener('click', function (event) {
     if (event.target.classList.contains('copy-btn')) {
@@ -184,7 +218,8 @@ document.querySelector('.upcoming-schedule').addEventListener('click', async (ev
         const programmeClassID = button.dataset.programmeClassId;
         const instanceID = button.dataset.instanceId;
         const meetingID = button.dataset.meetingId;
-    
+        const endDateTime = button.dataset.endDateTime;
+
         if (!programmeClassID || !instanceID || !meetingID) {
             alert("Missing data attributes. Cannot delete meeting.");
             return;
@@ -208,19 +243,31 @@ document.querySelector('.upcoming-schedule').addEventListener('click', async (ev
                 alert(result.message);
                 
     
-                const parent = button.parentElement;
-                if (!parent) {
-                    console.error("Parent element not found for the delete button.");
+                const parentCard = button.closest('.schedule-card');
+                if (!parentCard) {
+                    console.error("Parent schedule card not found.");
                     return;
                 }
     
                 // Remove the Host Link and Viewer Link fields
-                const hostLinkWrapper = parent.querySelector('.host-link-wrapper');
-                const viewerLinkWrapper = parent.querySelector('.viewer-link-wrapper');
+                const hostLinkWrapper = parentCard.querySelector('.host-link-wrapper');
+                const viewerLinkWrapper = parentCard.querySelector('.viewer-link-wrapper');
                 if (hostLinkWrapper) hostLinkWrapper.remove();
                 if (viewerLinkWrapper) viewerLinkWrapper.remove();
 
                 button.remove();
+
+                // Add the Create Meeting button dynamically
+                const createMeetingBtn = document.createElement('button');
+                createMeetingBtn.className = 'btn btn-primary mt-3 create-meeting-btn';
+                createMeetingBtn.dataset.programmeClassId = programmeClassID;
+                createMeetingBtn.dataset.instanceId = instanceID;
+                createMeetingBtn.dataset.endDateTime = formatToISO8601(endDateTime);
+                createMeetingBtn.textContent = 'Create Meeting';
+
+                // Append the Create Meeting button to the card
+                parentCard.appendChild(createMeetingBtn);
+
             } else {
                 alert(`Failed to delete meeting: ${result.message}`);
             }
@@ -258,6 +305,21 @@ function createLinkWrapper(label, defaultValue) {
     });
 
     return wrapper;
+}
+
+
+function formatToISO8601(dateString) {
+    // Parse the input date
+    const parsedDate = new Date(dateString);
+
+    // Check if the date is valid
+    if (isNaN(parsedDate)) {
+        console.error("Invalid date format");
+        return null;
+    }
+
+    // Convert to ISO 8601 format
+    return parsedDate.toISOString();
 }
 
 

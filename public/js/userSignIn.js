@@ -38,6 +38,11 @@ document
           updateAuthButton(); // Update the auth button immediately
         }
 
+        // Check and reset membership tier upon successful login
+        if (result.accountId) {
+          await checkAndResetTierForAccount(result.accountId);
+        }
+
         // Redirect the user to the home page or desired page
         window.location.href = "/index.html"; // Adjust this path based on your app's structure
       } else {
@@ -53,3 +58,65 @@ document
       console.error("Error:", error);
     }
   });
+
+  async function checkAndResetTierForAccount(accountId) {
+    try {
+        console.log("Checking membership for accountId:", accountId);
+        const response = await fetch(`/api/tier/${accountId}/checkMembership`, {
+            method: 'PUT',
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log(data.message);
+
+            // Update localStorage if the tier was expired
+            if (data.expired) {
+                const updatedUserDetails = {
+                    ...JSON.parse(localStorage.getItem("userDetails")),
+                    membership: data.membership,
+                };
+                localStorage.setItem("userDetails", JSON.stringify(updatedUserDetails));
+
+                // Store the expiration message in localStorage
+                localStorage.setItem("tierExpirationMessage", data.message);
+            }
+        } else {
+            console.error("Error resetting Membership for account:", response.statusText);
+        }
+    } catch (error) {
+        console.error("Error resetting Membership for account:", error);
+        localStorage.setItem("tierExpirationMessage", "Error resetting Membership for account.");
+    }
+}
+
+//   async function checkAndResetTierForAccount(accountId) {
+//     try {
+//         console.log("Checking membership for accountId:", accountId);
+//         const response = await fetch(`/api/tier/${accountId}/checkMembership`, {
+//             method: 'PUT',
+//         });
+
+//         if (response.ok) {
+//             const data = await response.json();
+//             console.log(data.message);
+
+//             // Update localStorage if the tier was expired
+//             if (data.expired) {
+//                 const updatedUserDetails = {
+//                     ...JSON.parse(localStorage.getItem("userDetails")),
+//                     membership: data.membership,
+//                 };
+//                 localStorage.setItem("userDetails", JSON.stringify(updatedUserDetails));
+
+//                 // Display the message only if the tier was expired
+//                 alert(data.message);
+//             }
+//         } else {
+//             console.error("Error resetting Membership for account:", response.statusText);
+//         }
+//     } catch (error) {
+//         console.error("Error resetting Membership for account:", error);
+//         alert("Error resetting Membership for account.");
+//     }
+// }

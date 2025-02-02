@@ -15,6 +15,7 @@ DROP TABLE IF EXISTS Parent;
 DROP TABLE IF EXISTS Account;
 DROP TABLE IF EXISTS TierCriteria;
 DROP TABLE IF EXISTS BusinessEnquiries;
+DROP TABLE IF EXISTS TemporaryTelegramIDs;
 
 -- Create Account table
 CREATE TABLE Account (
@@ -220,3 +221,10 @@ CREATE TABLE BusinessEnquiries (
 );
 
 
+CREATE TABLE TemporaryTelegramIDs (
+    id SERIAL PRIMARY KEY,
+    token VARCHAR(255) NOT NULL UNIQUE, -- Unique token shared with the user
+    telegram_id VARCHAR(255) NOT NULL, -- Telegram chat ID
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL -- Expiry for cleanup
+);

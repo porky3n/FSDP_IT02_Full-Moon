@@ -28,25 +28,46 @@ class Tier {
     );
   }
 
-  // Get a specific tier by ID
-  static async getTierByID(tier) {
+  // get specific tier's attributes
+  static async getSpecificTier(tier) {
     const sqlQuery = `
-            SELECT * FROM TierCriteria
-            WHERE TierID = ?
-        `;
+    SELECT * FROM TierCriteria
+    WHERE Tier = ?
+    `;
     const [rows] = await pool.query(sqlQuery, [tier]);
-    if (rows.length === 0) return null;
-
-    const row = rows[0];
-    return new Tier(
-        row.Tier,
-        row.MinPurchases,
-        row.TierDuration,
-        row.TierDiscount,
-        row.Special
-    );
+    if (rows.length === 0) return 0;
+    return rows[0];
   }
 
+  // Get a specific tier by ID
+  static async getTierDiscount(tier) {
+    const sqlQuery = `
+        SELECT TierDiscount FROM TierCriteria
+        WHERE Tier = ?
+    `;
+    const [rows] = await pool.query(sqlQuery, [tier]);
+    if (rows.length === 0) return 0; // Default discount if tier not found
+    return rows[0].TierDiscount;
+}
+
+  // get tiers with duration greater than 0 days
+  static async getMembershipTier() {
+    const sqlQuery = `
+    SELECT * FROM TierCriteria
+    WHERE TierDuration > 0
+    `;
+    const [rows] = await pool.query(sqlQuery);
+    return rows.map(
+      (row) =>
+        new Tier(
+            row.Tier,
+            row.MinPurchases,
+            row.TierDuration,
+            row.TierDiscount,
+            row.Special
+        )
+    );
+  }
   static async getAccountTier(accountID) {
     const sqlQuery = `
       SELECT p.Tier, tc.MinPurchases, tc.TierDuration, tc.TierDiscount, tc.Special

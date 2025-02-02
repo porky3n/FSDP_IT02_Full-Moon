@@ -74,7 +74,7 @@
                 });
 
                 addNextButton(scheduleSection);
-                // highlightItems();
+                highlightItems();
             } catch (error) {
                 console.error("Error fetching schedules:", error);
             }
@@ -132,6 +132,7 @@
         
             // Function to generate each profile card's HTML structure
             function generateProfileHTML(profile, profileTitle, email, profileType) {
+                console.log("profile type:", profileType);
                 return `
                     <div class="card mb-3 profile-item" data-profile-id="${profile.ProfileID}" data-profile-type="${profileType}">
                         <div class="card-body">
@@ -191,12 +192,13 @@
             `).join('');
         }
 
+        // Updated highlightItems function
         function highlightItems() {
             const scheduleItems = document.querySelectorAll('.schedule-item');
             const profileItems = document.querySelectorAll('.profile-item');
             let selectedSchedule = false;
             let selectedProfile = false;
-        
+
             // Highlight selected schedule item
             scheduleItems.forEach(item => {
                 item.addEventListener('click', function() {
@@ -204,13 +206,25 @@
                     this.classList.add('selected');
                     this.querySelector('input[type="radio"]').checked = true;
                     selectedSchedule = true;
+                    selectedProfile = false; // Reset profile selection when schedule changes
                     toggleNextButton(selectedSchedule, selectedProfile);
+
+                    // Unhighlight profile selection
+                    profileItems.forEach(i => {
+                        i.classList.remove('selected');
+                        i.querySelector('input[type="radio"]').checked = false;
+                    });
+
+                    // Call disableAttendedProfiles when schedule changes
+                    disableAttendedProfiles(this);
                 });
             });
-        
+
             // Highlight selected profile item
             profileItems.forEach(item => {
                 item.addEventListener('click', function() {
+                    if (item.classList.contains("disabled-profile")) return; // Prevent disabled profiles from being selected
+
                     profileItems.forEach(i => i.classList.remove('selected'));
                     this.classList.add('selected');
                     this.querySelector('input[type="radio"]').checked = true;
@@ -219,20 +233,63 @@
                 });
             });
         }
+
+        // function highlightItems() {
+        //     const scheduleItems = document.querySelectorAll('.schedule-item');
+        //     const profileItems = document.querySelectorAll('.profile-item');
+        //     let selectedSchedule = false;
+        //     let selectedProfile = false;
+        
+        //     // Highlight selected schedule item
+        //     scheduleItems.forEach(item => {
+        //         item.addEventListener('click', function() {
+        //             scheduleItems.forEach(i => i.classList.remove('selected'));
+        //             this.classList.add('selected');
+        //             this.querySelector('input[type="radio"]').checked = true;
+        //             selectedSchedule = true;
+        //             toggleNextButton(selectedSchedule, selectedProfile);
+
+        //             // Call disableAttendedProfiles when schedule changes
+        //             disableAttendedProfiles(this);
+        //         });
+        //     });
+        
+        //     // Highlight selected profile item
+        //     profileItems.forEach(item => {
+        //         item.addEventListener('click', function() {
+        //             profileItems.forEach(i => i.classList.remove('selected'));
+        //             this.classList.add('selected');
+        //             this.querySelector('input[type="radio"]').checked = true;
+        //             selectedProfile = true;
+        //             toggleNextButton(selectedSchedule, selectedProfile);
+        //         });
+        //     });
+        // }
             
 
+        // Ensure the Next button only toggles when both schedule and profile are selected
         function toggleNextButton(scheduleSelected, profileSelected) {
-            const nextButton = document.querySelector(".next-button");
-            nextButton.disabled = !(scheduleSelected && profileSelected);
+            const nextButton = document.querySelector("#next-button");
+            if (scheduleSelected && profileSelected) {
+                nextButton.removeAttribute("disabled");
+            } else {
+                nextButton.setAttribute("disabled", "true");
+            }
         }
+
+        // function toggleNextButton(scheduleSelected, profileSelected) {
+        //     const nextButton = document.querySelector(".next-button");
+        //     nextButton.disabled = !(scheduleSelected && profileSelected);
+        // }
 
         function addNextButton(container) {
             const nextButton = document.createElement("button");
             nextButton.classList.add("btn", "btn-primary", "mt-4", "next-button");
+            nextButton.id = "next-button"; // Set the button ID here
             nextButton.textContent = "Next";
             nextButton.disabled = true;
         
-            nextButton.addEventListener("click", function() {
+            nextButton.addEventListener("click", async function () {
                 const selectedSchedule = document.querySelector('input[name="schedule"]:checked').parentElement;
                 const selectedProfile = document.querySelector('input[name="profile-selection"]:checked').closest('.profile-item');
         
@@ -250,16 +307,248 @@
                     childId: profileType === "child" ? profileId : null,
                 };
         
+                // Proceed to payment if the user has not attended before
                 sessionStorage.setItem("selectedScheduleDetails", JSON.stringify(scheduleDetails));
                 window.location.href = "new-payment.html";
             });
         
             container.appendChild(nextButton);
         }
+        
 
         const programmeId = getProgrammeIdFromUrl();
         if (programmeId) {
             getProgrammeSchedules(programmeId);
             loadProfiles();
         }
+
+        async function disableAttendedProfiles(selectedSchedule) {
+            if (!selectedSchedule) return;
+        
+            const programmeId = selectedSchedule.getAttribute("data-programmeId");
+            const instanceId = selectedSchedule.getAttribute("data-instanceId");
+            const programmeClassId = selectedSchedule.getAttribute("data-programmeClassId");
+        
+            console.log("Selected Schedule:", programmeId, instanceId, programmeClassId);
+        
+            try {
+                const response = await fetch("/api/slot/getSlots", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ programmeId, instanceId, programmeClassId })
+                });
+        
+                const data = await response.json();
+                console.log("Fetched Slots:", data);
+        
+                // If no slots are found, reset all disabled profiles
+                if (!response.ok || !data.slots || data.slots.length === 0) {
+                    console.warn("No slots found. Resetting all disabled profiles.");
+                    resetDisabledProfiles();
+                    return; // Stop execution since there's no need to disable any profiles
+                }
+        
+                const attendedParents = new Set();
+                const attendedChildren = new Set();
+        
+                data.slots.forEach(slot => {
+                    if (slot.parentID) attendedParents.add(slot.parentID);
+                    if (slot.childID) attendedChildren.add(slot.childID);
+                });
+        
+                // Reset all profile items before applying disable
+                resetDisabledProfiles();
+        
+                document.querySelectorAll(".profile-item").forEach(profileItem => {
+                    const profileId = parseInt(profileItem.getAttribute("data-profile-id"));
+                    const profileType = profileItem.getAttribute("data-profile-type");
+                    const radioInput = profileItem.querySelector("input[type='radio']");
+        
+                    if (
+                        (profileType === "parent" && attendedParents.has(profileId)) ||
+                        (profileType === "child" && attendedChildren.has(profileId))
+                    ) {
+                        profileItem.classList.add("disabled-profile");
+                        profileItem.setAttribute("title", "This profile is already booked for this schedule.");
+                        radioInput.disabled = true;
+                    }
+                });
+            } catch (error) {
+                console.error("Error fetching slots:", error);
+            }
+        }
+
+        // Function to reset disabled profiles when a new schedule is selected
+        function resetDisabledProfiles() {
+            document.querySelectorAll(".profile-item").forEach(profileItem => {
+                profileItem.classList.remove("disabled-profile");
+                profileItem.removeAttribute("title"); // Remove tooltip
+                profileItem.querySelector("input[type='radio']").disabled = false;
+            });
+        }
+
+        // async function disableAttendedProfiles(selectedSchedule) {
+        //     if (!selectedSchedule) return;
+        
+        //     const programmeId = selectedSchedule.getAttribute("data-programmeId");
+        //     const instanceId = selectedSchedule.getAttribute("data-instanceId");
+        //     const programmeClassId = selectedSchedule.getAttribute("data-programmeClassId");
+        
+        //     console.log("Selected Schedule:", programmeId, instanceId, programmeClassId);
+        
+        //     try {
+        //         const response = await fetch("/api/slot/getSlots", {
+        //             method: "POST",
+        //             headers: { "Content-Type": "application/json" },
+        //             body: JSON.stringify({ programmeId, instanceId, programmeClassId })
+        //         });
+        
+        //         const data = await response.json();
+        //         console.log("Fetched Slots:", data);
+        
+        //         if (response.ok) {
+        //             const attendedParents = new Set();
+        //             const attendedChildren = new Set();
+        
+        //             data.slots.forEach(slot => {
+        //                 if (slot.parentID) attendedParents.add(slot.parentID);
+        //                 if (slot.childID) attendedChildren.add(slot.childID);
+        //             });
+        
+        //             // Reset all profile items before applying disable
+        //             document.querySelectorAll(".profile-item").forEach(profileItem => {
+        //                 const profileId = parseInt(profileItem.getAttribute("data-profile-id"));
+        //                 const profileType = profileItem.getAttribute("data-profile-type");
+        //                 const radioInput = profileItem.querySelector("input[type='radio']");
+        
+        //                 profileItem.classList.remove("disabled-profile");
+        //                 profileItem.removeAttribute("title"); // Remove tooltip if not disabled
+        //                 radioInput.disabled = false;
+        
+        //                 if (
+        //                     (profileType === "parent" && attendedParents.has(profileId)) ||
+        //                     (profileType === "child" && attendedChildren.has(profileId))
+        //                 ) {
+        //                     profileItem.classList.add("disabled-profile");
+        //                     profileItem.setAttribute("title", "This profile is already booked for this schedule.");
+        //                     radioInput.disabled = true;
+        //                 }
+        //             });
+        //         }
+        //     } catch (error) {
+        //         console.error("Error fetching slots:", error);
+        //     }
+        // }
+        
+        
+
+        // async function disableAttendedProfiles(selectedSchedule) {
+        //     if (!selectedSchedule) return;
+        
+        //     // Retrieve data attributes
+        //     const programmeId = selectedSchedule.getAttribute("data-programmeId");
+        //     const instanceId = selectedSchedule.getAttribute("data-instanceId");
+        //     const programmeClassId = selectedSchedule.getAttribute("data-programmeClassId");
+        
+        //     console.log("Programme ID:", programmeId, "Instance ID:", instanceId, "Programme Class ID:", programmeClassId);
+        
+        //     try {
+        //         const response = await fetch("/api/slot/getSlots", {
+        //             method: "POST",
+        //             headers: { "Content-Type": "application/json" },
+        //             body: JSON.stringify({
+        //                 programmeId,
+        //                 instanceId,
+        //                 programmeClassId,
+        //                 parentId: null, // Modify this based on actual selection
+        //                 childId: null   // Modify this based on actual selection
+        //             }),
+        //         });
+        
+        //         const data = await response.json();
+        //         console.log("Slots Data:", data);
+        
+        //         if (response.ok) {
+        //             // Store attended profile IDs along with their type (parent or child)
+        //             const attendedProfiles = new Set(
+        //                 data.slots.map(slot => JSON.stringify({ id: String(slot.parentID || slot.childID), type: slot.parentID ? "parent" : "child" }))
+        //             );
+        
+        //             console.log("Attended Profiles Set:", attendedProfiles);
+        
+        //             // Iterate through all profile items
+        //             document.querySelectorAll(".profile-item").forEach(profileItem => {
+        //                 const profileId = profileItem.getAttribute("data-profile-id");
+        //                 const profileType = profileItem.getAttribute("data-profile-type");
+        
+        //                 // Ensure profileId is valid before checking
+        //                 if (profileId && profileType) {
+        //                     const profileKey = JSON.stringify({ id: profileId, type: profileType });
+        
+        //                     if (attendedProfiles.has(profileKey)) {
+        //                         profileItem.classList.add("disabled-profile");
+        //                         profileItem.querySelector("input[type='radio']").disabled = true;
+        //                         console.log(`Disabled profile: ${profileId} (${profileType})`);
+        //                     } else {
+        //                         profileItem.classList.remove("disabled-profile");
+        //                         profileItem.querySelector("input[type='radio']").disabled = false;
+        //                     }
+        //                 }
+        //             });
+        //         }
+        //     } catch (error) {
+        //         console.error("Error fetching slots:", error);
+        //     }
+        // }
+        
+        
+        // async function disableAttendedProfiles(selectedSchedule) {
+        //     if (!selectedSchedule) return;
+        
+        //     const programmeId = selectedSchedule.getAttribute("data-programmeId");
+        //     const instanceId = selectedSchedule.getAttribute("data-instanceId");
+        //     const programmeClassId = selectedSchedule.getAttribute("data-programmeClassId");
+        
+        //     console.log(programmeId, instanceId, programmeClassId);
+
+        //     try {
+        //         // Change method to POST and send JSON data
+        //         const response = await fetch("/api/slot/getSlots", {
+        //             method: "POST",
+        //             headers: {
+        //                 "Content-Type": "application/json",
+        //             },
+        //             body: JSON.stringify({
+        //                 programmeId,
+        //                 instanceId,
+        //                 programmeClassId,
+        //                 parentId: null, // Modify this based on actual selection
+        //                 childId: null   // Modify this based on actual selection
+        //             }),
+        //         });
+        
+        //         const data = await response.json();
+        //         console.log(data);
+
+        //         if (response.ok) {
+        //             const attendedProfileIds = new Set(data.slots.map(slot => slot.ParentID || slot.ChildID));
+        
+        //             document.querySelectorAll(".profile-item").forEach(profileItem => {
+        //                 const profileId = profileItem.getAttribute("data-profile-id");
+        //                 const radioInput = profileItem.querySelector("input[type='radio']");
+        
+        //                 if (attendedProfileIds.has(profileId)) {
+        //                     profileItem.classList.add("disabled-profile");
+        //                     radioInput.disabled = true;
+        //                 } else {
+        //                     profileItem.classList.remove("disabled-profile");
+        //                     radioInput.disabled = false;
+        //                 }
+        //             });
+        //         }
+        //     } catch (error) {
+        //         console.error("Error fetching slots:", error);
+        //     }
+        // }
+        
     });
