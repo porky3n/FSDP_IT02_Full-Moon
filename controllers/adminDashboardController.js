@@ -5,8 +5,7 @@ const adminController = {
     try {
       const metrics = {};
       // Add 1 to convert from JS month (0-11) to SQL month (1-12)
-      const selectedMonth =
-        (parseInt(req.query.month) || new Date().getMonth()) + 1;
+      const selectedMonth = req.query.month ? parseInt(req.query.month) + 1 : new Date().getMonth() + 1;
       const year = new Date().getFullYear();
 
       const totalRevenueQuery = `
@@ -99,13 +98,13 @@ const adminController = {
         totalRevenue,
         membershipCounts,
       ] = await Promise.all([
-        pool.query(topSpendersQuery),
-        pool.query(activeParticipantsQuery),
-        pool.query(popularProgrammesQuery),
-        pool.query(monthlyRevenueQuery, [selectedMonth, year]),
-        pool.query(ratingsQuery),
-        pool.query(totalRevenueQuery),
-        pool.query(membershipCountQuery),
+        await pool.query(topSpendersQuery),
+        await pool.query(activeParticipantsQuery),
+        await pool.query(popularProgrammesQuery),
+        await pool.query(monthlyRevenueQuery, [selectedMonth, year]),
+        await pool.query(ratingsQuery),
+        await pool.query(totalRevenueQuery),
+        await pool.query(membershipCountQuery),
       ]);
 
       metrics.topSpenders = topSpenders[0];
@@ -115,7 +114,7 @@ const adminController = {
       metrics.ratings = ratings[0];
       metrics.totalRevenue = totalRevenue[0];
       metrics.membershipCounts = membershipCounts[0];
-
+      console.log('Monthly Revenue:', monthlyRevenue); // Log the monthly revenue data
       res.json(metrics);
     } catch (error) {
       console.error("Error fetching dashboard metrics:", error);

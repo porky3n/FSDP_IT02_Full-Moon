@@ -58,6 +58,7 @@ function renderDashboard(metrics, selectedMonth) {
     0
   );
 
+  console.log("Monthly Revenue Data:", metrics.monthlyRevenue); // Debug log
   mainContent.innerHTML = `
         <div class="container py-4">
             <!-- Dashboard Header -->
