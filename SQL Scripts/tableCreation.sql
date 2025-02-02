@@ -220,6 +220,7 @@ CREATE TABLE BusinessEnquiries (
     AdminNotes TEXT NULL                          -- Internal notes for admin reference (optional)
 );
 
+
 CREATE TABLE TemporaryTelegramIDs (
     id SERIAL PRIMARY KEY,
     token VARCHAR(255) NOT NULL UNIQUE, -- Unique token shared with the user
